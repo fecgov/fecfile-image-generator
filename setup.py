@@ -14,7 +14,7 @@ setup(
     include_package_data=True,
 
     # Details
-    url="http://127.0.0.1/printpdf/",
+    url="http://dev-efile-api.efdev.fec.gov/printpdf",
 
     #
     # license="LICENSE.txt",

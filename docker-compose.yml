@@ -1,0 +1,8 @@
+version: '3'
+services:
+  validate:
+    build: .
+    volumes:
+      - ./:/opt/imagegenerator
+    ports:
+      - "8080:8080"

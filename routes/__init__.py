@@ -46,7 +46,7 @@ def handle_general_exception(error):
     return flask.jsonify(**envelope), 500
 
 
-APP.register_blueprint(controllers.app, url_prefix='/printpdf/v1')
+APP.register_blueprint(controllers.app, url_prefix='/v1')
 
 APP.config.from_object("config")
 # APP.config.from_pyfile('config.py', silent=True)

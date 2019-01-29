@@ -22,4 +22,5 @@ botocore==1.12.40
 Flask-API==1.1
 PyPDF2==1.26.0
 
-
+gunicorn==19.9.0
+flake8==3.6.0
