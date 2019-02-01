@@ -14,7 +14,7 @@ def print_f99():
     This function is being invoked internally from controllers
     HTTP request needs to have form_type, file, and attachment_file
     form_type : F99
-    file: please refer to below sample JSON
+    json_file: please refer to below sample JSON
     attachment_file: It is a PDF file that will be merged to the generated PDF file.
     sample:
     {
@@ -49,16 +49,16 @@ def print_f99():
     "success": "true"
     }
     """
-    if 'file' in request.files:
-        file = request.files.get('file')
-        file_md5 = utils.md5_for_file(file)
-        file.stream.seek(0)
+    if 'json_file' in request.files:
+        json_file = request.files.get('json_file')
+        json_file_md5 = utils.md5_for_file(json_file)
+        json_file.stream.seek(0)
 
         infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('F99')
-        file.save(current_app.config['REQUEST_FILE_LOCATION'].format(file_md5))
-        outfile = current_app.config['OUTPUT_FILE_LOCATION'].format(file_md5)
+        json_file.save(current_app.config['REQUEST_FILE_LOCATION'].format(json_file_md5))
+        outfile = current_app.config['OUTPUT_FILE_LOCATION'].format(json_file_md5)
 
-        json_data = json.load(open(current_app.config['REQUEST_FILE_LOCATION'].format(file_md5)))
+        json_data = json.load(open(current_app.config['REQUEST_FILE_LOCATION'].format(json_file_md5)))
 
         # json_data['FILER_FEC_ID_NUMBER'] = json_data['FILER_FEC_ID_NUMBER'][1:]
 
@@ -103,15 +103,17 @@ def print_f99():
 
         # Add the F99 attachment
         if 'attachment_file' in request.files:
-            # attachment_file = "templates/forms/F99_Attachment.pdf"
+            # reading Attachment title file
+            attachment_title_file = current_app.config['FORM_TEMPLATES_LOCATION'].format('Attachment_Title')
+            attachment_title_stream = open(attachment_title_file, "rb")
+            attachment_title_reader = PdfFileReader(attachment_title_stream, strict=True)
             attachment_stream = request.files.get('attachment_file')
-
-            # attachment_stream = open(attachment_file, "rb")
-
             attachment_reader = PdfFileReader(attachment_stream, strict=True)
 
             for attachment_page_num in range(attachment_reader.numPages):
                 attachment_page_obj = attachment_reader.getPage(attachment_page_num)
+                if attachment_page_num == 0:
+                    attachment_page_obj.mergePage(attachment_title_reader.getPage(0))
 
                 pdf_writer.addPage(attachment_page_obj)
 
@@ -123,18 +125,14 @@ def print_f99():
 
         output_stream.close()
 
-        # s3 = boto3.resource('s3')
-        # s3.Bucket(Config.AWS_STORAGE_BUCKET_NAME).upload_file(outfile, 'media/{}.pdf'.format(json_data['IMGNO']))
-
         # push output file to AWS
         s3 = boto3.client('s3')
         s3.upload_file(outfile, current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                       current_app.config['OUTPUT_FILE_LOCATION'].format(file_md5))
-        # s3.Bucket(current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME']).upload_file(outfile, 'output/{}.pdf'.format())
+                       current_app.config['OUTPUT_FILE_LOCATION'].format(json_file_md5))
 
         response = {
-            'file_name': '{}.pdf'.format(file_md5),
-            'file_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(file_md5)
+            'file_name': '{}.pdf'.format(json_file_md5),
+            'file_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5)
         }
 
         if flask.request.method == "POST":

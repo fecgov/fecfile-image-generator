@@ -18,7 +18,7 @@ def print_pdf():
     This function is being invoked from FECFile and Vendors
     HTTP request needs to have form_type, file, and attachment_file
     form_type : F99
-    file: please refer to below sample JSON
+    json_file: please refer to below sample JSON
     :return: return JSON response
     sample:
     {
