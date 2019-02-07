@@ -128,11 +128,12 @@ def print_f99():
         # push output file to AWS
         s3 = boto3.client('s3')
         s3.upload_file(outfile, current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                       current_app.config['OUTPUT_FILE_LOCATION'].format(json_file_md5))
+                       current_app.config['OUTPUT_FILE_LOCATION'].format(json_file_md5),
+                       ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
 
         response = {
-            'file_name': '{}.pdf'.format(json_file_md5),
-            'file_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5)
+            # 'file_name': '{}.pdf'.format(json_file_md5),
+            'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5)
         }
 
         if flask.request.method == "POST":
@@ -149,3 +150,4 @@ def print_f99():
             )
             status_code = status.HTTP_400_BAD_REQUEST
             return flask.jsonify(**envelope), status_code
+

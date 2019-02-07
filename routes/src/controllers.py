@@ -24,8 +24,7 @@ def print_pdf():
     {
     "message": "",
     "results": {
-        "file_name": "bd78435a70a70d656145dae89e0e22bb.pdf",
-        "file_url": "https://fecfile-dev-components.s3.amazonaws.com/output/bd78435a70a70d656145dae89e0e22bb.pdf"
+        "pdf_url": "https://fecfile-dev-components.s3.amazonaws.com/output/bd78435a70a70d656145dae89e0e22bb.pdf"
     },
     "success": "true"
     }
