@@ -1,5 +1,9 @@
 import flask
 import boto3
+import re
+import os
+import pypdftk
+import shutil
 
 from flask import json
 from flask import request, current_app
@@ -8,6 +12,55 @@ from routes.src import tmoflask, utils, common, form
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
 from PyPDF2.generic import BooleanObject, NameObject, IndirectObject
 
+
+def split_f99_text_pages(json_data):
+    f99_page_data = {}
+    f99_additional_page_data = []
+    f99_text = json_data['MISCELLANEOUS_TEXT']
+    lines_count = 0
+    main_page_data = ''
+    additional_pages = 0
+    additional_page_data = ''
+    match_count = 0
+    for line in f99_text.splitlines(True):
+        lines_count += 1
+        if len(line) > 117:
+            lines_count += 1
+            (line, match_count) = re.subn("(.{1,117})( +|$)\n?|(.{117})", "\\1^\n", line, match_count, re.DOTALL)
+            lines_count += match_count
+            if lines_count > 17:
+                temp_lines_count = 0
+                for temp_line in line.splitlines(True):
+                    temp_lines_count += 1
+                    if temp_lines_count <= 17:
+                        temp_line = temp_line.replace('^\n', ' ')
+                        main_page_data = main_page_data + temp_line
+                    else:
+                        additional_page_data = additional_page_data + temp_line
+        if lines_count <= 17:
+            line = line.replace('^\n', ' ')
+            main_page_data = main_page_data + line
+        else:
+            additional_page_data = additional_page_data + line
+    f99_page_data["main_page"] = main_page_data
+    if lines_count > 17:
+        additional_pages_reminder = (lines_count - 17) % 49
+        if additional_pages_reminder != 0:
+            additional_pages = ((lines_count - 17) // 49) + 1
+    additional_lines = additional_page_data.splitlines(True)
+
+    for additional_page_number in range(additional_pages):
+        start = (49 * (additional_page_number))
+        end = (49 * (additional_page_number + 1)) - 1
+        additional_lines_str = "".join(map(str, additional_lines[start:end]))
+        additional_lines_str = additional_lines_str.replace('^\n', ' ')
+        additional_page_dict = {additional_page_number: additional_lines_str}
+        f99_additional_page_data.append(additional_page_dict)
+
+    f99_page_data["additional_pages"] = f99_additional_page_data
+    # convert to json data
+    f99_page_data_json = json.dumps(f99_page_data)
+    return f99_page_data_json
 
 def print_f99():
     """
@@ -151,3 +204,78 @@ def print_f99():
             status_code = status.HTTP_400_BAD_REQUEST
             return flask.jsonify(**envelope), status_code
 
+def print_f99_pdftk():
+    if 'json_file' in request.files:
+        json_file = request.files.get('json_file')
+        json_file_md5 = utils.md5_for_file(json_file)
+        json_file.stream.seek(0)
+        os.makedirs(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5), exist_ok=True)
+        infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('F99')
+        json_file.save(current_app.config['REQUEST_FILE_LOCATION'].format(json_file_md5))
+        outfile = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+json_file_md5+'_temp.pdf'
+        json_data = json.load(open(current_app.config['REQUEST_FILE_LOCATION'].format(json_file_md5)))
+        f99_pages_text_json = json.loads(split_f99_text_pages(json_data))
+        json_data['MISCELLANEOUS_TEXT'] = f99_pages_text_json['main_page']
+        pypdftk.fill_form(infile, json_data, outfile)
+        additional_page_counter = 0
+
+        if len(f99_pages_text_json['additional_pages']) > 0:
+            continuation_file = current_app.config['FORM_TEMPLATES_LOCATION'].format('F99_CONT')
+            os.makedirs(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) + 'merge', exist_ok=True)
+            for additional_page in f99_pages_text_json['additional_pages']:
+                continuation_outfile = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) + 'merge/' + str(additional_page_counter)+'.pdf'
+                pypdftk.fill_form(continuation_file, {"CONTINOUS_TEXT": additional_page[str(additional_page_counter)]}, continuation_outfile)
+                pypdftk.concat([outfile, continuation_outfile], current_app.config['OUTPUT_DIR_LOCATION'].format(
+                    json_file_md5) + json_file_md5 + '_all_pages_temp.pdf')
+
+                shutil.copy(current_app.config['OUTPUT_DIR_LOCATION'].format(
+                    json_file_md5) + json_file_md5 + '_all_pages_temp.pdf', outfile)
+
+                additional_page_counter += 1
+                os.remove(current_app.config['OUTPUT_DIR_LOCATION'].format(
+                    json_file_md5) + json_file_md5 + '_all_pages_temp.pdf')
+
+        # Add the F99 attachment
+        if 'attachment_file' in request.files:
+            # reading Attachment title file
+            attachment_title_file = current_app.config['FORM_TEMPLATES_LOCATION'].format('Attachment_Title')
+            attachment_file = request.files.get('attachment_file')
+            attachment_file.save(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'attachment_temp.pdf')
+
+            pypdftk.stamp(attachment_title_file, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                          'attachment_temp.pdf', current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                          '/attachment.pdf')
+            os.remove(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'/attachment_temp.pdf')
+
+            pypdftk.concat([outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                            '/attachment.pdf'], current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                           'all_pages.pdf')
+        else:
+            shutil.copy(outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                                'all_pages.pdf')
+
+        # push output file to AWS
+        s3 = boto3.client('s3')
+        s3.upload_file(outfile, current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+                       current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'all_pages.pdf',
+                       ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
+        response = {
+            # 'file_name': '{}.pdf'.format(json_file_md5),
+            'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5)+'all_pages.pdf'
+        }
+
+        if flask.request.method == "POST":
+            envelope = common.get_return_envelope(
+                data=response
+            )
+            status_code = status.HTTP_201_CREATED
+            return flask.jsonify(**envelope), status_code
+
+    else:
+
+        if flask.request.method == "POST":
+            envelope = common.get_return_envelope(
+                'false', 'JSON file is missing from your request'
+            )
+            status_code = status.HTTP_400_BAD_REQUEST
+            return flask.jsonify(**envelope), status_code

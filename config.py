@@ -4,15 +4,21 @@ Flask settings for fecfile-ImageGenerator project.
 """
 
 import os
+import tempfile
+
+# Set the temporary directory
+tempfile.tempdir = 'temp'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = os.environ.get('DEBUG', True)
 ALLOWED_HOSTS = ['*']
 
 FORM_TEMPLATES_LOCATION = 'templates/forms/{}.pdf'
 REQUEST_FILE_LOCATION = 'temp/json/{}.json'
-OUTPUT_FILE_LOCATION = 'output/pdf/{}.pdf'
+# OUTPUT_FILE_LOCATION = 'output/pdf/{}.pdf'
+OUTPUT_DIR_LOCATION = 'output/pdf/{}/'
 # ATTACHMENT_FILE_LOCATION = 'temp/{}.pdf'
 
 # AWS settings
@@ -38,7 +44,7 @@ AWS_S3_FECFILE_COMPONENTS_DOMAIN = '%s.s3.amazonaws.com' % AWS_FECFILE_COMPONENT
 # OUTPUT_FILE_FOLDER = 'output'
 
 # TEMP_FILES_URL = "https://%s/%s/{}" % (AWS_S3_FECFILE_COMPONENTS_DOMAIN, TEMP_FILES_LOCATION)
-PRINT_OUTPUT_FILE_URL = "https://%s/%s" % (AWS_S3_FECFILE_COMPONENTS_DOMAIN, OUTPUT_FILE_LOCATION)
+PRINT_OUTPUT_FILE_URL = "https://%s/%s" % (AWS_S3_FECFILE_COMPONENTS_DOMAIN, OUTPUT_DIR_LOCATION)
 
 
 
