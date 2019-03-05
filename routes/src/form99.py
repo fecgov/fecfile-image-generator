@@ -244,11 +244,14 @@ def print_f99_pdftk():
 
             pypdftk.stamp(attachment_title_file, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
                           'attachment_temp.pdf', current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                          '/attachment.pdf')
-            os.remove(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'/attachment_temp.pdf')
+                          'attachment.pdf')
+            os.remove(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'attachment_temp.pdf')
 
             pypdftk.concat([outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                            '/attachment.pdf'], current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                            'attachment.pdf'], current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                          'attachment.pdf')
+            pypdftk.concat([outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                            'attachment.pdf'], current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
                            'all_pages.pdf')
         else:
             shutil.copy(outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
