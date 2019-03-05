@@ -256,7 +256,8 @@ def print_f99_pdftk():
 
         # push output file to AWS
         s3 = boto3.client('s3')
-        s3.upload_file(outfile, current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+        s3.upload_file(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                        'all_pages.pdf', current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
                        current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'all_pages.pdf',
                        ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
         response = {
