@@ -249,9 +249,6 @@ def print_f99_pdftk():
 
             pypdftk.concat([outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
                             'attachment.pdf'], current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                          'attachment.pdf')
-            pypdftk.concat([outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                            'attachment.pdf'], current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
                            'all_pages.pdf')
         else:
             shutil.copy(outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
