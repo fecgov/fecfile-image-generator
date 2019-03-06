@@ -240,10 +240,10 @@ def print_f99_pdftk():
             # reading Attachment title file
             attachment_title_file = current_app.config['FORM_TEMPLATES_LOCATION'].format('Attachment_Title')
             attachment_file = request.files.get('attachment_file')
-            attachment_file.save(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'attachment_temp.pdf')
+            attachment_file.save(os.path.join(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'attachment_temp.pdf'))
 
-            pypdftk.stamp(attachment_title_file, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                          'attachment_temp.pdf', current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+            pypdftk.stamp(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
+                          'attachment_temp.pdf', attachment_title_file, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
                           'attachment.pdf')
             os.remove(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'attachment_temp.pdf')
 
