@@ -204,62 +204,92 @@ def print_f99():
             status_code = status.HTTP_400_BAD_REQUEST
             return flask.jsonify(**envelope), status_code
 
+
+def directory_files(directory):
+    files_list = []
+    file_names = sorted(os.listdir(directory))
+    for file_name in file_names:
+        files_list.append(directory+file_name)
+    return files_list
+
+
 def print_f99_pdftk():
+    # check if json_file is in the request
     if 'json_file' in request.files:
+        total_no_of_pages = 1
+        page_no = 1
         json_file = request.files.get('json_file')
+        # generate md5 for json file
         json_file_md5 = utils.md5_for_file(json_file)
         json_file.stream.seek(0)
-        os.makedirs(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5), exist_ok=True)
+        md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
+        os.makedirs(md5_directory, exist_ok=True)
         infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('F99')
+        # save json file as md5 file name
         json_file.save(current_app.config['REQUEST_FILE_LOCATION'].format(json_file_md5))
-        outfile = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+json_file_md5+'_temp.pdf'
+        outfile = md5_directory+json_file_md5+'_temp.pdf'
         json_data = json.load(open(current_app.config['REQUEST_FILE_LOCATION'].format(json_file_md5)))
+        # setting timestamp and imgno to empty as these needs to show up after submission
+        json_data['FILING_TIMESTAMP'] = ''
+        json_data['IMGNO'] = ''
         f99_pages_text_json = json.loads(split_f99_text_pages(json_data))
         json_data['MISCELLANEOUS_TEXT'] = f99_pages_text_json['main_page']
-        pypdftk.fill_form(infile, json_data, outfile)
-        additional_page_counter = 0
-
-        if len(f99_pages_text_json['additional_pages']) > 0:
-            continuation_file = current_app.config['FORM_TEMPLATES_LOCATION'].format('F99_CONT')
-            os.makedirs(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) + 'merge', exist_ok=True)
-            for additional_page in f99_pages_text_json['additional_pages']:
-                continuation_outfile = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) + 'merge/' + str(additional_page_counter)+'.pdf'
-                pypdftk.fill_form(continuation_file, {"CONTINOUS_TEXT": additional_page[str(additional_page_counter)]}, continuation_outfile)
-                pypdftk.concat([outfile, continuation_outfile], current_app.config['OUTPUT_DIR_LOCATION'].format(
-                    json_file_md5) + json_file_md5 + '_all_pages_temp.pdf')
-
-                shutil.copy(current_app.config['OUTPUT_DIR_LOCATION'].format(
-                    json_file_md5) + json_file_md5 + '_all_pages_temp.pdf', outfile)
-
-                additional_page_counter += 1
-                os.remove(current_app.config['OUTPUT_DIR_LOCATION'].format(
-                    json_file_md5) + json_file_md5 + '_all_pages_temp.pdf')
-
-        # Add the F99 attachment
+        total_no_of_pages += len(f99_pages_text_json['additional_pages'])
+        # checking if attachment_file exist
         if 'attachment_file' in request.files:
             # reading Attachment title file
             attachment_title_file = current_app.config['FORM_TEMPLATES_LOCATION'].format('Attachment_Title')
             attachment_file = request.files.get('attachment_file')
-            attachment_file.save(os.path.join(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'attachment_temp.pdf'))
+            attachment_file.save(os.path.join(md5_directory + 'attachment_temp.pdf'))
+            os.makedirs(md5_directory + 'attachment', exist_ok=True)
+            os.makedirs(md5_directory + 'final_attachment', exist_ok=True)
+            pypdftk.split(md5_directory + 'attachment_temp.pdf', md5_directory+'attachment')
+            os.remove(md5_directory + 'attachment/doc_data.txt')
+            attachment_no_of_pages = pypdftk.get_num_pages(os.path.join(md5_directory + 'attachment_temp.pdf'))
+            attachment_page_no = total_no_of_pages
+            total_no_of_pages += attachment_no_of_pages
 
-            pypdftk.stamp(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                          'attachment_temp.pdf', attachment_title_file, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                          'attachment.pdf')
-            os.remove(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'attachment_temp.pdf')
+            # we are doing this to assign page numbers to attachment file
+            for filename in os.listdir(md5_directory+'attachment'):
+                attachment_page_no += 1
+                pypdftk.fill_form(attachment_title_file, {"PAGESTR": "PAGE " + str(attachment_page_no) + " / " + str(total_no_of_pages)},
+                                md5_directory +'attachment/attachment_page_'+str(attachment_page_no)+'.pdf')
+                pypdftk.stamp(md5_directory+'attachment/'+filename, md5_directory +
+                              'attachment/attachment_page_'+str(attachment_page_no)+'.pdf', md5_directory +
+                              'final_attachment/attachment_'+str(attachment_page_no)+'.pdf')
+            pypdftk.concat(directory_files(md5_directory +'final_attachment/'), md5_directory + 'attachment.pdf')
+            os.remove(md5_directory + 'attachment_temp.pdf')
+            shutil.rmtree(md5_directory + 'attachment')
+            shutil.rmtree(md5_directory + 'final_attachment')
 
-            pypdftk.concat([outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                            'attachment.pdf'], current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                           'all_pages.pdf')
+        json_data['PAGESTR'] = "PAGE " + str(page_no) + " / " + str(total_no_of_pages)
+        pypdftk.fill_form(infile, json_data, outfile)
+        additional_page_counter = 0
+        if len(f99_pages_text_json['additional_pages']) > 0:
+            continuation_file = current_app.config['FORM_TEMPLATES_LOCATION'].format('F99_CONT')
+            os.makedirs(md5_directory + 'merge', exist_ok=True)
+            for additional_page in f99_pages_text_json['additional_pages']:
+                page_no += 1
+                continuation_outfile = md5_directory + 'merge/' + str(additional_page_counter)+'.pdf'
+                pypdftk.fill_form(continuation_file, {"PAGESTR": "PAGE "+str(page_no)+" / " + str(total_no_of_pages),
+                                                      "CONTINOUS_TEXT": additional_page[str(additional_page_counter)]}, continuation_outfile)
+                pypdftk.concat([outfile, continuation_outfile], md5_directory + json_file_md5 + '_all_pages_temp.pdf')
+                shutil.copy(md5_directory + json_file_md5 + '_all_pages_temp.pdf', outfile)
+                additional_page_counter += 1
+                os.remove(md5_directory + json_file_md5 + '_all_pages_temp.pdf')
+
+        # Add the F99 attachment
+        if 'attachment_file' in request.files:
+            pypdftk.concat([outfile, md5_directory + 'attachment.pdf'], md5_directory + 'all_pages.pdf')
         else:
-            shutil.copy(outfile, current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                                'all_pages.pdf')
+            shutil.copy(outfile, md5_directory + 'all_pages.pdf')
 
+        os.remove(md5_directory + 'attachment.pdf')
+        os.remove(md5_directory + json_file_md5 +'_temp.pdf')
         # push output file to AWS
         s3 = boto3.client('s3')
-        s3.upload_file(current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5) +
-                        'all_pages.pdf', current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                       current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)+'all_pages.pdf',
-                       ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
+        s3.upload_file(md5_directory + 'all_pages.pdf', current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+                       md5_directory+'all_pages.pdf',ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
         response = {
             # 'file_name': '{}.pdf'.format(json_file_md5),
             'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5)+'all_pages.pdf'
