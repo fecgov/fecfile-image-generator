@@ -281,10 +281,9 @@ def print_f99_pdftk():
         # Add the F99 attachment
         if 'attachment_file' in request.files:
             pypdftk.concat([outfile, md5_directory + 'attachment.pdf'], md5_directory + 'all_pages.pdf')
+            os.remove(md5_directory + 'attachment.pdf')
         else:
             shutil.copy(outfile, md5_directory + 'all_pages.pdf')
-
-        os.remove(md5_directory + 'attachment.pdf')
         os.remove(md5_directory + json_file_md5 +'_temp.pdf')
         # push output file to AWS
         s3 = boto3.client('s3')
