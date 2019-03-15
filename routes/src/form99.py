@@ -25,11 +25,15 @@ def split_f99_text_pages(json_data):
     for line in f99_text.splitlines(True):
         lines_count += 1
         if len(line) > 117:
-            lines_count += 1
-            (line, match_count) = re.subn("(.{1,117})( +|$)\n?|(.{117})", "\\1^\n", line, match_count, re.DOTALL)
+            (line, match_count) = re.subn("(.{1,117})( +|$)\n?|(.{117})", "\\1\\3^\n", line, match_count, re.DOTALL)
             lines_count += match_count
-            if lines_count > 17:
-                temp_lines_count = 0
+        if lines_count <= 17:
+            line = line.replace('^\n', ' ')
+            main_page_data = main_page_data + line
+        else:
+            temp_lines_count = lines_count - match_count
+            if temp_lines_count <= 17:
+
                 for temp_line in line.splitlines(True):
                     temp_lines_count += 1
                     if temp_lines_count <= 17:
@@ -37,11 +41,8 @@ def split_f99_text_pages(json_data):
                         main_page_data = main_page_data + temp_line
                     else:
                         additional_page_data = additional_page_data + temp_line
-        if lines_count <= 17:
-            line = line.replace('^\n', ' ')
-            main_page_data = main_page_data + line
-        else:
-            additional_page_data = additional_page_data + line
+            else:
+                additional_page_data = additional_page_data + line
     f99_page_data["main_page"] = main_page_data
     if lines_count > 17:
         additional_pages_reminder = (lines_count - 17) % 49
@@ -61,6 +62,55 @@ def split_f99_text_pages(json_data):
     # convert to json data
     f99_page_data_json = json.dumps(f99_page_data)
     return f99_page_data_json
+
+# def split_f99_text_pages(json_data):
+#     f99_page_data = {}
+#     f99_additional_page_data = []
+#     f99_text = json_data['MISCELLANEOUS_TEXT']
+#     lines_count = 0
+#     main_page_data = ''
+#     additional_pages = 0
+#     additional_page_data = ''
+#     match_count = 0
+#     for line in f99_text.splitlines(True):
+#         lines_count += 1
+#         if len(line) > 117:
+#             lines_count += 1
+#             (line, match_count) = re.subn("(.{1,117})( +|$)\n?|(.{117})", "\\1^\n", line, match_count, re.DOTALL)
+#             lines_count += match_count
+#             if lines_count > 17:
+#                 temp_lines_count = 0
+#                 for temp_line in line.splitlines(True):
+#                     temp_lines_count += 1
+#                     if temp_lines_count <= 17:
+#                         temp_line = temp_line.replace('^\n', ' ')
+#                         main_page_data = main_page_data + temp_line
+#                     else:
+#                         additional_page_data = additional_page_data + temp_line
+#         if lines_count <= 17:
+#             line = line.replace('^\n', ' ')
+#             main_page_data = main_page_data + line
+#         else:
+#             additional_page_data = additional_page_data + line
+#     f99_page_data["main_page"] = main_page_data
+#     if lines_count > 17:
+#         additional_pages_reminder = (lines_count - 17) % 49
+#         if additional_pages_reminder != 0:
+#             additional_pages = ((lines_count - 17) // 49) + 1
+#     additional_lines = additional_page_data.splitlines(True)
+#
+#     for additional_page_number in range(additional_pages):
+#         start = (49 * (additional_page_number))
+#         end = (49 * (additional_page_number + 1)) - 1
+#         additional_lines_str = "".join(map(str, additional_lines[start:end]))
+#         additional_lines_str = additional_lines_str.replace('^\n', ' ')
+#         additional_page_dict = {additional_page_number: additional_lines_str}
+#         f99_additional_page_data.append(additional_page_dict)
+#
+#     f99_page_data["additional_pages"] = f99_additional_page_data
+#     # convert to json data
+#     f99_page_data_json = json.dumps(f99_page_data)
+#     return f99_page_data_json
 
 def print_f99():
     """
