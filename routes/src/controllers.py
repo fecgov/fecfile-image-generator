@@ -12,7 +12,7 @@ APP = tmoflask.TMOFlask(__name__, instance_relative_config=True)
 CORS(app)
 
 
-@app.route('/print', methods=['POST'])
+@app.route("/print", methods=["POST"])
 def print_pdf():
     """
     This function is being invoked from FECFile and Vendors
@@ -29,6 +29,6 @@ def print_pdf():
     "success": "true"
     }
     """
-    form_type = request.form['form_type']
-    if form_type == 'F99':
+    form_type = request.form["form_type"]
+    if form_type == "F99":
         return form99.print_f99_pdftk()

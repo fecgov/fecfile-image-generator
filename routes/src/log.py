@@ -24,5 +24,3 @@ def log_init():
 
     logger.addHandler(logHandler)
     logger.setLevel(logging.DEBUG)
-
-

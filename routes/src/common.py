@@ -22,11 +22,7 @@ def get_return_envelope(success="true", message="", data=None):
     """
     if not data:
         data = {}
-    envelope = {
-        "success": success,
-        "message": message,
-        "results": data
-    }
+    envelope = {"success": success, "message": message, "results": data}
     return envelope
 
 
@@ -52,8 +48,10 @@ def check_response_and_return_or_log(response, url):
                 else:
                     return True, response_text.get("data")
             except Exception as e:
-                LOGGER.error(u'Exception "%s" raised when trying to read '
-                             u'response.text as json' % str(e))
+                LOGGER.error(
+                    u'Exception "%s" raised when trying to read '
+                    u"response.text as json" % str(e)
+                )
                 # if response.text does not indicate failure assume
                 # success = True
                 return True, response.text
@@ -62,18 +60,16 @@ def check_response_and_return_or_log(response, url):
             return True, None
 
     elif 400 <= response.status_code < 500:
-        LOGGER.error(u'%s Bouncer Service Error: %s for url: %s' % (
-            response.status_code,
-            response.text,
-            url
-        ))
+        LOGGER.error(
+            u"%s Bouncer Service Error: %s for url: %s"
+            % (response.status_code, response.text, url)
+        )
 
     elif 500 <= response.status_code < 600:
-        LOGGER.error(u'%s Server Error: %s for url: %s' % (
-            response.status_code,
-            response.text,
-            url
-        ))
+        LOGGER.error(
+            u"%s Server Error: %s for url: %s"
+            % (response.status_code, response.text, url)
+        )
 
 
 def get_post_data(required_fields, non_required_fields=None):
@@ -93,9 +89,7 @@ def get_post_data(required_fields, non_required_fields=None):
         non_required_fields = []
     data = flask.request.get_json()
     if not data:
-        raise ValueError(
-            "This requires a 'Content-Type: application/json header."
-        )
+        raise ValueError("This requires a 'Content-Type: application/json header.")
 
     missing_fields = []
     fields = {}
@@ -114,12 +108,10 @@ def get_post_data(required_fields, non_required_fields=None):
 
     if len(missing_fields):
         raise ValueError(
-            "Missing required fields '%s' in POST JSON data." %
-            str(missing_fields)
+            "Missing required fields '%s' in POST JSON data." % str(missing_fields)
         )
 
     return fields
-
 
 
 def get_current_datetime():
@@ -128,4 +120,4 @@ def get_current_datetime():
     :return: current date/time
     :rtype: str
     """
-    return datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+    return datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")

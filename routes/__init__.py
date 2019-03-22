@@ -22,10 +22,7 @@ def handle_valueerror_exception(error):
     :return: tuple(return envelope string, http status code int)
     :rtype: tuple(str, int)
     """
-    envelope = common.get_return_envelope(
-        success="false",
-        message=str(error)
-    )
+    envelope = common.get_return_envelope(success="false", message=str(error))
     LOGGER.exception(str(error))
     return flask.jsonify(**envelope), 400
 
@@ -38,16 +35,12 @@ def handle_general_exception(error):
     :return: tuple(return envelope string, http status code int)
     :rtype: tuple(str, int)
     """
-    envelope = common.get_return_envelope(
-        success="false",
-        message=str(error)
-    )
+    envelope = common.get_return_envelope(success="false", message=str(error))
     LOGGER.exception(str(error))
     return flask.jsonify(**envelope), 500
 
 
-APP.register_blueprint(controllers.app, url_prefix='/v1')
+APP.register_blueprint(controllers.app, url_prefix="/v1")
 
 APP.config.from_object("config")
 # APP.config.from_pyfile('config.py', silent=True)
-

@@ -25,19 +25,20 @@ pipeline{
     stage('Deploy Dev'){
       when { branch 'develop' }
       steps {
-        sh("kubectl --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile --namespace=dev set image deployment/fecfile-imagegenerator fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${VERSION}")
+        deployImage("${VERSION}", "dev")
+        code_quality("${BUILD_ID}", "${VERSION}")
       }
     }
     stage('Deploy QA'){
       when { branch 'release' }
       steps {
-        sh("kubectl --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile --namespace=qa set image deployment/fecfile-imagegenerator fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${VERSION}")
+        deployImage("${VERSION}", "qa")
       }
     }
     stage('Deploy UAT'){
       when { branch 'master' }
       steps {
-        sh("kubectl --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile --namespace=uat set image deployment/fecfile-imagegenerator fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${VERSION}")
+        deployImage("${VERSION}", "uat")
       }
     }
   }
@@ -49,4 +50,18 @@ pipeline{
       slackSend color: 'danger', message: env.BRANCH_NAME + ": deployment of fecfile-imagegenerator versoin: ${VERSION} failed!"
     }
   }
+}
+def deployImage(String version, String toEnv) {
+   sh """
+    kubectl \
+    --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile \
+    --namespace=${toEnv} \
+    set image deployment/fecfile-datareceiver \
+    fecfile-datareceiver=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-datareceiver:${version}
+  """
+}
+
+def code_quality(String id, String hash) {
+    sh(""" sh successful_test.sh "${id}" ${hash} """)
+    junit '**/reports/*.xml'
 }

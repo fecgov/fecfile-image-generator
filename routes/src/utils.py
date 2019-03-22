@@ -9,5 +9,3 @@ def md5_for_file(f, block_size=4096):
             break
         md5.update(data)
     return md5.hexdigest()
-
-
