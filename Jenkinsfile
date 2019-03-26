@@ -56,8 +56,8 @@ def deployImage(String version, String toEnv) {
     kubectl \
     --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile \
     --namespace=${toEnv} \
-    set image deployment/fecfile-datareceiver \
-    fecfile-datareceiver=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-datareceiver:${version}
+    set image deployment/fecfile-imagegenerator \
+    fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${version}
   """
 }
 
