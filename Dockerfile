@@ -1,4 +1,5 @@
-FROM debian:stretch AS base
+
+FROM debian:stretch
 
 ENV PATH /usr/local/bin:$PATH
 
@@ -72,7 +73,7 @@ RUN set -ex; \
  \) -exec rm -rf '{}' +; \
 rm -f get-pip.py
 
-FROM base
+
 RUN mkdir /opt/imagegenerator
 WORKDIR /opt/imagegenerator
 ADD . /opt/imagegenerator
