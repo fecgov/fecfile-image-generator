@@ -7,13 +7,17 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends libffi-dev \
     build-essential checkinstall libreadline-gplv2-dev \
     libncursesw5-dev libssl-dev libsqlite3-dev tk-dev \
-    libgdbm-dev libc6-dev libbz2-dev wkhtmltopdf \
+    libgdbm-dev libc6-dev libbz2-dev wkhtmltopdf xvfb\
     locales gcc libc6 libgcc1 libstdc++6 pdftk apt-utils \
     tk-dev uuid-dev wget ca-certificates gnupg dirmngr && \ 
     rm -rf /var/lib/apt/lists/* \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 ENV LANG en_US.utf8
+
+RUN printf '#!/bin/bash\nxvfb-run -a --server-args="-screen 0, 1024x768x24" /usr/bin/wkhtmltopdf -q $*' > /usr/bin/wkhtmltopdf.sh && \
+    chmod a+x /usr/bin/wkhtmltopdf.sh && ln -s /usr/bin/wkhtmltopdf.sh /usr/local/bin/wkhtmltopdf
+
 
 ENV GPG_KEY 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
 ENV PYTHON_VERSION 3.7.2
@@ -34,6 +38,7 @@ RUN set -ex \
       --with-system-expat \
       --with-system-ffi \
       --without-ensurepip \
+      --enable-optimizations \
    && make -j "$(nproc)" \
    && make install \
    && ldconfig \
@@ -63,6 +68,7 @@ RUN set -ex; \
           --no-cache-dir \
           "pip==$PYTHON_PIP_VERSION" \
      ; \
+  pip install --upgrade pip \
  pip --version; \
  \
  find /usr/local -depth \
