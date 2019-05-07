@@ -4,13 +4,8 @@ import re
 import os
 import pypdftk
 import shutil
-import bs4
 import pdfkit
 
-from weasyprint import HTML, CSS
-from xhtml2pdf import pisa
-
-from html import unescape
 from flask import json
 from flask import request, current_app
 from flask_api import status
