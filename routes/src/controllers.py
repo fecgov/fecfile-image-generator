@@ -31,7 +31,7 @@ def print_pdf():
     """
     form_type = request.form['form_type']
     if form_type == 'F99':
-        return form99.print_f99_pdftk('')
+        return form99.print_f99_pdftk_html('')
     elif form_type == 'F3X':
         return form3x.print_pdftk('')
 
