@@ -5,6 +5,7 @@ import os
 import pypdftk
 import shutil
 import pdfkit
+import bs4
 
 from flask import json
 from flask import request, current_app
