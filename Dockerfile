@@ -38,7 +38,6 @@ RUN set -ex \
       --with-system-expat \
       --with-system-ffi \
       --without-ensurepip \
-      --enable-optimizations \
    && make -j "$(nproc)" \
    && make install \
    && ldconfig \
