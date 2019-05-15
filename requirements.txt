@@ -1,3 +1,4 @@
+BeautifulSoup4==4.7.1
 certifi==2018.10.15
 chardet==3.0.4
 Click==7.0
@@ -7,20 +8,23 @@ Flask-Cors==3.0.6
 Flask-HTTPAuth==3.2.4
 idna==2.7
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2==2.10.1
 MarkupSafe==1.0
 passlib==1.7.1
 python-json-logger==0.1.9
 requests==2.21.0
 six==1.11.0
-urllib3==1.23
+urllib3==1.24.2
 Werkzeug==0.14.1
+WeasyPrint==47
 
 pypdftk==0.4
 boto3==1.9.40
 botocore==1.12.79
 Flask-API==1.1
 PyPDF2==1.26.0
+pdfkit==0.6.1
+beautifulsoup4==4.7.1
 
 gunicorn==19.9.0
 flake8==3.6.0
