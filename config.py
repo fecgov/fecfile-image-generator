@@ -17,11 +17,12 @@ ALLOWED_HOSTS = ["*"]
 
 
 FORM_TEMPLATES_LOCATION = 'templates/forms/{}.pdf'
-HTML_FORM_TEMPLATES_LOCATION = 'templates/forms/{}.html'
+HTML_FORM_TEMPLATES_LOCATION = 'templates/forms/F99/{}.html'
 FORMS_LOCATION = 'templates/forms/{}'
 REQUEST_FILE_LOCATION = 'temp/json/{}.json'
 # OUTPUT_FILE_LOCATION = 'output/pdf/{}.pdf'
 OUTPUT_DIR_LOCATION = "output/pdf/{}/"
+
 # ATTACHMENT_FILE_LOCATION = 'temp/{}.pdf'
 
 # AWS settings

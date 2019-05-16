@@ -437,7 +437,11 @@ def print_f99_pdftk_html(stamp_print):
         md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
         os.makedirs(md5_directory, exist_ok=True)
 
-        infile = current_app.config['HTML_FORM_TEMPLATES_LOCATION'].format('F99')
+        # os.makedirs(md5_directory + "images", exist_ok=True)
+        if not os.path.exists(md5_directory + "images"):
+            shutil.copytree("templates/forms/F99/images", md5_directory + "images")
+        shutil.copyfile("templates/forms/F99/form-text.css", md5_directory + "form-text.css")
+        infile = current_app.config['HTML_FORM_TEMPLATES_LOCATION'].format('template')
         json_file.save(current_app.config['REQUEST_FILE_LOCATION'].format(json_file_md5))
         outfile = md5_directory + json_file_md5 + '.html'
         json_data = json.load(open(current_app.config['REQUEST_FILE_LOCATION'].format(json_file_md5)))
@@ -445,14 +449,14 @@ def print_f99_pdftk_html(stamp_print):
         # load the file
         with open(infile) as inf:
             txt = inf.read()
-            soup = bs4.BeautifulSoup(txt, 'html.parser')
+            soup = bs4.BeautifulSoup(txt)
             soup.find('label', attrs={'id': 'committeeName'}).string = form99_json_data['committeeName']
             soup.find('label', attrs={'id': 'street1'}).string = form99_json_data['street1']
             soup.find('label', attrs={'id': 'street2'}).string = form99_json_data['street2']
             soup.find('label', attrs={'id': 'city'}).string = form99_json_data['city']
             soup.find('label', attrs={'id': 'state'}).string = form99_json_data['state']
             soup.find('label', attrs={'id': 'zipCode'}).string = form99_json_data['zipCode']
-            soup.find('label', attrs={'id': 'committeeId'}).string = form99_json_data['committeeId']
+            soup.find('span', attrs={'id': 'committeeId'}).string = form99_json_data['committeeId']
             soup.find('label', attrs={'id': 'treasurerFullName'}).string = form99_json_data['treasurerLastName'] + \
                                                                            ', ' + form99_json_data['treasurerFirstName'] \
                                                                            + ', ' + form99_json_data['treasurerMiddleName'] \
@@ -475,10 +479,10 @@ def print_f99_pdftk_html(stamp_print):
                 output_file.write(str(soup).replace("&lt;", "<").replace("&gt;", ">"))
 
             options = {
-                'margin-top': '0.75in',
-                'margin-right': '0.75in',
-                'margin-bottom': '0.75in',
-                'margin-left': '0.75in'
+                'margin-top': '0.15in',
+                'margin-right': '0.15in',
+                'margin-bottom': '0.15in',
+                'margin-left': '0.15in'
             }
             # HTML(outfile).write_pdf(md5_directory + json_file_md5 + '.pdf', stylesheets=[CSS(current_app.config['FORMS_LOCATION'].format('F99.css'))])
             pdfkit.from_file(outfile, md5_directory + json_file_md5 + '.pdf', options=options)
@@ -543,7 +547,7 @@ def print_f99_pdftk_html(stamp_print):
 
         shutil.rmtree(md5_directory + 'pages')
         shutil.rmtree(md5_directory + 'final_pages')
-        os.remove(md5_directory + json_file_md5 + '.html')
+        # os.remove(md5_directory + json_file_md5 + '.html')
         os.remove(md5_directory + json_file_md5 + '.pdf')
 
 
