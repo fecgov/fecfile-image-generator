@@ -15,10 +15,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = os.environ.get("DEBUG", True)
 ALLOWED_HOSTS = ["*"]
 
-FORM_TEMPLATES_LOCATION = "templates/forms/{}.pdf"
-REQUEST_FILE_LOCATION = "temp/json/{}.json"
+
+FORM_TEMPLATES_LOCATION = 'templates/forms/{}.pdf'
+HTML_FORM_TEMPLATES_LOCATION = 'templates/forms/F99/{}.html'
+FORMS_LOCATION = 'templates/forms/{}'
+REQUEST_FILE_LOCATION = 'temp/json/{}.json'
 # OUTPUT_FILE_LOCATION = 'output/pdf/{}.pdf'
 OUTPUT_DIR_LOCATION = "output/pdf/{}/"
+
 # ATTACHMENT_FILE_LOCATION = 'temp/{}.pdf'
 
 # AWS settings
@@ -48,7 +52,8 @@ AWS_S3_FECFILE_COMPONENTS_DOMAIN = (
 # OUTPUT_FILE_FOLDER = 'output'
 
 # TEMP_FILES_URL = "https://%s/%s/{}" % (AWS_S3_FECFILE_COMPONENTS_DOMAIN, TEMP_FILES_LOCATION)
-PRINT_OUTPUT_FILE_URL = "https://%s/%s" % (
-    AWS_S3_FECFILE_COMPONENTS_DOMAIN,
-    OUTPUT_DIR_LOCATION,
-)
+PRINT_OUTPUT_FILE_URL = "https://%s/%s" % (AWS_S3_FECFILE_COMPONENTS_DOMAIN, OUTPUT_DIR_LOCATION)
+
+FECFILE_UTIL_PRINT_API_URL = os.environ.get('FECFILE_UTIL_URL', 'https://dev-efile-api.efdev.fec.gov/printpdf')
+FECFILE_UTIL_API_VERSION = "/v1/fecfileutil"
+
