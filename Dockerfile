@@ -1,4 +1,5 @@
-FROM debian:stretch
+FROM weboaks/node-karma-protractor-chrome
+# FROM debian:stretch
 
 ENV PATH /usr/local/bin:$PATH
 
@@ -6,13 +7,14 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends libffi-dev \
     build-essential checkinstall libreadline-gplv2-dev \
     libncursesw5-dev libssl-dev libsqlite3-dev tk-dev \
-    libgdbm-dev libc6-dev libbz2-dev \
+    libgdbm-dev libc6-dev libbz2-dev wkhtmltopdf xvfb xauth \
     locales gcc libc6 libgcc1 libstdc++6 pdftk apt-utils \
     tk-dev uuid-dev wget ca-certificates gnupg dirmngr && \ 
     rm -rf /var/lib/apt/lists/* \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 ENV LANG en_US.utf8
+
 
 ENV GPG_KEY 0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
 ENV PYTHON_VERSION 3.7.2
@@ -62,6 +64,7 @@ RUN set -ex; \
           --no-cache-dir \
           "pip==$PYTHON_PIP_VERSION" \
      ; \
+  pip install --upgrade pip \
  pip --version; \
  \
  find /usr/local -depth \
@@ -77,8 +80,13 @@ RUN mkdir /opt/imagegenerator
 WORKDIR /opt/imagegenerator
 ADD . /opt/imagegenerator
 RUN pip install -r requirements.txt
-
+# remove the default xvfb-run file and replace it with our own. 
+RUN rm /usr/bin/xvfb-run
+ADD ./xvfb-run /usr/bin/
+ADD ./wkhtmltopdf.sh /usr/bin/
+RUN chmod a+x /usr/bin/wkhtmltopdf.sh && ln -s /usr/bin/wkhtmltopdf.sh /usr/local/bin/wkhtmltopdf
 #RUN flake8 .
+
 
 EXPOSE 8080
 ENTRYPOINT ["gunicorn", "-w", "4", "--bind", "0.0.0.0:8080", "wsgi:APP"]
