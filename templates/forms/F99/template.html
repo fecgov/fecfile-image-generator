@@ -1,208 +1,224 @@
+
+
 <!doctype html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title></title>
-<style type="text/css">
-body,td,th {
-    /*font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif;*/
-	font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
-    font-size: 18px;
-}
-.centered {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-</style>
-<link href="form-text.css" rel="stylesheet" type="text/css">
-</head>
-
-<body>
-<table width="1248" border="0" cellpadding="0" cellspacing="0">
-  <tbody>
-    <tr>
-      <td colspan="4" align="left"><img src="images/header_1.png" alt="" align="middle"/></td>
-    </tr>
-    <tr>
-      <td colspan="2">1. <strong>NAME OF COMMITTEE (in full)  &#x25BC;</strong></td>
-      <td colspan="2" align="left"><img src="images/01_1.png" alt="" width="249" height="48" align="left"/></td>
-    </tr>
-    <tr>
-      <td colspan="4"><label name="textfield" style="font-size:35px; height:40px; width:1420px; padding-left: 20px;" align="center" type="text" id="committeeName" size="105"></label><br>
-      <img src="images/long line_1.png" alt=""/> <br></td>
-    </tr>
-    <tr>
-      <td colspan="4"><label name="textfield" style="font-size:35px; height:30px; width:1420px; padding-left: 20px;" align="center" type="text" size="105">&nbsp;</label><br>
-        <img src="images/long line_1.png" alt=""/> <br>
-      </td>
-    </tr>
-	<tr>
-	<td colspan="4">&nbsp;</td>
-    </tr>
-    <tr>
-      <td width="350px">&nbsp;</td>
-      <td colspan="3"><label name="textfield3" style="font-size:22px; height:30px; width:1050px; padding-left: 20px;" type="text" id="street1" size="77"></label>
-      <br>
-      <img src="images/shorter line_1.png" alt=""/>
-	  </td>
-    </tr>
-    <tr>
-	<td colspan="4">&nbsp;</td>
-    </tr>
-    <tr>
-      <td width="350px">&nbsp;</td>
-      <td colspan="3"><label name="textfield4" style="font-size:22px; height:30px; width:1050px;" type="text" id="street2" size="77">&nbsp;</label>
-        <br>
-      <img src="images/shorter line_1.png" alt=""/></td>
-    </tr>
-    <tr>
-	<td colspan="4">&nbsp;</td>
-    </tr>
-    <tr>
-      <td>&nbsp;</td>
-      <td><label name="textfield5" style="font-size:22px; height:30px; width:540px; padding-left: 20px;" type="text" id="city" size="41"></label>
-      <br>
-      <img src="images/city_1.png" alt=""/></td>
-      <td align="center"><label name="textfield7" style="font-size:22px; height:30px; width:50px;" type="text" id="state" size="5"></label>
-        <br>
-      <img src="images/two character_1.png" alt=""/></td>
-      <td align="left"><label name="textfield6" style="font-size:22px; height:30px; width:300px; padding-left: 20px;" type="text" id="zipCode" size="11"></label>
-
-        <br>
-      <img src="images/zip code_1.png" alt=""/></td>
-    </tr>
-    <tr>
-      <td height="26">&nbsp;</td>
-      <td height="26" align="center"><strong>CITY &#x25B2;</strong></td>
-      <td height="26" align="center"><strong>STATE &#x25B2;</strong></td>
-      <td height="26" align="center"><strong>ZIP CODE &#x25B2;</strong></td>
-    </tr>
-    <tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-	<tr>
-      <td>2. <strong>FEC IDENTIFICATION NUMBER &#9654;</strong></td>
-	  
-      <td colspan="3">
-		<label style="font-size:22px; padding: .30rem .15rem; border: 2px solid #ced4da;">C</label><label style="padding: .30rem .15rem; font-size:22px; height:30px; width:159px;border: 2px solid #ced4da;"><span style="padding-left:10px;padding-right:10px;" id="committeeId"></span></label>
-		<br>        
-	  </td>
-	  
-    </tr>
-    <tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-    <tr>
-      <td height="47">3. <strong>REASON TYPE &#9654;</strong></td>
-      <td height="47">
-	  <p>
-        <label style="padding: .015rem .15rem; border: 2px solid #ced4da;font-size:22px;" id="MST">&nbsp;&nbsp;</label>
-		<label class="form-check-label" style="padding-bottom: 5px;font-size:22px;">(a) MST - Miscellaneous Text Submission</label><br>
-	</p>
-		<p>
-		<label style="padding: .015rem .15rem; border: 2px solid #ced4da;font-size:22px;" id="MSM">&nbsp;&nbsp;</label>
-		<label class="form-check-label" style="font-size:22px;">(b) MSM - Filing Frequency Change Notice</label>
-      </p></td>
-      <td colspan="2" height="47">
-		<p>
-        <label style="padding: .015rem .15rem; border: 2px solid #ced4da;font-size:22px;" id="MSI">&nbsp;&nbsp;</label>
-		<label class="form-check-label" style="padding-bottom: 5px;font-size:22px;">(c) MSI - Disavowal Response</label><br>
-		</p>
-		<p>
-		<span style="padding-top: 10px;"></span>
-		<label style="padding: .015rem .15rem; border: 2px solid #ced4da;font-size:22px;" id="MSW">&nbsp;&nbsp;</label>
-		<label class="form-check-label" style="font-size:22px;">(d) MSW - C1 Loan Agreement</label>
-      </td>
-    </tr>
-    <tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-    <tr>
-      <td height="21" colspan="4"><img src="images/seperator_line.png" alt=""/></td>
-    </tr>
-    <tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-    <tr>
-      <td height="22" colspan="4"><em>I certify that I have examined this submission and to the best of my knowledge and belief it is true, correct and complete.</em></td>
-    </tr>
-<tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-    <tr>
-      <td height="47" >Type or Print Name of Treasurer</td>
-      <td height="47" colspan="3" align="left" style="border-bottom: 1px solid;"><label name="textfield11" style="font-size:22px;" type="text" id="treasurerFullName" ></label></td>
-    </tr>
-    <tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-    <tr>
-      <td height="56">Signature of Treasurer</td>
-	  <td height="47" colspan="2" align="left" style="border-bottom: 1px solid;"><i><label name="textfield11" style="font-size:22px;" type="text" id="treasurerName"></i></label></td>
-	  
-	  <td align="right">
-			
-			<table>
-				<tbody>
-				<tr>
-					<td>&nbsp;</td>
-					<td><label style="padding: .075rem 1.5rem; width:100%;">MM</label></td>
-					<td>&nbsp;&nbsp;</td>
-					<td><label style="padding:.075rem 1.5rem; width:100%;">DD</label></td>
-					<td>&nbsp;&nbsp;</td>
-					<td><label style="padding: .075rem 1.5rem; width:100%;">YYYY</label></td>
-				</tr>
-				<tr>
-					<td><label>Date</label></td>
-					<td><label style="padding: .075rem 1.5rem; border: 2px solid #ced4da; width:100%;font-size:22px;" id="dateSignedMonth"></label></td>
-					<td>&nbsp;/&nbsp;</td>
-					<td><label style="padding:.075rem 1.5rem; border: 2px solid #ced4da; width:100%;font-size:22px;" id="dateSignedDate"></label></td>
-					<td>&nbsp;/&nbsp;</td>
-					<td><label style="padding: .075rem 1.5rem; border: 2px solid #ced4da; width:100%;font-size:22px;" id="dateSignedYear"></label></td>
-				</tr>
-				</tbody>
-			</table>
-			
-			
-	  </td>
-    </tr>
-    <tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-    <tr>
-      <td height="47" colspan="4">NOTE: Submission of false, erroneous, or incomplete information may subject the person signing this Report to the penalties of 52 U.S.C. §30109.</td>
-    </tr>
-	<tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-<tr>
-	<td colspan="4" height="26">&nbsp;</td>
-    </tr>
-	<tr>
-      <td height="55" colspan="4" align="left"><img src="images/footer_1.png" alt=""/></td>
-    </tr>
-    <tr>
-	<td colspan="4" height="750">&nbsp;</td>
-    </tr>
-    <tr>
-      <td height="22" colspan="4"><strong>MESSAGE (Type here) &#x25BC;</strong></td>
-    </tr>
-   <tr>
-      <td height="21" colspan="4">&nbsp;</td>
-    </tr>
-    <tr>
-      <td colspan="4">
-	  
-	  <div  style="height:auto;">
-			<label style="min-height:50px; border: 2px solid #ced4da; width: 100%; display:inline-block; padding-left: 20px; padding-right: 20px;" id="text"></label>
-		</div>
-	  </td>
-	  
-    </tr>
-    
-  </tbody>
-</table>
-</body>
+   <head>
+      <meta charset="UTF-8">
+      <title></title>
+      <style type="text/css">
+         body,td,th {
+         /*font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+         font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
+         font-size: 18px;
+         }
+         .centered {
+         position: absolute;
+         top: 50%;
+         left: 50%;
+         transform: translate(-50%, -50%);
+         }
+      </style>
+      <link href="form-text.css" rel="stylesheet" type="text/css">
+   </head>
+   <body>
+      <table width="1248" border="0" cellpadding="0" cellspacing="0">
+         <tbody>
+            <tr>
+               <td colspan="4" align="left"><img src="images/header_1.png" alt="" align="middle"/></td>
+            </tr>
+            <tr>
+               <td colspan="2">1. <strong>NAME OF COMMITTEE (in full)  &#x25BC;</strong></td>
+               <td colspan="2" align="left">
+                  <!--<img src="images/01_1.png" alt="" width="249" height="48" align="left"/>-->
+                  <img src="images/01_1.png" alt="" align="left"/>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="4"><label name="textfield" style="font-size:35px; height:40px; width:1420px; padding-left: 20px;" align="center" type="text" id="committeeName" size="105"></label><br>
+                  <img src="images/long line_1.png" alt=""/> <br>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="4"><label name="textfield" style="font-size:35px; height:30px; width:1420px; padding-left: 20px;" align="center" type="text" size="105">&nbsp;</label><br>
+                  <img src="images/long line_1.png" alt=""/> <br>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="4">&nbsp;</td>
+            </tr>
+            <tr>
+               <td width="350px">&nbsp;</td>
+               <td colspan="3"><label name="textfield3" style="font-size:22px; height:30px; width:1050px; padding-left: 20px;" type="text" id="street1" size="77"></label>
+                  <br>
+                  <img src="images/shorter line_1.png" alt=""/>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="4">&nbsp;</td>
+            </tr>
+            <tr>
+               <td width="350px">&nbsp;</td>
+               <td colspan="3"><label name="textfield4" style="font-size:22px; height:30px; width:1050px;" type="text" id="street2" size="77">&nbsp;</label>
+                  <br>
+                  <img src="images/shorter line_1.png" alt=""/>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="4">&nbsp;</td>
+            </tr>
+            <tr>
+               <td>&nbsp;</td>
+               <td><label name="textfield5" style="font-size:22px; height:30px; width:540px; padding-left: 20px;" type="text" id="city" size="41"></label>
+                  <br>
+                  <img src="images/city_1.png" alt=""/>
+               </td>
+               <td style="padding-right:50px;padding-left:50px;" align="center"><label name="textfield7" style="font-size:22px; height:30px; width:50px;" type="text" id="state" size="5"></label>
+                  <br>
+                  <img src="images/two character_1.png" alt=""/>
+               </td>
+               <td align="left"><label name="textfield6" style="font-size:22px; height:30px; width:300px; padding-left: 20px;" type="text" id="zipCode" size="11"></label>
+                  <br>
+                  <img src="images/zip code_1.png" alt=""/>
+               </td>
+            </tr>
+            <tr>
+               <td height="26">&nbsp;</td>
+               <td height="26" align="center"><strong>CITY &#x25B2;</strong></td>
+               <td height="26" align="center"><strong>STATE &#x25B2;</strong></td>
+               <td height="26" align="center"><strong>ZIP CODE &#x25B2;</strong></td>
+            </tr>
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <tr>
+               <td>2. <strong>FEC IDENTIFICATION NUMBER &#9654;</strong></td>
+               <td colspan="3">
+                  <!--<label style="font-size:22px; padding: .30rem .15rem; border: 2px solid #ced4da;">C</label><label style="padding: .30rem .15rem; font-size:22px; height:30px; width:159px;border: 2px solid #ced4da;"><span style="padding-left:10px;padding-right:10px;" id="committeeId"></span></label>-->
+                  <label style="padding: 1.0rem 4.15rem; font-size:30px; height:30px; width:159px; position: absolute;"><span style="padding-left:10px;padding-right:10px;" id="committeeId"></span></label>
+                  <img src="images/fein number_1.png" alt=""/>
+                  <br>        
+               </td>
+            </tr>
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <tr>
+               <td height="47">3. <strong>REASON TYPE &#9654;</strong></td>
+               <td height="47">
+                  <p>
+                     <label style="padding: .2rem .2rem; border: 7px solid #ced4da;font-size:22px;" id="MST">&nbsp;&nbsp;</label>
+                     <label class="form-check-label" style="padding-bottom: 15px;font-size:22px;">&nbsp;&nbsp;(a) MST - Miscellaneous Text Submission</label><br><br>
+                  </p>
+                  <p>
+                     <label style="padding: .2rem .2rem; border: 7px solid #ced4da;font-size:22px;" id="MSM">&nbsp;&nbsp;</label>
+                     <label class="form-check-label" style="font-size:22px;">&nbsp;&nbsp;(b) MSM - Filing Frequency Change Notice</label>
+                  </p>
+               </td>
+               <td colspan="2" height="47">
+                  <p>
+                     <label style="padding: .2rem .2rem; border: 7px solid #ced4da;font-size:22px;" id="MSI">&nbsp;&nbsp;</label>
+                     <label class="form-check-label" style="padding-bottom: 15px;font-size:22px;">&nbsp;&nbsp;(c) MSI - Disavowal Response</label><br><br>
+                  </p>
+                  <p></p>
+                  <p>
+                     <span style="padding-top: 10px;"></span>
+                     <label style="padding: .2rem .2rem; border: 7px solid #ced4da;font-size:22px;" id="MSW">&nbsp;&nbsp;</label>
+                     <label class="form-check-label" style="font-size:22px;">&nbsp;&nbsp;(d) MSW - C1 Loan Agreement</label>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <tr>
+               <td height="21" colspan="4"><img src="images/seperator_line.png" alt=""/></td>
+            </tr>
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <tr>
+               <td height="22" colspan="4"><em>I certify that I have examined this submission and to the best of my knowledge and belief it is true, correct and complete.</em></td>
+            </tr>
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <tr>
+               <td height="47" >Type or Print Name of Treasurer</td>
+               <td height="47" colspan="3" align="left" style="border-bottom: 1px solid;"><label name="textfield11" style="font-size:22px;" type="text" id="treasurerFullName" ></label></td>
+            </tr>
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <!--    </tbody>
+               </table>
+               <table width="1248" border="0" cellpadding="0" cellspacing="0">
+                  <tbody>-->
+            <tr>
+               <td height="56" style="vertical-align:bottom;">Signature of Treasurer</td>
+               <td height="47" align="left" style="border-bottom: 1px solid;" width="200;!important;"><i><label name="textfield11" style="font-size:22px;" type="text" id="treasurerName"></i></label></td>
+               <td align="left" colspan="2">
+                  <span style="padding-left:20px; padding-right: 20px;">Date</span>
+                  <label style="padding: 1.2rem 1.15rem; font-size:30px; height:30px; position: absolute;"><span style="padding-left:10px;padding-right:10px;" id="dateSignedMonth"></span></label>
+                  <img src="images/month_1.png" alt=""/><img src="images/slash_1.png" alt=""/>
+                  <label style="padding: 1.2rem 1.15rem; font-size:30px; height:30px; position: absolute;"><span style="padding-left:10px;padding-right:10px;" id="dateSignedDate"></span></label>			
+                  <img src="images/date_1.png" alt=""/><img src="images/slash_1.png" alt=""/>
+                  <label style="padding: 1.2rem 3rem; font-size:30px; height:30px; position: absolute;"><span style="padding-left:10px;padding-right:10px;" id="dateSignedYear"></span></label>
+                  <img src="images/year_1.png" alt=""/>
+                  <!--<table>
+                     <tbody>
+                     <tr>
+                     	<td>&nbsp;</td>
+                     	<td><label style="padding: .075rem 1.5rem; width:100%;">MM</label></td>
+                     	<td>&nbsp;&nbsp;</td>
+                     	<td><label style="padding:.075rem 1.5rem; width:100%;">DD</label></td>
+                     	<td>&nbsp;&nbsp;</td>
+                     	<td><label style="padding: .075rem 1.5rem; width:100%;">YYYY</label></td>
+                     </tr>
+                     <tr>
+                     	<td><label>Date</label></td>
+                     	<td><label style="padding: .075rem 1.5rem; border: 2px solid #ced4da; width:100%;font-size:22px;" id="dateSignedMonth"></label></td>
+                     	<td>&nbsp;/&nbsp;</td>
+                     	<td><label style="padding:.075rem 1.5rem; border: 2px solid #ced4da; width:100%;font-size:22px;" id="dateSignedDate"></label></td>
+                     	<td>&nbsp;/&nbsp;</td>
+                     	<td><label style="padding: .075rem 1.5rem; border: 2px solid #ced4da; width:100%;font-size:22px;" id="dateSignedYear"></label></td>
+                     </tr>
+                     </tbody>
+                     </table>-->
+               </td>
+            </tr>
+            <!--    </tbody>
+               </table>
+               <table width="1248" border="0" cellpadding="0" cellspacing="0">
+                  <tbody>-->
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <tr>
+               <td height="47" colspan="4">NOTE: Submission of false, erroneous, or incomplete information may subject the person signing this Report to the penalties of 52 U.S.C. §30109.</td>
+            </tr>
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <tr>
+               <td height="55" colspan="4" align="left"><img src="images/footer_1.png" alt=""/></td>
+            </tr>
+            <tr>
+               <td colspan="4" height="26">&nbsp;</td>
+            </tr>
+            <tr>
+               <td height="22" colspan="4"><strong>MESSAGE &#x25BC;</strong></td>
+            </tr>
+            <tr>
+               <td height="21" colspan="4">&nbsp;</td>
+            </tr>
+            <tr>
+               <td colspan="4">
+                  <div  style="height:auto;">
+                     <label style="min-height:50px; border: 2px solid #ced4da; width: 1248; display:block; padding-left: 20px; padding-right: 20px;" id="text"></label>
+                  </div>
+               </td>
+            </tr>
+         </tbody>
+      </table>
+   </body>
 </html>
+
