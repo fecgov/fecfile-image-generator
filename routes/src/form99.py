@@ -478,9 +478,9 @@ def print_f99_pdftk_html(stamp_print):
                 output_file.write(str(soup).replace("&lt;", "<").replace("&gt;", ">"))
 
             options = {
-                'margin-top': '0.25in',
+                'margin-top': '0.35in',
                 'margin-right': '0.25in',
-                'margin-bottom': '0.25in',
+                'margin-bottom': '0.35in',
                 'margin-left': '0.25in'
 
             }
