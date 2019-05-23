@@ -547,8 +547,11 @@ def print_f99_pdftk_html(stamp_print):
 
         shutil.rmtree(md5_directory + 'pages')
         shutil.rmtree(md5_directory + 'final_pages')
-        # os.remove(md5_directory + json_file_md5 + '.html')
+        os.remove(md5_directory + json_file_md5 + '.html')
+        shutil.rmtree(md5_directory + 'images')
+        os.remove(md5_directory + 'form-text.css')
         os.remove(md5_directory + json_file_md5 + '.pdf')
+
 
 
         # for f99_page_no in range(f99_no_of_pages):

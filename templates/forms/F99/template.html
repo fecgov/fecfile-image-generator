@@ -17,6 +17,15 @@
          left: 50%;
          transform: translate(-50%, -50%);
          }
+	 /*table tr {page-break-inside: avoid}
+	@media print {
+	  * {
+	    page-break-inside: avoid;
+	    page-break-after: avoid;
+	    page-break-before: avoid;
+	  }
+	}*/
+
       </style>
       <link href="form-text.css" rel="stylesheet" type="text/css">
    </head>
@@ -28,7 +37,7 @@
             </tr>
             <tr>
                <td colspan="2">1. <strong>NAME OF COMMITTEE (in full)  &#x25BC;</strong></td>
-               <td colspan="2" align="left">
+               <td colspan="2" align="left" style="padding-left:40px;padding-top:10px;">
                   <!--<img src="images/01_1.png" alt="" width="249" height="48" align="left"/>-->
                   <img src="images/01_1.png" alt="" align="left"/>
                </td>
@@ -58,7 +67,7 @@
             </tr>
             <tr>
                <td width="350px">&nbsp;</td>
-               <td colspan="3"><label name="textfield4" style="font-size:22px; height:30px; width:1050px;" type="text" id="street2" size="77">&nbsp;</label>
+               <td colspan="3"><label name="textfield4" style="font-size:22px; height:30px; width:1050px; padding-left: 20px;" type="text" id="street2" size="77">&nbsp;</label>
                   <br>
                   <img src="images/shorter line_1.png" alt=""/>
                </td>
@@ -106,23 +115,23 @@
                <td height="47">3. <strong>REASON TYPE &#9654;</strong></td>
                <td height="47">
                   <p>
-                     <label style="padding: .2rem .2rem; border: 7px solid #ced4da;font-size:22px;" id="MST">&nbsp;&nbsp;</label>
+                     <label style="padding: .4rem .25rem; border: 8px solid #ced4da;font-size:22px;" id="MST">&nbsp;&nbsp;</label>
                      <label class="form-check-label" style="padding-bottom: 15px;font-size:22px;">&nbsp;&nbsp;(a) MST - Miscellaneous Text Submission</label><br><br>
                   </p>
                   <p>
-                     <label style="padding: .2rem .2rem; border: 7px solid #ced4da;font-size:22px;" id="MSM">&nbsp;&nbsp;</label>
+                     <label style="padding: .4rem .25rem; border: 8px solid #ced4da;font-size:22px;" id="MSM">&nbsp;&nbsp;</label>
                      <label class="form-check-label" style="font-size:22px;">&nbsp;&nbsp;(b) MSM - Filing Frequency Change Notice</label>
                   </p>
                </td>
                <td colspan="2" height="47">
                   <p>
-                     <label style="padding: .2rem .2rem; border: 7px solid #ced4da;font-size:22px;" id="MSI">&nbsp;&nbsp;</label>
+                     <label style="padding: .4rem .25rem; border: 8px solid #ced4da;font-size:22px;" id="MSI">&nbsp;&nbsp;</label>
                      <label class="form-check-label" style="padding-bottom: 15px;font-size:22px;">&nbsp;&nbsp;(c) MSI - Disavowal Response</label><br><br>
                   </p>
                   <p></p>
                   <p>
                      <span style="padding-top: 10px;"></span>
-                     <label style="padding: .2rem .2rem; border: 7px solid #ced4da;font-size:22px;" id="MSW">&nbsp;&nbsp;</label>
+                     <label style="padding: .4rem .25rem; border: 8px solid #ced4da;font-size:22px;" id="MSW">&nbsp;&nbsp;</label>
                      <label class="form-check-label" style="font-size:22px;">&nbsp;&nbsp;(d) MSW - C1 Loan Agreement</label>
                </td>
             </tr>
@@ -148,10 +157,6 @@
             <tr>
                <td colspan="4" height="26">&nbsp;</td>
             </tr>
-            <!--    </tbody>
-               </table>
-               <table width="1248" border="0" cellpadding="0" cellspacing="0">
-                  <tbody>-->
             <tr>
                <td height="56" style="vertical-align:bottom;">Signature of Treasurer</td>
                <td height="47" align="left" style="border-bottom: 1px solid;" width="200;!important;"><i><label name="textfield11" style="font-size:22px;" type="text" id="treasurerName"></i></label></td>
@@ -185,10 +190,6 @@
                      </table>-->
                </td>
             </tr>
-            <!--    </tbody>
-               </table>
-               <table width="1248" border="0" cellpadding="0" cellspacing="0">
-                  <tbody>-->
             <tr>
                <td colspan="4" height="26">&nbsp;</td>
             </tr>
