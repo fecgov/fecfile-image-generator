@@ -11,6 +11,13 @@ RUN apt-get update && \
     locales gcc libc6 libgcc1 libstdc++6 pdftk apt-utils \
     tk-dev uuid-dev wget ca-certificates gnupg dirmngr
 
+RUN rm -rf /var/lib/apt/lists/* \
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+
+RUN wget --quiet -O wkhtmltopdf.tar.xz "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz" && \
+    tar -xvf wkhtmltopdf.tar.xz && \
+    mv wkhtmltox/bin/wkhtmlto* /usr/bin/ 
+
 ENV LANG en_US.utf8
 
 
@@ -77,9 +84,6 @@ rm -f get-pip.py
 RUN mkdir /opt/imagegenerator
 WORKDIR /opt/imagegenerator
 ADD . /opt/imagegenerator
-run apt-get install -y ./lib/wkhtmltox_0.12.5-1.stretch_amd64.deb
-RUN rm -rf /var/lib/apt/lists/* \
-    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
@@ -87,9 +91,9 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 RUN rm /usr/bin/xvfb-run
 ADD ./lib/xvfb-run /usr/bin/
 ADD ./lib/wkhtmltopdf.sh /usr/bin/
+
 RUN chmod a+x /usr/bin/wkhtmltopdf.sh && sh -c 'if [ ! -e "/usr/local/bin/wkhtmltopdf" ]; then ln -s /usr/bin/wkhtmltopdf.sh /usr/local/bin/wkhtmltopdf; fi'
 #RUN flake8 .
-
 
 EXPOSE 8080
 ENTRYPOINT ["gunicorn", "-w", "4", "--bind", "0.0.0.0:8080", "wsgi:APP"]
