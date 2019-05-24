@@ -480,9 +480,8 @@ def print_f99_pdftk_html(stamp_print):
             options = {
                 'margin-top': '0.35in',
                 'margin-right': '0.25in',
-                'margin-bottom': '0.35in',
+                'margin-bottom': '0.37in',
                 'margin-left': '0.25in'
-
             }
             # HTML(outfile).write_pdf(md5_directory + json_file_md5 + '.pdf', stylesheets=[CSS(current_app.config['FORMS_LOCATION'].format('F99.css'))])
             pdfkit.from_file(outfile, md5_directory + json_file_md5 + '.pdf', options=options)
@@ -545,11 +544,12 @@ def print_f99_pdftk_html(stamp_print):
         else:
             shutil.move(json_file_md5 + '_temp.pdf', md5_directory + 'all_pages.pdf')
 
+        # clean up task
         shutil.rmtree(md5_directory + 'pages')
         shutil.rmtree(md5_directory + 'final_pages')
-        os.remove(md5_directory + json_file_md5 + '.html')
-        shutil.rmtree(md5_directory + 'images')
-        os.remove(md5_directory + 'form-text.css')
+        # os.remove(md5_directory + json_file_md5 + '.html')
+        # shutil.rmtree(md5_directory + 'images')
+        # os.remove(md5_directory + 'form-text.css')
         os.remove(md5_directory + json_file_md5 + '.pdf')
 
 
