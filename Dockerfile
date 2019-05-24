@@ -95,6 +95,9 @@ ADD ./lib/wkhtmltopdf.sh /usr/bin/
 RUN chmod a+x /usr/bin/wkhtmltopdf.sh && sh -c 'if [ ! -e "/usr/local/bin/wkhtmltopdf" ]; then ln -s /usr/bin/wkhtmltopdf.sh /usr/local/bin/wkhtmltopdf; fi'
 #RUN flake8 .
 
+RUN useradd igen --no-create-home --home /opt/imagegenerator && chown -R igen:igen /opt/imagegenerator
+USER igen
+
 EXPOSE 8080
 ENTRYPOINT ["gunicorn", "-w", "4", "--bind", "0.0.0.0:8080", "wsgi:APP"]
 
