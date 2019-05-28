@@ -472,13 +472,13 @@ def print_f99_pdftk_html(stamp_print):
             soup.find('span', attrs={'id': 'dateSignedDate'}).string = str(date_array[1])
             soup.find('span', attrs={'id': 'dateSignedYear'}).string = str(date_array[2])
 
-            # test_f99 = str(soup)
 
             with open(outfile, "w") as output_file:
                 output_file.write(str(soup).replace("&lt;", "<").replace("&gt;", ">"))
 
+            # F99 PDF page padding options
             options = {
-                'margin-top': '0.35in',
+                'margin-top': '0.39in',
                 'margin-right': '0.25in',
                 'margin-bottom': '0.39in',
                 'margin-left': '0.25in'
