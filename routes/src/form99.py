@@ -480,7 +480,7 @@ def print_f99_pdftk_html(stamp_print):
             options = {
                 'margin-top': '0.35in',
                 'margin-right': '0.25in',
-                'margin-bottom': '0.37in',
+                'margin-bottom': '0.39in',
                 'margin-left': '0.25in'
             }
             # HTML(outfile).write_pdf(md5_directory + json_file_md5 + '.pdf', stylesheets=[CSS(current_app.config['FORMS_LOCATION'].format('F99.css'))])
