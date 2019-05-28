@@ -478,7 +478,7 @@ def print_f99_pdftk_html(stamp_print):
 
             # F99 PDF page padding options
             options = {
-                'margin-top': '0.39in',
+                'margin-top': '0.36in',
                 'margin-right': '0.25in',
                 'margin-bottom': '0.39in',
                 'margin-left': '0.25in'
