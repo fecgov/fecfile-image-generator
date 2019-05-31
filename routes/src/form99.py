@@ -436,7 +436,6 @@ def print_f99_pdftk_html(stamp_print):
         json_file.stream.seek(0)
         md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
         os.makedirs(md5_directory, exist_ok=True)
-
         # os.makedirs(md5_directory + "images", exist_ok=True)
         if not os.path.exists(md5_directory + "images"):
             shutil.copytree("templates/forms/F99/images", md5_directory + "images")
@@ -469,20 +468,20 @@ def print_f99_pdftk_html(stamp_print):
             soup.find('label', attrs={'id': form99_json_data['reason']}).string = 'X'
 
             date_array = form99_json_data['dateSigned'].split("/")
-            soup.find('label', attrs={'id': 'dateSignedMonth'}).string = str(date_array[0])
-            soup.find('label', attrs={'id': 'dateSignedDate'}).string = str(date_array[1])
-            soup.find('label', attrs={'id': 'dateSignedYear'}).string = str(date_array[2])
+            soup.find('span', attrs={'id': 'dateSignedMonth'}).string = str(date_array[0])
+            soup.find('span', attrs={'id': 'dateSignedDate'}).string = str(date_array[1])
+            soup.find('span', attrs={'id': 'dateSignedYear'}).string = str(date_array[2])
 
-            # test_f99 = str(soup)
 
             with open(outfile, "w") as output_file:
                 output_file.write(str(soup).replace("&lt;", "<").replace("&gt;", ">"))
 
+            # F99 PDF page padding options
             options = {
-                'margin-top': '0.15in',
-                'margin-right': '0.15in',
-                'margin-bottom': '0.15in',
-                'margin-left': '0.15in'
+                'margin-top': '0.36in',
+                'margin-right': '0.25in',
+                'margin-bottom': '0.39in',
+                'margin-left': '0.25in'
             }
             # HTML(outfile).write_pdf(md5_directory + json_file_md5 + '.pdf', stylesheets=[CSS(current_app.config['FORMS_LOCATION'].format('F99.css'))])
             pdfkit.from_file(outfile, md5_directory + json_file_md5 + '.pdf', options=options)
@@ -545,10 +544,14 @@ def print_f99_pdftk_html(stamp_print):
         else:
             shutil.move(json_file_md5 + '_temp.pdf', md5_directory + 'all_pages.pdf')
 
+        # clean up task
         shutil.rmtree(md5_directory + 'pages')
         shutil.rmtree(md5_directory + 'final_pages')
         # os.remove(md5_directory + json_file_md5 + '.html')
+        # shutil.rmtree(md5_directory + 'images')
+        # os.remove(md5_directory + 'form-text.css')
         os.remove(md5_directory + json_file_md5 + '.pdf')
+
 
 
         # for f99_page_no in range(f99_no_of_pages):
