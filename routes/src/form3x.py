@@ -51,9 +51,35 @@ def print_pdftk(stamp_print):
         f3x_col_a = f3x_summary_temp['colA']
         f3x_col_b = f3x_summary_temp['colB']
         for key in f3x_col_a:
-            f3x_summary['colA_' + key] = f3x_col_a[key]
+            f3x_summary['colA_' + key] = '{0:.2f}'.format(f3x_col_a[key])
         for key in f3x_col_b:
-            f3x_summary['colB_' + key] = f3x_col_b[key]
+            f3x_summary['colB_' + key] = '{0:.2f}'.format(f3x_col_b[key])
+
+
+        coverageStartDateArray = f3x_data['coverageStartDate'].split("/")
+        f3x_data['coverageStartDateMonth'] = coverageStartDateArray[0]
+        f3x_data['coverageStartDateDay'] = coverageStartDateArray[1]
+        f3x_data['coverageStartDateYear'] = coverageStartDateArray[2]
+
+        coverageEndDateArray = f3x_data['coverageEndDate'].split("/")
+        f3x_data['coverageEndDateMonth'] = coverageEndDateArray[0]
+        f3x_data['coverageEndDateDay'] = coverageEndDateArray[1]
+        f3x_data['coverageEndDateYear'] = coverageEndDateArray[2]
+
+        dateSignedArray = f3x_data['dateSigned'].split("/")
+        f3x_data['dateSignedMonth'] = dateSignedArray[0]
+        f3x_data['dateSignedDay'] = dateSignedArray[1]
+        f3x_data['dateSignedYear'] = dateSignedArray[2]
+
+        treasurer_full_name = []
+        treasurer_full_name.append(f3x_data['treasurerLastName'])
+        treasurer_full_name.append(f3x_data['treasurerFirstName'])
+        treasurer_full_name.append(f3x_data['treasurerMiddleName'])
+        treasurer_full_name.append(f3x_data['treasurerPrefix'])
+        treasurer_full_name.append(f3x_data['treasurerSuffix'])
+        f3x_data['treasurerFullName'] = ",".join(map(str, treasurer_full_name))
+        f3x_data['treasurerName'] = f3x_data['treasurerLastName'] + "," + f3x_data['treasurerFirstName']
+        f3x_data['efStamp'] = '[Electronically Filed]'
 
         f3x_data_summary_array = [f3x_data, f3x_summary]
         f3x_data_summary = {i: j for x in f3x_data_summary_array for i, j in x.items()}
@@ -81,7 +107,7 @@ def print_pdftk(stamp_print):
                     no_of_transactions_in_last_page = int(len(sa_schedules) % 3)
 
                 total_no_of_pages += no_of_pages
-                if no_of_pages > 1:
+                if no_of_pages > 0:
                     for sa_page_no in range(no_of_pages):
                         page_subtotal = 0.00
                         sa_schedule_page_dict = {}
