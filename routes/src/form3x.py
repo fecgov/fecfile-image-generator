@@ -21,6 +21,11 @@ def directory_files(directory):
     return files_list
 
 
+def merge(dict1, dict2):
+    res = {**dict1, **dict2}
+    return res
+
+
 def print_pdftk(stamp_print):
     # check if json_file is in the request
 
@@ -84,15 +89,27 @@ def print_pdftk(stamp_print):
         f3x_data_summary_array = [f3x_data, f3x_summary]
         f3x_data_summary = {i: j for x in f3x_data_summary_array for i, j in x.items()}
 
+        has_sa_schedules = False
         if 'schedules' in f3x_data:
             schedules = f3x_data['schedules']
             if 'SA' in schedules:
+                has_sa_schedules = True
                 schedule_total = 0.00
                 # os.remove(md5_directory + 'SA/all_pages.pdf')
                 # create SA folder under MD5 directory
                 os.makedirs(md5_directory + 'SA', exist_ok=True)
                 sa_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SA')
                 sa_schedules = schedules['SA']
+                no_of_schedules = len(sa_schedules)
+                for sa_count in range(no_of_schedules):
+                    if 'child' in sa_schedules[sa_count]:
+                        sa_child_schedules = sa_schedules[sa_count]['child']
+                        sa_child_schedules_count = len(sa_child_schedules)
+                        no_of_schedules += sa_child_schedules_count
+                        for sa_child_count in range(sa_child_schedules_count):
+                            # sa_schedules[sa_count].append(sa_schedules[sa_count]['child'][sa_child_count])
+                            sa_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
+                        del sa_schedules[sa_count]['child']
                 # print(len(sa_schedules))
                 sa_array = []
                 sa_json = {}
@@ -141,8 +158,12 @@ def print_pdftk(stamp_print):
         shutil.copy(outfile, md5_directory + 'F3X.pdf')
         os.remove(md5_directory + json_file_md5 +'_temp.pdf')
         # pypdftk.concat(directory_files(md5_directory + 'SA/'), md5_directory + 'SA/all_pages.pdf')
-        pypdftk.concat([md5_directory + 'F3X.pdf', md5_directory + 'SA/all_pages.pdf'], md5_directory + 'all_pages.pdf')
-        os.remove(md5_directory + 'SA/all_pages.pdf')
+        # checking for any sa transactions
+        if has_sa_schedules:
+            pypdftk.concat([md5_directory + 'F3X.pdf', md5_directory + 'SA/all_pages.pdf'], md5_directory + 'all_pages.pdf')
+            os.remove(md5_directory + 'SA/all_pages.pdf')
+        else:
+            shutil.move(md5_directory + 'F3X.pdf', md5_directory + 'all_pages.pdf')
 
         # push output file to AWS
         s3 = boto3.client('s3')
