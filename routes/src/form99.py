@@ -477,14 +477,21 @@ def print_f99_pdftk_html(stamp_print):
                 output_file.write(str(soup).replace("&lt;", "<").replace("&gt;", ">"))
 
             # F99 PDF page padding options
+            # options = {
+            #     'margin-top': '0.36in',
+            #     'margin-right': '0.25in',
+            #     'margin-bottom': '0.39in',
+            #     'margin-left': '0.25in'
+            # }
             options = {
-                'margin-top': '0.36in',
-                'margin-right': '0.25in',
-                'margin-bottom': '0.39in',
-                'margin-left': '0.25in'
+                'margin-top': '0.40in',
+                'margin-right': '0.20in',
+                'margin-bottom': '0.40in',
+                'margin-left': '0.20in'
             }
             # HTML(outfile).write_pdf(md5_directory + json_file_md5 + '.pdf', stylesheets=[CSS(current_app.config['FORMS_LOCATION'].format('F99.css'))])
             pdfkit.from_file(outfile, md5_directory + json_file_md5 + '.pdf', options=options)
+            # pdfkit.from_file(outfile, md5_directory + json_file_md5 + '.pdf')
 
             total_no_of_pages = pypdftk.get_num_pages(md5_directory + json_file_md5 + '.pdf')
             page_number_file = current_app.config['FORM_TEMPLATES_LOCATION'].format('Page_Number')
