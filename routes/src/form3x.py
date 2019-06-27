@@ -71,10 +71,11 @@ def print_pdftk(stamp_print):
         f3x_data['coverageEndDateDay'] = coverageEndDateArray[1]
         f3x_data['coverageEndDateYear'] = coverageEndDateArray[2]
 
-        dateSignedArray = f3x_data['dateSigned'].split("/")
-        f3x_data['dateSignedMonth'] = dateSignedArray[0]
-        f3x_data['dateSignedDay'] = dateSignedArray[1]
-        f3x_data['dateSignedYear'] = dateSignedArray[2]
+        if len(f3x_data['dateSigned']) > 0:
+            dateSignedArray = f3x_data['dateSigned'].split("/")
+            f3x_data['dateSignedMonth'] = dateSignedArray[0]
+            f3x_data['dateSignedDay'] = dateSignedArray[1]
+            f3x_data['dateSignedYear'] = dateSignedArray[2]
 
         treasurer_full_name = []
         treasurer_full_name.append(f3x_data['treasurerLastName'])
