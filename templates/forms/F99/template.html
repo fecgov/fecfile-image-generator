@@ -17,14 +17,8 @@
          left: 50%;
          transform: translate(-50%, -50%);
          }
-	 /*table tr {page-break-inside: avoid}
-	@media print {
-	  * {
-	    page-break-inside: avoid;
-	    page-break-after: avoid;
-	    page-break-before: avoid;
-	  }
-	}*/
+
+}
 
       </style>
       <link href="form-text.css" rel="stylesheet" type="text/css">
@@ -206,20 +200,46 @@
                <td colspan="4" height="26">&nbsp;</td>
             </tr>
             <tr>
-               <td height="22" colspan="4"><strong>MESSAGE &#x25BC;</strong></td>
+               <td height="22" colspan="4"><!-- strong>MESSAGE &#x25BC;</strong --></td>
             </tr>
             <tr>
                <td height="21" colspan="4">&nbsp;</td>
             </tr>
             <tr>
                <td colspan="4">
-                  <div  style="height:auto;">
-                     <label style="min-height:50px; border: 2px solid #ced4da; width: 1248; display:block; padding-left: 20px; padding-right: 20px;font-size:22px;" id="text"></label>
-                  </div>
+                  <!-- div style="height: outo;">
+                     <label style="
+                        min-height:50px; 
+                        border: 3px solid #ced4da; 
+                        width: 1412px; 
+                        display: block; 
+                        padding-left: 20px; 
+                        padding-right: 20px;
+                        font-size: 22px;
+                        overflow-x: visible;
+                        line-height: 1.25em;
+                        " id="text"></label>
+                  </div -->
                </td>
             </tr>
          </tbody>
       </table>
+      <div style="height: outo;">
+         <strong>MESSAGE &#x25BC;</strong>
+         <label style="
+            min-height:50px; 
+            border: 3px solid #ced4da; 
+            width: 1412px; 
+            display: block; 
+            padding-left: 20px; 
+            padding-right: 20px;
+            font-size: 22px;
+            overflow-x: visible;
+            line-height: 1.25em;
+            " id="text"></label>
+      </div>
+  
+
    </body>
 </html>
 
