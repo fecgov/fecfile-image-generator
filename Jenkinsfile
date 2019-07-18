@@ -54,11 +54,20 @@ pipeline{
 def deployImage(String version, String toEnv) {
    sh """
     kubectl \
-    --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile \
-    --namespace=${toEnv} \
-    set image deployment/fecfile-imagegenerator \
-    fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${version}
-  """
+      --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile \
+      --namespace=${toEnv} \
+      set image deployment/fecfile-imagegenerator \
+      fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${version}
+   """
+   if (toEnv == "dev") {
+    sh """ 
+      kubectl \
+        --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile4 \
+        --namespace=${toEnv} \
+        set image deployment/fecfile-imagegenerator \
+        fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${version}
+   """
+   }
 }
 
 def code_quality(String id, String hash) {
