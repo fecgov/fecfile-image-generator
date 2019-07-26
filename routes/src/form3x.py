@@ -90,72 +90,7 @@ def print_pdftk(stamp_print):
         f3x_data_summary_array = [f3x_data, f3x_summary]
         f3x_data_summary = {i: j for x in f3x_data_summary_array for i, j in x.items()}
 
-        has_sa_schedules = False
-        if 'schedules' in f3x_data:
-            schedules = f3x_data['schedules']
-            if 'SA' in schedules:
-                sa_schedules = schedules['SA']
-                no_of_schedules = len(sa_schedules)
-                if no_of_schedules > 0:
-                    has_sa_schedules = True
-                    schedule_total = 0.00
-                    # os.remove(md5_directory + 'SA/all_pages.pdf')
-                    # create SA folder under MD5 directory
-                    os.makedirs(md5_directory + 'SA', exist_ok=True)
-                    sa_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SA')
-
-
-                    for sa_count in range(no_of_schedules):
-                        if 'child' in sa_schedules[sa_count]:
-                            sa_child_schedules = sa_schedules[sa_count]['child']
-                            sa_child_schedules_count = len(sa_child_schedules)
-                            no_of_schedules += sa_child_schedules_count
-                            for sa_child_count in range(sa_child_schedules_count):
-                                # sa_schedules[sa_count].append(sa_schedules[sa_count]['child'][sa_child_count])
-                                sa_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
-                            del sa_schedules[sa_count]['child']
-                    # print(len(sa_schedules))
-                    sa_array = []
-                    sa_json = {}
-                    no_of_pages = 0
-                    no_of_transactions_in_last_page = 0
-                    # print(int(len(sa_schedules) / 3))
-                    if int(len(sa_schedules) % 3) == 0:
-                        no_of_pages = int(len(sa_schedules) / 3)
-                        no_of_transactions_in_last_page = 3
-                    else:
-                        no_of_pages = int(len(sa_schedules) / 3) + 1
-                        no_of_transactions_in_last_page = int(len(sa_schedules) % 3)
-
-                    total_no_of_pages += no_of_pages
-                    if no_of_pages > 0:
-                        for sa_page_no in range(no_of_pages):
-                            page_subtotal = 0.00
-                            sa_schedule_page_dict = {}
-                            sa_schedule_page_dict['pageNo'] = 5 + sa_page_no + 1
-                            sa_schedule_page_dict['totalPages'] = total_no_of_pages
-                            page_start_index = sa_page_no * 3
-                            if sa_page_no == (no_of_pages - 1):
-                                # page_end_index = page_start_index + no_of_transactions_in_last_page - 1
-                                sa_schedule_dict = build_per_page_schedule_dict(no_of_transactions_in_last_page,
-                                                                                page_start_index, sa_schedule_page_dict,
-                                                                                sa_schedules)
-                            else:
-                                # no_of_transactions_in_last_page = 3
-                                sa_schedule_dict = build_per_page_schedule_dict(3, page_start_index, sa_schedule_page_dict,
-                                                                                sa_schedules)
-
-                            page_subtotal = float(sa_schedule_page_dict['pageSubtotal'])
-                            schedule_total += page_subtotal
-                            if no_of_pages == (sa_page_no+1):
-                                sa_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
-                            sa_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-                            sa_schedule_page_dict['lineNumber'] = sa_schedule_dict['lineNumber']
-                            sa_outfile = md5_directory + '/SA/' + 'page_'+str(sa_page_no)+'.pdf'
-                            pypdftk.fill_form(sa_infile, sa_schedule_page_dict, sa_outfile)
-                    pypdftk.concat(directory_files(md5_directory + 'SA/'), md5_directory + 'SA/all_pages.pdf')
-
-
+        has_sa_schedules, has_sb_schedules, total_no_of_pages = process_schedules(f3x_data, md5_directory, total_no_of_pages)
 
         f3x_data_summary['PAGESTR'] = "PAGE " + str(page_no) + " / " + str(total_no_of_pages)
         pypdftk.fill_form(infile, f3x_data_summary, outfile)
@@ -166,7 +101,15 @@ def print_pdftk(stamp_print):
         if has_sa_schedules:
             pypdftk.concat([md5_directory + 'F3X.pdf', md5_directory + 'SA/all_pages.pdf'], md5_directory + 'all_pages.pdf')
             os.remove(md5_directory + 'SA/all_pages.pdf')
-        else:
+            shutil.rmtree(md5_directory + 'SA')
+
+        if has_sb_schedules:
+            pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SB/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+            shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+            os.remove(md5_directory + 'SB/all_pages.pdf')
+            shutil.rmtree(md5_directory + 'SB')
+
+        if not (has_sa_schedules or has_sb_schedules):
             shutil.move(md5_directory + 'F3X.pdf', md5_directory + 'all_pages.pdf')
 
         # push output file to AWS
@@ -195,7 +138,214 @@ def print_pdftk(stamp_print):
             return flask.jsonify(**envelope), status_code
 
 
-def build_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_index, sa_schedule_page_dict,
+def process_schedules(f3x_data, md5_directory, total_no_of_pages):
+    has_sa_schedules = False
+    has_sb_schedules = False
+
+    schedule_start_page = 6
+    # check if schedules exist in data file
+    if 'schedules' in f3x_data:
+        schedules = f3x_data['schedules']
+        sb_schedules = []
+        if 'SA' in schedules:
+            sa_schedules = schedules['SA']
+            sa_schedules_cnt = len(sa_schedules)
+            if sa_schedules_cnt > 0:
+                has_sa_schedules = True
+                schedule_total = 0.00
+                # os.remove(md5_directory + 'SA/all_pages.pdf')
+                # create SA folder under MD5 directory
+                os.makedirs(md5_directory + 'SA', exist_ok=True)
+                sa_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SA')
+
+                for sa_count in range(sa_schedules_cnt):
+                    if 'child' in sa_schedules[sa_count]:
+                        sa_child_schedules = sa_schedules[sa_count]['child']
+
+                        sa_child_schedules_count = len(sa_child_schedules)
+                        sa_schedules_cnt += sa_child_schedules_count
+                        for sa_child_count in range(sa_child_schedules_count):
+                            if sa_schedules[sa_count]['child'][sa_child_count]['transactionTypeCode'] == '21B':
+                                sb_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
+                                sa_schedules_cnt = sa_schedules_cnt - 1
+                            else:
+                                sa_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
+                        del sa_schedules[sa_count]['child']
+
+                if int(len(sa_schedules) % 3) == 0:
+                    sa_pages_cnt = int(len(sa_schedules) / 3)
+                    no_of_transactions_in_last_page = 3
+                else:
+                    sa_pages_cnt = int(len(sa_schedules) / 3) + 1
+                    no_of_transactions_in_last_page = int(len(sa_schedules) % 3)
+
+                total_no_of_pages += sa_pages_cnt
+
+                sb_schedules_cnt = len(sb_schedules)
+                if sb_schedules_cnt > 0:
+                    if int(sb_schedules_cnt % 3) == 0:
+                        sb_pages_cnt = int(sb_schedules_cnt / 3)
+                        no_of_transactions_in_last_page = 3
+                    else:
+                        sb_pages_cnt = int(sb_schedules_cnt / 3) + 1
+                        no_of_transactions_in_last_page = int(sb_schedules_cnt % 3)
+                    total_no_of_pages += sb_pages_cnt
+
+                if sa_pages_cnt > 0:
+                    for sa_page_no in range(sa_pages_cnt):
+                        page_subtotal = 0.00
+                        sa_schedule_page_dict = {}
+                        sa_schedule_page_dict['pageNo'] = schedule_start_page + sa_page_no
+                        sa_schedule_page_dict['totalPages'] = total_no_of_pages
+                        page_start_index = sa_page_no * 3
+                        if sa_page_no == (sa_pages_cnt - 1):
+                            # page_end_index = page_start_index + no_of_transactions_in_last_page - 1
+                            sa_schedule_dict = build_sa_per_page_schedule_dict(no_of_transactions_in_last_page,
+                                                                            page_start_index, sa_schedule_page_dict,
+                                                                            sa_schedules)
+                        else:
+                            # no_of_transactions_in_last_page = 3
+                            sa_schedule_dict = build_sa_per_page_schedule_dict(3, page_start_index,
+                                                                            sa_schedule_page_dict,
+                                                                            sa_schedules)
+
+                        page_subtotal = float(sa_schedule_page_dict['pageSubtotal'])
+                        schedule_total += page_subtotal
+                        if sa_pages_cnt == (sa_page_no + 1):
+                            sa_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
+                        sa_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                        sa_schedule_page_dict['lineNumber'] = sa_schedule_dict['lineNumber']
+                        sa_outfile = md5_directory + '/SA/' + 'page_' + str(sa_page_no) + '.pdf'
+                        pypdftk.fill_form(sa_infile, sa_schedule_page_dict, sa_outfile)
+                pypdftk.concat(directory_files(md5_directory + 'SA/'), md5_directory + 'SA/all_pages.pdf')
+
+            # process Schedule B
+            schedule_start_page = total_no_of_pages
+            sb_schedules_cnt = len(sb_schedules)
+            if sb_schedules_cnt > 0:
+                has_sb_schedules = True
+                schedule_total = 0.00
+                # create SA folder under MD5 directory
+                os.makedirs(md5_directory + 'SB', exist_ok=True)
+                sb_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SB')
+
+                # for sb_count in range(sb_schedules_cnt):
+                #     if 'child' in sb_schedules[sb_count]:
+                #         sb_child_schedules = sb_schedules[sb_count]['child']
+                #
+                #         sb_child_schedules_count = len(sb_child_schedules)
+                #         sb_schedules_cnt += sb_child_schedules_count
+                #         for sb_child_count in range(sb_child_schedules_count):
+                #             if sa_schedules[sa_count]['child'][sa_child_count]['transactionTypeCode'] == '21B':
+                #                 sb_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
+                #                 sa_schedules_cnt = sa_schedules_cnt - 1
+                #             else:
+                #                 sa_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
+                #         del sa_schedules[sa_count]['child']
+
+                # if int(len(sb_schedules) % 3) == 0:
+                #     no_of_pages = int(len(sb_schedules) / 3)
+                #     no_of_transactions_in_last_page = 3
+                # else:
+                #     no_of_pages = int(len(sb_schedules) / 3) + 1
+                #     no_of_transactions_in_last_page = int(len(sb_schedules) % 3)
+
+                # total_no_of_pages += no_of_pages
+                if sb_pages_cnt > 0:
+                    for sb_page_no in range(sb_pages_cnt):
+                        page_subtotal = 0.00
+                        sb_schedule_page_dict = {}
+                        sb_schedule_page_dict['pageNo'] = schedule_start_page + sb_page_no
+                        sb_schedule_page_dict['totalPages'] = total_no_of_pages
+                        page_start_index = sb_page_no * 3
+                        if sb_page_no == (sb_pages_cnt - 1):
+                            # page_end_index = page_start_index + no_of_transactions_in_last_page - 1
+                            sb_schedule_dict = build_sb_per_page_schedule_dict(no_of_transactions_in_last_page,
+                                                                            page_start_index, sb_schedule_page_dict,
+                                                                            sb_schedules)
+                        else:
+                            # no_of_transactions_in_last_page = 3
+                            sb_schedule_dict = build_sb_per_page_schedule_dict(3, page_start_index,
+                                                                            sb_schedule_page_dict,
+                                                                            sb_schedules)
+
+                        page_subtotal = float(sb_schedule_page_dict['pageSubtotal'])
+                        schedule_total += page_subtotal
+                        if sb_pages_cnt == (sb_page_no + 1):
+                            sb_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
+                        sb_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                        sb_schedule_page_dict['lineNumber'] = sb_schedule_dict['lineNumber']
+                        sb_outfile = md5_directory + '/SB/' + 'page_' + str(sb_page_no) + '.pdf'
+                        pypdftk.fill_form(sb_infile, sb_schedule_page_dict, sb_outfile)
+                pypdftk.concat(directory_files(md5_directory + 'SB/'), md5_directory + 'SB/all_pages.pdf')
+
+    return has_sa_schedules, has_sb_schedules, total_no_of_pages
+
+
+# def process_schedules(f3x_data, has_sa_schedules, md5_directory, sb_schedules, schedules, total_no_of_pages):
+#     sa_schedules = schedules['SA']
+#     sa_schedules_cnt = len(sa_schedules)
+#     if sa_schedules_cnt > 0:
+#         has_sa_schedules = True
+#         schedule_total = 0.00
+#         # os.remove(md5_directory + 'SA/all_pages.pdf')
+#         # create SA folder under MD5 directory
+#         os.makedirs(md5_directory + 'SA', exist_ok=True)
+#         sa_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SA')
+#
+#         for sa_count in range(sa_schedules_cnt):
+#             if 'child' in sa_schedules[sa_count]:
+#                 sa_child_schedules = sa_schedules[sa_count]['child']
+#
+#                 sa_child_schedules_count = len(sa_child_schedules)
+#                 sa_schedules_cnt += sa_child_schedules_count
+#                 for sa_child_count in range(sa_child_schedules_count):
+#                     # sa_schedules[sa_count].append(sa_schedules[sa_count]['child'][sa_child_count])
+#                     # print('transactionTypeCode: '+sa_schedules[sa_count]['child'][sa_child_count]['transactionTypeCode'])
+#                     if sa_schedules[sa_count]['child'][sa_child_count]['transactionTypeCode'] == '21B':
+#                         sb_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
+#                         sa_schedules_cnt = sa_schedules_cnt - 1
+#                     else:
+#                         sa_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
+#                 del sa_schedules[sa_count]['child']
+#         if int(len(sa_schedules) % 3) == 0:
+#             no_of_pages = int(len(sa_schedules) / 3)
+#             no_of_transactions_in_last_page = 3
+#         else:
+#             no_of_pages = int(len(sa_schedules) / 3) + 1
+#             no_of_transactions_in_last_page = int(len(sa_schedules) % 3)
+#
+#         total_no_of_pages += no_of_pages
+#         if no_of_pages > 0:
+#             for sa_page_no in range(no_of_pages):
+#                 page_subtotal = 0.00
+#                 sa_schedule_page_dict = {}
+#                 sa_schedule_page_dict['pageNo'] = 5 + sa_page_no + 1
+#                 sa_schedule_page_dict['totalPages'] = total_no_of_pages
+#                 page_start_index = sa_page_no * 3
+#                 if sa_page_no == (no_of_pages - 1):
+#                     # page_end_index = page_start_index + no_of_transactions_in_last_page - 1
+#                     sa_schedule_dict = build_per_page_schedule_dict(no_of_transactions_in_last_page,
+#                                                                     page_start_index, sa_schedule_page_dict,
+#                                                                     sa_schedules)
+#                 else:
+#                     # no_of_transactions_in_last_page = 3
+#                     sa_schedule_dict = build_per_page_schedule_dict(3, page_start_index, sa_schedule_page_dict,
+#                                                                     sa_schedules)
+#
+#                 page_subtotal = float(sa_schedule_page_dict['pageSubtotal'])
+#                 schedule_total += page_subtotal
+#                 if no_of_pages == (sa_page_no + 1):
+#                     sa_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
+#                 sa_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+#                 sa_schedule_page_dict['lineNumber'] = sa_schedule_dict['lineNumber']
+#                 sa_outfile = md5_directory + '/SA/' + 'page_' + str(sa_page_no) + '.pdf'
+#                 pypdftk.fill_form(sa_infile, sa_schedule_page_dict, sa_outfile)
+#         pypdftk.concat(directory_files(md5_directory + 'SA/'), md5_directory + 'SA/all_pages.pdf')
+#     return has_sa_schedules, total_no_of_pages
+
+
+def build_sa_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_index, sa_schedule_page_dict,
                                  sa_schedules):
     page_subtotal = 0.00
     if no_of_transactions_in_last_page == 1:
@@ -205,7 +355,7 @@ def build_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_ind
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         for key in sa_schedules[page_start_index]:
-            build_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
+            build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
         sa_schedule_page_dict["contributorName_"+str(index)] = ",".join(map(str, contributor_name))
     elif no_of_transactions_in_last_page == 2:
         index = 1
@@ -214,7 +364,7 @@ def build_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_ind
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         for key in sa_schedules[page_start_index]:
-            build_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
+            build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
         sa_schedule_page_dict["contributorName_"+str(index)] = ",".join(map(str, contributor_name))
         index = 2
         contributor_name.clear()
@@ -222,7 +372,7 @@ def build_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_ind
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         for key in sa_schedules[page_start_index]:
-            build_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
+            build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
         sa_schedule_page_dict["contributorName_"+str(index)] = ",".join(map(str, contributor_name))
     elif no_of_transactions_in_last_page == 3:
         index = 1
@@ -231,7 +381,7 @@ def build_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_ind
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         for key in sa_schedules[page_start_index]:
-            build_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
+            build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
         sa_schedule_page_dict["contributorName_"+str(index)] = ",".join(map(str, contributor_name))
         index = 2
         contributor_name.clear()
@@ -239,7 +389,7 @@ def build_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_ind
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         for key in sa_schedules[page_start_index]:
-            build_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
+            build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
         sa_schedule_page_dict["contributorName_"+str(index)] = ",".join(map(str, contributor_name))
         index = 3
         contributor_name.clear()
@@ -247,13 +397,71 @@ def build_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_ind
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         for key in sa_schedules[page_start_index]:
-            build_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
+            build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name)
         sa_schedule_page_dict["contributorName_"+str(index)] = ",".join(map(str, contributor_name))
     sa_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
     return sa_schedule_dict
 
 
-def build_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name):
+def build_sb_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_index, sb_schedule_page_dict,
+                                 sb_schedules):
+    page_subtotal = 0.00
+    if no_of_transactions_in_last_page == 1:
+        index = 1
+        contributor_name = []
+        sb_schedule_dict = sb_schedules[page_start_index + 0]
+        if sb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += sb_schedule_dict['expenditureAmount']
+        for key in sb_schedules[page_start_index]:
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
+        sb_schedule_page_dict["payeeName_"+str(index)] = ",".join(map(str, contributor_name))
+    elif no_of_transactions_in_last_page == 2:
+        index = 1
+        contributor_name = []
+        sb_schedule_dict = sb_schedules[page_start_index + 0]
+        if sb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += sb_schedule_dict['expenditureAmount']
+        for key in sb_schedules[page_start_index]:
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
+        sb_schedule_page_dict["payeeName_"+str(index)] = ",".join(map(str, contributor_name))
+        index = 2
+        contributor_name.clear()
+        sb_schedule_dict = sb_schedules[page_start_index + 1]
+        if sb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += sb_schedule_dict['expenditureAmount']
+        for key in sb_schedules[page_start_index]:
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
+        sb_schedule_page_dict["payeeName_"+str(index)] = ",".join(map(str, contributor_name))
+    elif no_of_transactions_in_last_page == 3:
+        index = 1
+        contributor_name = []
+        sb_schedule_dict = sb_schedules[page_start_index + 0]
+        if sb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += sb_schedule_dict['expenditureAmount']
+        for key in sb_schedules[page_start_index]:
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
+        sb_schedule_page_dict["payeeName_"+str(index)] = ",".join(map(str, contributor_name))
+        index = 2
+        contributor_name.clear()
+        sb_schedule_dict = sb_schedules[page_start_index + 1]
+        if sb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += sb_schedule_dict['expenditureAmount']
+        for key in sb_schedules[page_start_index]:
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
+        sb_schedule_page_dict["payeeName_"+str(index)] = ",".join(map(str, contributor_name))
+        index = 3
+        contributor_name.clear()
+        sb_schedule_dict = sb_schedules[page_start_index + 2]
+        if sb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += sb_schedule_dict['expenditureAmount']
+        for key in sb_schedules[page_start_index]:
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
+        sb_schedule_page_dict["payeeName_"+str(index)] = ",".join(map(str, contributor_name))
+    sb_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
+    return sb_schedule_dict
+
+
+def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name):
 
     if key == 'contributorLastName':
         contributor_name.append(sa_schedule_dict[key])
@@ -276,3 +484,26 @@ def build_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, co
         else:
             sa_schedule_page_dict[key + '_' + str(index)] = sa_schedule_dict[key]
 
+
+def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, payee_name):
+
+    if key == 'payeeLastName':
+        payee_name.append(sb_schedule_dict[key])
+    elif key == 'payeeFirstName':
+        payee_name.append(sb_schedule_dict[key])
+    elif key == 'payeeMiddleName':
+        payee_name.append(sb_schedule_dict[key])
+    elif key == 'payeePrefix':
+        payee_name.append(sb_schedule_dict[key])
+    elif key == 'payeeSuffix':
+        payee_name.append(sb_schedule_dict[key])
+    elif key == 'expenditureDate':
+        date_array = sb_schedule_dict[key].split("/")
+        sb_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
+        sb_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
+        sb_schedule_page_dict['expenditureDateYear_' + str(index)] = date_array[2]
+    else:
+        if key == 'expenditureAmount' or key == 'expenditureAggregate':
+            sb_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sb_schedule_dict[key])
+        else:
+            sb_schedule_page_dict[key + '_' + str(index)] = sb_schedule_dict[key]
