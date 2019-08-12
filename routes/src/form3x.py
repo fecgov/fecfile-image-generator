@@ -541,7 +541,8 @@ def build_sb_per_page_schedule_dict(no_of_transactions_in_last_page, page_start_
 
 
 def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name):
-
+    if not sa_schedule_dict[key]:
+        sa_schedule_dict[key] = ""
     if key == 'contributorLastName':
         contributor_name.append(sa_schedule_dict[key])
     elif key == 'contributorFirstName':
@@ -565,6 +566,8 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
 
 
 def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, payee_name):
+    if not sb_schedule_dict[key]:
+        sb_schedule_dict[key] = ""
     if key == 'payeeLastName':
         payee_name.append(sb_schedule_dict[key])
     elif key == 'payeeFirstName':
