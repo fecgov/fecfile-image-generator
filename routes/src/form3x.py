@@ -200,26 +200,42 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     sa_schedules = []
     sb_schedules = []
     has_sa_schedules = has_sb_schedules = False
+
+
     # check if schedules exist in data file
     if 'schedules' in f3x_data:
         schedules = f3x_data['schedules']
+        # building array for all SA line numbers
+        sa_11a = []
+        sa_11b = []
+        sa_11c = []
+        sa_12 = []
+        sa_13 = []
+        sa_14 = []
+        sa_15 = []
+        sa_16 = []
+        sa_17 = []
+
+        # building array for all SB line numbers
+        sb_21b = []
+        sb_22 = []
+        sb_23 = []
+        sb_26 = []
+        sb_27 = []
+        sb_28a = []
+        sb_28b = []
+        sb_28c = []
+        sb_29 = []
+        sb_30b = []
         if 'SA' in schedules:
             sa_start_page = total_no_of_pages
             sa_schedules = schedules['SA']
             sa_schedules_cnt = len(sa_schedules)
-            # building array for all SA line numbers
+
             if sa_schedules_cnt > 0:
                 has_sa_schedules = True
                 os.makedirs(md5_directory + 'SA', exist_ok=True)
-                sa_11a = []
-                sa_11b = []
-                sa_11c = []
-                sa_12 = []
-                sa_13 = []
-                sa_14 = []
-                sa_15 = []
-                sa_16 = []
-                sa_17 = []
+
 
                 sa_11a_last_page_cnt = sa_11b_last_page_cnt = sa_11c_last_page_cnt = sa_12_last_page_cnt = 3
                 sa_13_last_page_cnt = sa_14_last_page_cnt = sa_15_last_page_cnt = sa_16_last_page_cnt = 3
@@ -272,17 +288,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             if sb_schedules_cnt > 0:
                 has_sb_schedules = True
                 os.makedirs(md5_directory + 'SB', exist_ok=True)
-                # building array for all SB line numbers
-                sb_21b = []
-                sb_22 = []
-                sb_23 = []
-                sb_26 = []
-                sb_27 = []
-                sb_28a = []
-                sb_28b = []
-                sb_28c = []
-                sb_29 = []
-                sb_30b = []
+
 
                 sb_21b_last_page_cnt = sb_22_last_page_cnt = sb_23_last_page_cnt = sb_26_last_page_cnt = 3
                 sb_27_last_page_cnt = sb_28a_last_page_cnt = sb_28b_last_page_cnt = sb_28c_last_page_cnt = 3
@@ -320,108 +326,108 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 total_no_of_pages = (total_no_of_pages + sb_21b_page_cnt + sb_22_page_cnt + sb_23_page_cnt
                                      + sb_26_page_cnt + sb_27_page_cnt + sb_28a_page_cnt + sb_28b_page_cnt
                                      + sb_28c_page_cnt + sb_29_page_cnt + sb_30b_page_cnt)
-        # Schedule A line number processing starts here
-        # process Schedule 11AI
-        sa_11a_start_page = sa_start_page
-        process_sa_line(f3x_data, md5_directory, '11AI', sa_11a, sa_11a_page_cnt, sa_11a_start_page,
-                        sa_11a_last_page_cnt, total_no_of_pages)
+            # Schedule A line number processing starts here
+            # process Schedule 11AI
+            sa_11a_start_page = sa_start_page
+            process_sa_line(f3x_data, md5_directory, '11AI', sa_11a, sa_11a_page_cnt, sa_11a_start_page,
+                            sa_11a_last_page_cnt, total_no_of_pages)
 
-        # process Schedule 11B
-        sa_11b_start_page = sa_11a_start_page + sa_11a_page_cnt
-        process_sa_line(f3x_data, md5_directory, '11B', sa_11b, sa_11b_page_cnt, sa_11b_start_page,
-                        sa_11b_last_page_cnt, total_no_of_pages)
+            # process Schedule 11B
+            sa_11b_start_page = sa_11a_start_page + sa_11a_page_cnt
+            process_sa_line(f3x_data, md5_directory, '11B', sa_11b, sa_11b_page_cnt, sa_11b_start_page,
+                            sa_11b_last_page_cnt, total_no_of_pages)
 
-        # process Schedule 11C
-        sa_11c_start_page = sa_11b_start_page + sa_11b_page_cnt
-        process_sa_line(f3x_data, md5_directory, '11C', sa_11c, sa_11c_page_cnt, sa_11c_start_page,
-                        sa_11c_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 11C
+            sa_11c_start_page = sa_11b_start_page + sa_11b_page_cnt
+            process_sa_line(f3x_data, md5_directory, '11C', sa_11c, sa_11c_page_cnt, sa_11c_start_page,
+                            sa_11c_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 12
-        sa_12_start_page = sa_11c_start_page + sa_11c_page_cnt
-        process_sa_line(f3x_data, md5_directory, '12', sa_12, sa_12_page_cnt, sa_12_start_page, sa_12_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 12
+            sa_12_start_page = sa_11c_start_page + sa_11c_page_cnt
+            process_sa_line(f3x_data, md5_directory, '12', sa_12, sa_12_page_cnt, sa_12_start_page, sa_12_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 13
-        sa_13_start_page = sa_12_start_page + sa_12_page_cnt
-        process_sa_line(f3x_data, md5_directory, '13', sa_13, sa_13_page_cnt, sa_13_start_page, sa_13_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 13
+            sa_13_start_page = sa_12_start_page + sa_12_page_cnt
+            process_sa_line(f3x_data, md5_directory, '13', sa_13, sa_13_page_cnt, sa_13_start_page, sa_13_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 14
-        sa_14_start_page = sa_13_start_page + sa_13_page_cnt
-        process_sa_line(f3x_data, md5_directory, '14', sa_14, sa_14_page_cnt, sa_14_start_page,
-                        sa_14_last_page_cnt, total_no_of_pages)
+            # process Schedule 14
+            sa_14_start_page = sa_13_start_page + sa_13_page_cnt
+            process_sa_line(f3x_data, md5_directory, '14', sa_14, sa_14_page_cnt, sa_14_start_page,
+                            sa_14_last_page_cnt, total_no_of_pages)
 
-        # process Schedule 15
-        sa_15_start_page = sa_14_start_page + sa_14_page_cnt
-        process_sa_line(f3x_data, md5_directory, '15', sa_15, sa_15_page_cnt, sa_15_start_page,
-                        sa_15_last_page_cnt, total_no_of_pages)
+            # process Schedule 15
+            sa_15_start_page = sa_14_start_page + sa_14_page_cnt
+            process_sa_line(f3x_data, md5_directory, '15', sa_15, sa_15_page_cnt, sa_15_start_page,
+                            sa_15_last_page_cnt, total_no_of_pages)
 
-        # process Schedule 16
-        sa_16_start_page = sa_15_start_page + sa_15_page_cnt
-        process_sa_line(f3x_data, md5_directory, '16', sa_16, sa_16_page_cnt, sa_16_start_page,
-                        sa_16_last_page_cnt, total_no_of_pages)
+            # process Schedule 16
+            sa_16_start_page = sa_15_start_page + sa_15_page_cnt
+            process_sa_line(f3x_data, md5_directory, '16', sa_16, sa_16_page_cnt, sa_16_start_page,
+                            sa_16_last_page_cnt, total_no_of_pages)
 
-        # process Schedule 17
-        sa_17_start_page = sa_16_start_page + sa_16_page_cnt
-        process_sa_line(f3x_data, md5_directory, '17', sa_17, sa_17_page_cnt, sa_17_start_page, sa_17_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 17
+            sa_17_start_page = sa_16_start_page + sa_16_page_cnt
+            process_sa_line(f3x_data, md5_directory, '17', sa_17, sa_17_page_cnt, sa_17_start_page, sa_17_last_page_cnt,
+                            total_no_of_pages)
 
 
-        # Schedule B line number processing starts here
-        # process Schedule 21B
-        sb_21b_start_page = sb_start_page
-        process_sb_line(f3x_data, md5_directory, '21B', sb_21b, sb_21b_page_cnt, sb_21b_start_page,
-                        sb_21b_last_page_cnt,
-                        total_no_of_pages)
+            # Schedule B line number processing starts here
+            # process Schedule 21B
+            sb_21b_start_page = sb_start_page
+            process_sb_line(f3x_data, md5_directory, '21B', sb_21b, sb_21b_page_cnt, sb_21b_start_page,
+                            sb_21b_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 22
-        sb_22_start_page = sb_21b_start_page + sb_21b_page_cnt
-        process_sb_line(f3x_data, md5_directory, '22', sb_22, sb_22_page_cnt, sb_22_start_page, sb_22_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 22
+            sb_22_start_page = sb_21b_start_page + sb_21b_page_cnt
+            process_sb_line(f3x_data, md5_directory, '22', sb_22, sb_22_page_cnt, sb_22_start_page, sb_22_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 23
-        sb_23_start_page = sb_22_start_page + sb_22_page_cnt
-        process_sb_line(f3x_data, md5_directory, '23', sb_23, sb_23_page_cnt, sb_23_start_page, sb_23_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 23
+            sb_23_start_page = sb_22_start_page + sb_22_page_cnt
+            process_sb_line(f3x_data, md5_directory, '23', sb_23, sb_23_page_cnt, sb_23_start_page, sb_23_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 26
-        sb_26_start_page = sb_23_start_page + sb_23_page_cnt
-        process_sb_line(f3x_data, md5_directory, '26', sb_26, sb_26_page_cnt, sb_26_start_page, sb_26_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 26
+            sb_26_start_page = sb_23_start_page + sb_23_page_cnt
+            process_sb_line(f3x_data, md5_directory, '26', sb_26, sb_26_page_cnt, sb_26_start_page, sb_26_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 27
-        sb_27_start_page = sb_26_start_page + sb_26_page_cnt
-        process_sb_line(f3x_data, md5_directory, '27', sb_27, sb_27_page_cnt, sb_27_start_page, sb_27_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 27
+            sb_27_start_page = sb_26_start_page + sb_26_page_cnt
+            process_sb_line(f3x_data, md5_directory, '27', sb_27, sb_27_page_cnt, sb_27_start_page, sb_27_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 28A
-        sb_28a_start_page = sb_27_start_page + sb_27_page_cnt
-        process_sb_line(f3x_data, md5_directory, '28A', sb_28a, sb_28a_page_cnt, sb_28a_start_page,
-                        sb_28a_last_page_cnt, total_no_of_pages)
+            # process Schedule 28A
+            sb_28a_start_page = sb_27_start_page + sb_27_page_cnt
+            process_sb_line(f3x_data, md5_directory, '28A', sb_28a, sb_28a_page_cnt, sb_28a_start_page,
+                            sb_28a_last_page_cnt, total_no_of_pages)
 
-        # process Schedule 28B
-        sb_28b_start_page = sb_28a_start_page + sb_28a_page_cnt
-        process_sb_line(f3x_data, md5_directory, '28B', sb_28b, sb_28b_page_cnt, sb_28b_start_page,
-                        sb_28b_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 28B
+            sb_28b_start_page = sb_28a_start_page + sb_28a_page_cnt
+            process_sb_line(f3x_data, md5_directory, '28B', sb_28b, sb_28b_page_cnt, sb_28b_start_page,
+                            sb_28b_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 28C
-        sb_28c_start_page = sb_28b_start_page + sb_28b_page_cnt
-        process_sb_line(f3x_data, md5_directory, '28C', sb_28c, sb_28c_page_cnt, sb_28c_start_page,
-                        sb_28c_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 28C
+            sb_28c_start_page = sb_28b_start_page + sb_28b_page_cnt
+            process_sb_line(f3x_data, md5_directory, '28C', sb_28c, sb_28c_page_cnt, sb_28c_start_page,
+                            sb_28c_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 29
-        sb_29_start_page = sb_28c_start_page + sb_28c_page_cnt
-        process_sb_line(f3x_data, md5_directory, '29', sb_29, sb_29_page_cnt, sb_29_start_page, sb_29_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 29
+            sb_29_start_page = sb_28c_start_page + sb_28c_page_cnt
+            process_sb_line(f3x_data, md5_directory, '29', sb_29, sb_29_page_cnt, sb_29_start_page, sb_29_last_page_cnt,
+                            total_no_of_pages)
 
-        # process Schedule 30B
-        sb_30b_start_page = sb_29_start_page + sb_29_page_cnt
-        process_sb_line(f3x_data, md5_directory, '30B', sb_30b, sb_30b_page_cnt, sb_30b_start_page,
-                        sb_30b_last_page_cnt,
-                        total_no_of_pages)
+            # process Schedule 30B
+            sb_30b_start_page = sb_29_start_page + sb_29_page_cnt
+            process_sb_line(f3x_data, md5_directory, '30B', sb_30b, sb_30b_page_cnt, sb_30b_start_page,
+                            sb_30b_last_page_cnt,
+                            total_no_of_pages)
 
         return has_sa_schedules, has_sb_schedules, total_no_of_pages
 
