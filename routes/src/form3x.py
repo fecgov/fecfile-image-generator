@@ -529,7 +529,7 @@ def calculate_page_count(schedules):
 
 # This method builds line number array for SA
 def process_sa_line_numbers(sa_11a, sa_11b, sa_11c, sa_12, sa_13, sa_14, sa_15, sa_16, sa_17, sa_obj):
-    if sa_obj['lineNumber'] == '11AI' or sa_obj['lineNumber'] == '11AII':
+    if sa_obj['lineNumber'] == '11A' or sa_obj['lineNumber'] == '11AI' or sa_obj['lineNumber'] == '11AII':
         sa_11a.append(sa_obj)
     elif sa_obj['lineNumber'] == '11B':
         sa_11b.append(sa_obj)
