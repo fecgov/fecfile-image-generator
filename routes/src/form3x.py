@@ -288,9 +288,6 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
                 # process for each Schedule A
                 for sa_count in range(sa_schedules_cnt):
-                    process_sa_line_numbers(sa_11a, sa_11b, sa_11c, sa_12, sa_13, sa_14, sa_15, sa_16, sa_17,
-                                            sa_schedules[sa_count])
-
                     if 'child' in sa_schedules[sa_count]:
                         sa_child_schedules = sa_schedules[sa_count]['child']
 
@@ -299,9 +296,16 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                             if sa_schedules[sa_count]['child'][sa_child_count]['lineNumber'] in sb_line_numbers:
                                 sb_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
                             else:
-                                process_sa_line_numbers(sa_11a, sa_11b, sa_11c, sa_12, sa_13, sa_14, sa_15, sa_16,
-                                                        sa_17,
-                                                        sa_schedules[sa_count]['child'][sa_child_count])
+                                sa_schedules.append(sa_schedules[sa_count]['child'][sa_child_count])
+                                # process_sa_line_numbers(sa_11a, sa_11b, sa_11c, sa_12, sa_13, sa_14, sa_15, sa_16,
+                                #                         sa_17,
+                                #                         sa_schedules[sa_count]['child'][sa_child_count])
+                sa_schedules_cnt = len(sa_schedules)
+                for sa_count in range(sa_schedules_cnt):
+                    process_sa_line_numbers(sa_11a, sa_11b, sa_11c, sa_12, sa_13, sa_14, sa_15, sa_16, sa_17,
+                                            sa_schedules[sa_count])
+
+
                 # calculate number of pages for SA line numbers
                 sa_11a_page_cnt, sa_11a_last_page_cnt = calculate_page_count(sa_11a)
                 sa_11b_page_cnt, sa_11b_last_page_cnt = calculate_page_count(sa_11b)
@@ -856,49 +860,37 @@ def build_sa_per_page_schedule_dict(last_page, transactions_in_page, page_start_
 
     if transactions_in_page == 1:
         index = 1
-        contributor_name = []
         sa_schedule_dict = sa_schedules[page_start_index + 0]
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict,
-                                         contributor_name)
+        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
     elif transactions_in_page == 2:
         index = 1
-        contributor_name = []
         sa_schedule_dict = sa_schedules[page_start_index + 0]
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict,
-                                         contributor_name)
+        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
         index = 2
-        contributor_name.clear()
         sa_schedule_dict = sa_schedules[page_start_index + 1]
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict,
-                                         contributor_name)
+        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
     elif transactions_in_page == 3:
         index = 1
-        contributor_name = []
         sa_schedule_dict = sa_schedules[page_start_index + 0]
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict,
-                                         contributor_name)
+        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
         index = 2
-        contributor_name.clear()
         sa_schedule_dict = sa_schedules[page_start_index + 1]
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict,
-                                         contributor_name)
+        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
         index = 3
-        contributor_name.clear()
         sa_schedule_dict = sa_schedules[page_start_index + 2]
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict,
-                                         contributor_name)
+        build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
     sa_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
     return sa_schedule_dict
 
@@ -911,61 +903,49 @@ def build_sb_per_page_schedule_dict(last_page, transactions_in_page, page_start_
         transactions_in_page = 3
     if transactions_in_page == 1:
         index = 1
-        contributor_name = []
         sb_schedule_dict = sb_schedules[page_start_index + 0]
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
-            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
-        sb_schedule_page_dict["payeeName_" + str(index)] = ",".join(map(str, contributor_name))
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
     elif transactions_in_page == 2:
         index = 1
-        contributor_name = []
         sb_schedule_dict = sb_schedules[page_start_index + 0]
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
-            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
-        sb_schedule_page_dict["payeeName_" + str(index)] = ",".join(map(str, contributor_name))
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
         index = 2
-        contributor_name.clear()
         sb_schedule_dict = sb_schedules[page_start_index + 1]
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
-            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
-        sb_schedule_page_dict["payeeName_" + str(index)] = ",".join(map(str, contributor_name))
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
     elif transactions_in_page == 3:
         index = 1
-        contributor_name = []
         sb_schedule_dict = sb_schedules[page_start_index + 0]
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
-            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
-        sb_schedule_page_dict["payeeName_" + str(index)] = ",".join(map(str, contributor_name))
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
         index = 2
-        contributor_name.clear()
         sb_schedule_dict = sb_schedules[page_start_index + 1]
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
-            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
-        sb_schedule_page_dict["payeeName_" + str(index)] = ",".join(map(str, contributor_name))
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
         index = 3
-        contributor_name.clear()
         sb_schedule_dict = sb_schedules[page_start_index + 2]
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
-            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, contributor_name)
-        sb_schedule_page_dict["payeeName_" + str(index)] = ",".join(map(str, contributor_name))
+            build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
     sb_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
     return sb_schedule_dict
 
 
 # This method filters data and message data to render PDF
-def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict, contributor_name):
+def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict):
     try:
         if 'contributorLastName' in sa_schedule_dict:
             sa_schedule_page_dict['contributorName_' + str(index)] = (sa_schedule_dict['contributorLastName'] + ','
@@ -982,9 +962,9 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
             sa_schedule_page_dict["contributorName_" + str(index)] = sa_schedule_dict['contributorOrgName']
             del sa_schedule_dict['contributorOrgName']
 
-        if 'lineNumber' in sa_schedule_dict:
-            sa_schedule_page_dict['lineNumber'] = sa_schedule_dict['lineNumber']
-            del sa_schedule_dict['lineNumber']
+        # if 'lineNumber' in sa_schedule_dict:
+        #     sa_schedule_page_dict['lineNumber'] = sa_schedule_dict['lineNumber']
+        #     del sa_schedule_dict['lineNumber']
 
         if 'contributionDate' in sa_schedule_dict:
             date_array = sa_schedule_dict['contributionDate'].split("/")
@@ -1008,28 +988,29 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
             del sa_schedule_dict['contributionAggregate']
 
         for key in sa_schedule_dict:
-            sa_schedule_page_dict[key + '_' + str(index)] = sa_schedule_dict[key]
+            if key != 'lineNumber':
+                sa_schedule_page_dict[key + '_' + str(index)] = sa_schedule_dict[key]
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule A transaction: ' + str(sa_schedule_dict))
         raise e
 
 
 # This method filters data and message data to render PDF
-def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict, payee_name):
+def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict):
     try:
         if not sb_schedule_dict.get(key):
             sb_schedule_dict[key] = ""
-        if key == 'payeeLastName':
-            payee_name.append(sb_schedule_dict[key])
-        elif key == 'payeeFirstName':
-            payee_name.append(sb_schedule_dict[key])
-        elif key == 'payeeMiddleName':
-            payee_name.append(sb_schedule_dict[key])
-        elif key == 'payeePrefix':
-            payee_name.append(sb_schedule_dict[key])
-        elif key == 'payeeSuffix':
-            payee_name.append(sb_schedule_dict[key])
-        elif key == 'expenditureDate':
+
+        if 'payeeLastName' in sb_schedule_dict:
+            sb_schedule_page_dict['payeeName_' + str(index)] = (sb_schedule_page_dict['payeeLastName'] + ','
+                                                                      + sb_schedule_page_dict['payeeFirstName'] + ','
+                                                                      + sb_schedule_page_dict['payeeMiddleName'] + ','
+                                                                      + sb_schedule_page_dict['payeePrefix'] + ','
+                                                                      + sb_schedule_page_dict['payeeSuffix'])
+        elif 'payeeOrganizationName' in sb_schedule_dict:
+            sb_schedule_page_dict["payeeName_" + str(index)] = sb_schedule_dict['payeeOrganizationName']
+
+        if key == 'expenditureDate':
             date_array = sb_schedule_dict[key].split("/")
             sb_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
             sb_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
