@@ -127,6 +127,7 @@ def print_pdftk(stamp_print):
             has_sa_schedules = process_output.get('has_sa_schedules')
             has_sb_schedules = process_output.get('has_sb_schedules')
             has_sc_schedules = process_output.get('has_sc_schedules')
+            has_sd_schedules = process_output.get('has_sd_schedules')
 
             if len(f3x_summary) > 0:
                 f3x_data_summary['PAGESTR'] = "PAGE " + str(page_no) + " / " + str(total_no_of_pages)
@@ -156,6 +157,13 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SC/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SC')
 
+                # checking for sd transactions
+                if has_sd_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SD/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SD/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SD')
+
                 # if not (has_sa_schedules or has_sb_schedules or has_sc_schedules):
                 #     shutil.move(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
             else:
@@ -181,6 +189,13 @@ def print_pdftk(stamp_print):
                         shutil.move(md5_directory + 'SC/all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SC/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SC')
+
+                # checking for sd transactions
+                if has_sd_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SD/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SD/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SD')
 
             # push output file to AWS
             s3 = boto3.client('s3')
@@ -219,9 +234,10 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     sc_sb_line_numbers = ['26', '27']
     sa_schedules = []
     sb_schedules = []
-    has_sc_schedules = has_sa_schedules = has_sb_schedules = False
+    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = False
     sa_schedules_cnt = sb_schedules_cnt = 0
     total_sc_pages = 0
+    totalOutstandingLoans = '0.00'
 
     # check if schedules exist in data file
     if 'schedules' in f3x_data:
@@ -257,6 +273,34 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         if sc2_schedules_cnt > 4:
                             additional_sc_pg_cnt += int(sc2_schedules_cnt/4)
             total_sc_pages = sc_schedules_cnt + sc1_schedules_cnt + additional_sc_pg_cnt
+
+        #checking SD before SA and SB as SD has SB transactions as childs
+        if 'SD' in schedules:
+            sd_schedules = schedules.get('SD')
+            sd_schedules_cnt = len(sd_schedules)
+            total_sd_pages = 0
+            line_9_list = []
+            line_10_list = []
+            if sd_schedules_cnt > 0:
+                has_sd_schedules = True
+                os.makedirs(md5_directory + 'SD', exist_ok=True)
+                for sd in sd_schedules:
+                    if sd.get('lineNumber') == '9':
+                        line_9_list.append(sd)
+                    else:
+                        line_10_list.append(sd)
+                    if 'child' in sd:
+                        sd_children = sd.get('child')
+                        for sd_child in sd_children:
+                            if sd_child.get('transactionTypeIdentifier') in ['OPEXP_DEBT', 'FEA_100PCT_DEBT_PAY', 'OTH_DISB_DEBT']:
+                                if 'SB' not in schedules:
+                                    schedules['SB'] = []
+                                schedules['SB'].append(sd_child)
+                if line_9_list:
+                    total_sd_pages += int(len(line_9_list)/3) + 1
+                if line_10_list:
+                    total_sd_pages += int(len(line_10_list)/3) + 1
+            sd_dict = { '9': line_9_list, '10': line_10_list}
 
         if 'SA' in schedules:
             sa_start_page = total_no_of_pages
@@ -384,6 +428,10 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
         sc_start_page = total_no_of_pages + 1
         total_no_of_pages += total_sc_pages
+
+        sd_start_page = total_no_of_pages + 1
+        total_no_of_pages += total_sd_pages
+
         # Schedule A line number processing starts here
         if sa_schedules_cnt > 0:
             # process Schedule 11AI
@@ -484,7 +532,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                             sb_30b_last_page_cnt, total_no_of_pages)
 
         if 'SC' in schedules and sc_schedules_cnt > 0:
-            sc1_list, sc1_start_page = process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_no_of_pages)
+            sc1_list, sc1_start_page, totalOutstandingLoans = process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_no_of_pages)
         else:
             sc1_list = []
 
@@ -493,18 +541,78 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 process_sc1_line(f3x_data, md5_directory, sc1, sc1_start_page, total_no_of_pages)
                 sc1_start_page += 1
 
+        if 'SD' in schedules and sd_schedules_cnt > 0:
+                sd_total_balance = process_sd_line(f3x_data, md5_directory, sd_dict, sd_start_page, total_no_of_pages, total_sd_pages, totalOutstandingLoans)
+
         output_data = {
                         'has_sa_schedules': has_sa_schedules,
                         'has_sb_schedules': has_sb_schedules,
-                        'has_sc_schedules': has_sc_schedules
+                        'has_sc_schedules': has_sc_schedules,
+                        'has_sd_schedules': has_sd_schedules
                         }
         return output_data, total_no_of_pages
+
+def process_sd_line(f3x_data, md5_directory, sd_dict, sd_start_page, total_no_of_pages, total_sd_pages, totalOutstandingLoans):
+    sd_total_balance = '0.00'
+    sd_schedule_total = 0.00
+    page_count = 0
+    os.makedirs(md5_directory + 'SD/', exist_ok=True)
+    sd_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SD')
+    for line_number in sd_dict:
+        sd_list = sd_dict.get(line_number)
+        sd_sub_total = 0.00
+        sd_page_dict = {}
+        sd_page_dict['committeeName'] = f3x_data.get('committeeName')
+        sd_page_dict['totalNoPages'] = total_no_of_pages
+        sd_page_dict['lineNumber'] = line_number
+        if sd_list:
+            for i in range(len(sd_list)):
+                sd_schedule_total += float(sd_list[i].get('balanceAtClose'))
+                sd_sub_total += float(sd_list[i].get('balanceAtClose'))
+                sd_page_dict['pageNo'] = sd_start_page + page_count
+                concat_no = i%3+1
+                if 'creditorOrganizationName' in sd_list[i] and sd_list[i].get('creditorOrganizationName') != "":
+                    sd_page_dict['creditorName_{}'.format(concat_no)] = sd_list[i].get('creditorOrganizationName')
+                else:
+                    sd_page_dict['creditorName_{}'.format(concat_no)] = ""
+                    for item in ['creditorPrefix', 'creditorLastName', 'creditorFirstName', 'creditorMiddleName', 'creditorSuffix']:
+                        if sd_list[i].get(item) != "":
+                            sd_page_dict['creditorName_{}'.format(concat_no)] += sd_list[i].get(item) + " "
+                for item in ['creditorStreet1', 'creditorStreet2', 'creditorCity', 'creditorState', 'creditorZipCode', 'purposeOfDebtOrObligation', 'transactionId']:
+                    sd_page_dict[item+'_{}'.format(concat_no)] = sd_list[i].get(item)
+                for item in ['beginningBalance', 'incurredAmount', 'paymentAmount', 'balanceAtClose']:
+                    sd_page_dict[item+'_{}'.format(concat_no)] = '{0:.2f}'.format(float(sd_list[i].get(item)))
+                if i%3 == 2 or i == len(sd_list)-1:
+                    sd_page_dict['subTotal'] = '{0:.2f}'.format(sd_sub_total)
+                    if page_count == total_sd_pages-1:
+                        sd_page_dict['total'] = '{0:.2f}'.format(sd_schedule_total)
+                        sd_page_dict['totalOutstandingLoans'] = totalOutstandingLoans
+                        sd_total_balance = sd_page_dict['totalBalance'] = '{0:.2f}'.format(sd_schedule_total + float(totalOutstandingLoans))
+                    sd_outfile = md5_directory + 'SD' + '/page_' + str(sd_page_dict['pageNo']) + '.pdf'
+                    pypdftk.fill_form(sd_infile, sd_page_dict, sd_outfile)
+                    del_j=1
+                    while del_j <= i%3+1:
+                        for item in ['creditorName', 'creditorStreet1', 'creditorStreet2', 'creditorCity', 'creditorState', 'creditorZipCode', 
+                            'purposeOfDebtOrObligation', 'transactionId','beginningBalance', 'incurredAmount', 'paymentAmount', 'balanceAtClose']:
+                            del sd_page_dict[item+'_{}'.format(del_j)]
+                        del_j += 1
+                    if path.isfile(md5_directory + 'SD/all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'SD/all_pages.pdf', md5_directory + 'SD' + '/page_' + str(sd_page_dict['pageNo']) + '.pdf'],
+                                       md5_directory + 'SD/temp_all_pages.pdf')
+                        os.rename(md5_directory + 'SD/temp_all_pages.pdf', md5_directory + 'SD/all_pages.pdf')
+                    else:
+                        os.rename(md5_directory + 'SD' + '/page_' + str(sd_page_dict['pageNo']) + '.pdf', md5_directory + 'SD/all_pages.pdf')
+                    page_count += 1
+                    sd_sub_total = 0.00
+    return sd_total_balance
+
 
 def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_no_of_pages):
     sc_schedule_total = 0.00
     os.makedirs(md5_directory + 'SC/', exist_ok=True)
     sc_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SC')
     sc1_list = []
+    totalOutstandingLoans = '0.00'
     for sc in sc_schedules:
         page_subtotal = '{0:.2f}'.format(float(sc.get('loanBalance')))
         sc_schedule_total += float(page_subtotal)
@@ -579,7 +687,7 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
                         sc_schedule_single_page_dict['guaranteedAmount_{}'.format(j+1)] = '{0:.2f}'.format(float(sc2_list_list[i][j].get('guaranteedAmount')))
                     sc_schedule_single_page_dict['pageNo'] = sc_start_page
                     if sc_schedules[len(sc_schedules)-1].get('transactionId') == sc_schedule_single_page_dict.get('TRANSACTION_ID') and i == len(sc2_list_list)-1:
-                        sc_schedule_single_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
+                        totalOutstandingLoans = sc_schedule_single_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
                     sc_outfile = md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf'
                     pypdftk.fill_form(sc_infile, sc_schedule_single_page_dict, sc_outfile)
                     for j in range(len(sc2_list_list[i])):
@@ -602,7 +710,7 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
             else:
                 sc_schedule_page_dict['pageNo'] = sc_start_page
                 if sc_schedules[len(sc_schedules)-1].get('transactionId') == sc_schedule_page_dict.get('TRANSACTION_ID'):
-                    sc_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
+                    totalOutstandingLoans = sc_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
                 sc_outfile = md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf'
                 pypdftk.fill_form(sc_infile, sc_schedule_page_dict, sc_outfile)
                 if path.isfile(md5_directory + 'SC/all_pages.pdf'):
@@ -615,7 +723,7 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
         else:
             sc_schedule_page_dict['pageNo'] = sc_start_page
             if sc_schedules[len(sc_schedules)-1].get('transactionId') == sc_schedule_page_dict.get('TRANSACTION_ID'):
-                sc_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
+                totalOutstandingLoans = sc_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
             sc_outfile = md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf'
             pypdftk.fill_form(sc_infile, sc_schedule_page_dict, sc_outfile)
             if path.isfile(md5_directory + 'SC/all_pages.pdf'):
@@ -625,7 +733,7 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
             else:
                 os.rename(md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf', md5_directory + 'SC/all_pages.pdf')
             sc_start_page += 1
-    return sc1_list, sc_start_page
+    return sc1_list, sc_start_page, totalOutstandingLoans
 
 def process_sc1_line(f3x_data, md5_directory, sc1, sc1_start_page, total_no_of_pages):
     sc1_schedule_page_dict = {}
@@ -1002,11 +1110,11 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
             sb_schedule_dict[key] = ""
 
         if 'payeeLastName' in sb_schedule_dict:
-            sb_schedule_page_dict['payeeName_' + str(index)] = (sb_schedule_page_dict['payeeLastName'] + ','
-                                                                      + sb_schedule_page_dict['payeeFirstName'] + ','
-                                                                      + sb_schedule_page_dict['payeeMiddleName'] + ','
-                                                                      + sb_schedule_page_dict['payeePrefix'] + ','
-                                                                      + sb_schedule_page_dict['payeeSuffix'])
+            sb_schedule_page_dict['payeeName_' + str(index)] = (sb_schedule_dict['payeeLastName'] + ','
+                                                                      + sb_schedule_dict['payeeFirstName'] + ','
+                                                                      + sb_schedule_dict['payeeMiddleName'] + ','
+                                                                      + sb_schedule_dict['payeePrefix'] + ','
+                                                                      + sb_schedule_dict['payeeSuffix'])
         elif 'payeeOrganizationName' in sb_schedule_dict:
             sb_schedule_page_dict["payeeName_" + str(index)] = sb_schedule_dict['payeeOrganizationName']
 
