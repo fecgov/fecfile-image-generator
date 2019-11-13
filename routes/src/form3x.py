@@ -167,10 +167,10 @@ def print_pdftk(stamp_print):
                 
                 # checking for sd transactions
                 if has_la_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'LA/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLA/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'LA/all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'LA')
+                    os.remove(md5_directory + 'SLA/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SLA')
 
                 # if not (has_sa_schedules or has_sb_schedules or has_sc_schedules):
                 #     shutil.move(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
@@ -206,10 +206,10 @@ def print_pdftk(stamp_print):
                     shutil.rmtree(md5_directory + 'SD')
 
                 if has_la_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'LA/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLA/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'LA/all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'LA')
+                    os.remove(md5_directory + 'SLA/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SLA')
 
             # push output file to AWS
             s3 = boto3.client('s3')
@@ -449,15 +449,15 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
         total_no_of_pages += total_sd_pages
 
 
-        if 'LA' in schedules:
+        if 'SLA' in schedules:
             la_start_page = total_no_of_pages
-            la_schedules.extend(schedules.get('LA'))
+            la_schedules.extend(schedules.get('SLA'))
             la_schedules_cnt = len(la_schedules)
 
             # if la_schedules_cnt > 0:
             if la_schedules:
                 has_la_schedules = True
-                os.makedirs(md5_directory + 'LA', exist_ok=True)
+                os.makedirs(md5_directory + 'SLA', exist_ok=True)
                 # building array for all la line numbers
                 la_1a = []
                 la_2 = []
@@ -597,7 +597,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
         if la_schedules_cnt > 0:
             # process Schedule 11AI
             la_1a_start_page = la_start_page
-            process_sa_line(f3x_data, md5_directory, '1A', sa_1a, sa_1a_page_cnt, sa_1a_start_page,
+            process_la_line(f3x_data, md5_directory, '1A', sa_1a, sa_1a_page_cnt, sa_1a_start_page,
                             sa_1a_last_page_cnt, total_no_of_pages)
 
             # process Schedule 11B
@@ -970,8 +970,8 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
         la_line_start_page += 1
         has_la_schedules = True
         schedule_total = 0.00
-        os.makedirs(md5_directory + 'LA/' + line_number, exist_ok=True)
-        la_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('LA')
+        os.makedirs(md5_directory + 'SLA/' + line_number, exist_ok=True)
+        la_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SLA')
         if la_line_page_cnt > 0:
             for la_page_no in range(la_line_page_cnt):
                 page_subtotal = 0.00
@@ -993,17 +993,17 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
                 if la_line_page_cnt == (la_page_no + 1):
                     la_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
                 la_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-                la_outfile = md5_directory + 'LA/' + line_number + '/page_' + str(la_page_no) + '.pdf'
+                la_outfile = md5_directory + 'SLA/' + line_number + '/page_' + str(la_page_no) + '.pdf'
                 pypdftk.fill_form(la_infile, la_schedule_page_dict, la_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'LA/' + line_number + '/'), md5_directory + 'LA/' + line_number
+        pypdftk.concat(directory_files(md5_directory + 'SLA/' + line_number + '/'), md5_directory + 'SLA/' + line_number
                        + '/all_pages.pdf')
         # if all_pages.pdf exists in la folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + 'LA/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'LA/all_pages.pdf', md5_directory + 'LA/' + line_number + '/all_pages.pdf'],
-                           md5_directory + 'LA/temp_all_pages.pdf')
-            os.rename(md5_directory + 'LA/temp_all_pages.pdf', md5_directory + 'LA/all_pages.pdf')
+        if path.isfile(md5_directory + 'SLA/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SLA/all_pages.pdf', md5_directory + 'SLA/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SLA/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SLA/temp_all_pages.pdf', md5_directory + 'SLA/all_pages.pdf')
         else:
-            os.rename(md5_directory + 'LA/' + line_number + '/all_pages.pdf', md5_directory + 'LA/all_pages.pdf')
+            os.rename(md5_directory + 'SLA/' + line_number + '/all_pages.pdf', md5_directory + 'SLA/all_pages.pdf')
     return has_la_schedules
 
 # This method calculates number of pages for Schedules
@@ -1065,9 +1065,9 @@ def process_sb_line_numbers(sb_21b, sb_22, sb_23, sb_26, sb_27, sb_28a, sb_28b, 
 
 def process_la_line_numbers(la_1a, la_2, la_obj):
     if la_obj['lineNumber'] == '1A' :
-        sa_1a.append(sa_obj)
-    elif sa_obj['lineNumber'] == '2':
-        sa_2.append(sa_obj)
+        la_1a.append(la_obj)
+    elif la_obj['lineNumber'] == '2':
+        la_2.append(la_obj)
 
 # This method builds data for individual SA page
 def build_sa_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sa_schedule_page_dict,
@@ -1162,45 +1162,67 @@ def build_sb_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     return sb_schedule_dict
 
 
+
 def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_index, la_schedule_page_dict,
                                     la_schedules):
     page_subtotal = 0.00
     if not last_page:
-        tranlactions_in_page = 3
+        tranlactions_in_page = 4
 
     if tranlactions_in_page == 1:
         index = 1
         la_schedule_dict = la_schedules[page_start_index + 0]
         if la_schedule_dict['memoCode'] != 'X':
             page_subtotal += la_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
     elif tranlactions_in_page == 2:
         index = 1
         la_schedule_dict = la_schedules[page_start_index + 0]
         if la_schedule_dict['memoCode'] != 'X':
             page_subtotal += la_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
         index = 2
         la_schedule_dict = la_schedules[page_start_index + 1]
         if la_schedule_dict['memoCode'] != 'X':
             page_subtotal += la_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
     elif tranlactions_in_page == 3:
         index = 1
         la_schedule_dict = la_schedules[page_start_index + 0]
         if la_schedule_dict['memoCode'] != 'X':
             page_subtotal += la_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
         index = 2
         la_schedule_dict = la_schedules[page_start_index + 1]
         if la_schedule_dict['memoCode'] != 'X':
             page_subtotal += la_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
         index = 3
         la_schedule_dict = la_schedules[page_start_index + 2]
         if la_schedule_dict['memoCode'] != 'X':
             page_subtotal += la_schedule_dict['contributionAmount']
-        build_contributor_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+    elif tranlactions_in_page == 4:
+        index = 1
+        la_schedule_dict = la_schedules[page_start_index + 0]
+        if la_schedule_dict['memoCode'] != 'X':
+            page_subtotal += la_schedule_dict['contributionAmount']
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        index = 2
+        la_schedule_dict = la_schedules[page_start_index + 1]
+        if la_schedule_dict['memoCode'] != 'X':
+            page_subtotal += la_schedule_dict['contributionAmount']
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        index = 3
+        la_schedule_dict = la_schedules[page_start_index + 2]
+        if la_schedule_dict['memoCode'] != 'X':
+            page_subtotal += la_schedule_dict['contributionAmount']
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
+        index = 4
+        la_schedule_dict = la_schedules[page_start_index + 3]
+        if la_schedule_dict['memoCode'] != 'X':
+            page_subtotal += la_schedule_dict['contributionAmount']
+        build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
     la_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
     return la_schedule_dict
 
@@ -1282,4 +1304,54 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
                 sb_schedule_page_dict[key + '_' + str(index)] = sb_schedule_dict[key]
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule B transaction: ' + str(sb_schedule_dict))
+        raise e
+
+
+def build_contributor_la_name_date_dict(index, key, la_schedule_dict, la_schedule_page_dict):
+    try:
+        if 'contributorLastName' in la_schedule_dict:
+            la_schedule_page_dict['contributorName_' + str(index)] = (la_schedule_dict['contributorLastName'] + ','
+                                                                      + la_schedule_dict['contributorFirstName'] + ','
+                                                                      + la_schedule_dict['contributorMiddleName'] + ','
+                                                                      + la_schedule_dict['contributorPrefix'] + ','
+                                                                      + la_schedule_dict['contributorSuffix'])
+            del la_schedule_dict['contributorLastName']
+            del la_schedule_dict['contributorFirstName']
+            del la_schedule_dict['contributorMiddleName']
+            del la_schedule_dict['contributorPrefix']
+            del la_schedule_dict['contributorSuffix']
+        elif 'contributorOrgName' in la_schedule_dict:
+            la_schedule_page_dict["contributorName_" + str(index)] = la_schedule_dict['contributorOrgName']
+            del la_schedule_dict['contributorOrgName']
+
+        # if 'lineNumber' in la_schedule_dict:
+        #     la_schedule_page_dict['lineNumber'] = la_schedule_dict['lineNumber']
+        #     del la_schedule_dict['lineNumber']
+
+        if 'contributionDate' in la_schedule_dict:
+            date_array = la_schedule_dict['contributionDate'].split("/")
+            la_schedule_page_dict['contributionDateMonth_' + str(index)] = date_array[0]
+            la_schedule_page_dict['contributionDateDay_' + str(index)] = date_array[1]
+            la_schedule_page_dict['contributionDateYear_' + str(index)] = date_array[2]
+            del la_schedule_dict['contributionDate']
+
+        if 'contributionAmount' in la_schedule_dict:
+            if la_schedule_dict['contributionAmount'] == '':
+                la_schedule_dict['contributionAmount'] = 0.0
+            la_schedule_page_dict['contributionAmount_' + str(index)] = '{0:.2f}'.format(
+                la_schedule_dict['contributionAmount'])
+            del la_schedule_dict['contributionAmount']
+
+        if 'contributionAggregate' in la_schedule_dict:
+            if la_schedule_dict['contributionAggregate'] == '':
+                la_schedule_dict['contributionAggregate'] = 0.0
+            la_schedule_page_dict['contributionAggregate_' + str(index)] = '{0:.2f}'.format(
+                la_schedule_dict['contributionAggregate'])
+            del la_schedule_dict['contributionAggregate']
+
+        for key in la_schedule_dict:
+            if key != 'lineNumber':
+                la_schedule_page_dict[key + '_' + str(index)] = la_schedule_dict[key]
+    except Exception as e:
+        print('Error at key: ' + key + ' in Schedule SLA tranlaction: ' + str(la_schedule_dict))
         raise e
