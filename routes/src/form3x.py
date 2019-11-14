@@ -595,15 +595,14 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 sd_total_balance = process_sd_line(f3x_data, md5_directory, sd_dict, sd_start_page, total_no_of_pages, total_sd_pages, totalOutstandingLoans)
 
         if la_schedules_cnt > 0:
-            # process Schedule 11AI
             la_1a_start_page = la_start_page
-            process_la_line(f3x_data, md5_directory, '1A', sa_1a, sa_1a_page_cnt, sa_1a_start_page,
-                            sa_1a_last_page_cnt, total_no_of_pages)
+            process_la_line(f3x_data, md5_directory, '1A', la_1a, la_1a_page_cnt, la_1a_start_page,
+                            la_1a_last_page_cnt, total_no_of_pages)
 
             # process Schedule 11B
-            la_2_start_page = sa_1a_start_page + sa_1a_page_cnt
-            process_la_line(f3x_data, md5_directory, '2', sa_2, sa_2_page_cnt, sa_2_start_page,
-                            sa_2_last_page_cnt, total_no_of_pages)
+            la_2_start_page = la_1a_start_page + la_1a_page_cnt
+            process_la_line(f3x_data, md5_directory, '2', la_2, la_2_page_cnt, la_2_start_page,
+                            la_2_last_page_cnt, total_no_of_pages)
 
 
         output_data = {
@@ -611,6 +610,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         'has_sb_schedules': has_sb_schedules,
                         'has_sc_schedules': has_sc_schedules,
                         'has_sd_schedules': has_sd_schedules
+                        'has_la_schedules': has_la_schedules
                         }
         return output_data, total_no_of_pages
 
