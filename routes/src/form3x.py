@@ -482,6 +482,48 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
                 lb_start_page = total_no_of_pages
 
+
+        if 'SLB' in schedules or len(slb_schedules) > 0:
+            slb_start_page = total_no_of_pages
+            if 'SLB' in schedules:
+                slb_schedules.extend(schedules['SLB'])
+            slb_schedules_cnt = len(slb_schedules)
+            if slb_schedules_cnt > 0:
+                has_slb_schedules = True
+                os.makedirs(md5_directory + 'SLB', exist_ok=True)
+                # building array for all SB line numbers
+                slb_4a = []
+                slb_4b = []
+                slb_4c = []
+                slb_4d = []
+                slb_5 = []
+               
+
+                slb_4a_last_page_cnt = slb_4b_last_page_cnt = slb_4c_last_page_cnt = slb_4d_last_page_cnt = 3
+                slb_5_last_page_cnt = 3
+
+                slb_4a_page_cnt = slb_4b_page_cnt = slb_4c_page_cnt = slb_4d_page_cnt = 0
+                slb_5_page_cnt = 0
+
+                # process for each Schedule B
+                for slb_count in range(slb_schedules_cnt):
+                    process_slb_line_numbers(slb_4a, slb_4b, slb_4c, slb_4d, slb_5, slb_schedules[slb_count])
+
+                slb_4a_page_cnt, slb_4a_last_page_cnt = calculate_page_count(slb_4a)
+                slb_4b_page_cnt, slb_4b_last_page_cnt = calculate_page_count(slb_4b)
+                slb_4c_page_cnt, slb_4c_last_page_cnt = calculate_page_count(slb_4c)
+                slb_4d_page_cnt, slb_4d_last_page_cnt = calculate_page_count(slb_4d)
+                slb_5_page_cnt, slb_5_last_page_cnt = calculate_page_count(slb_5)
+
+                total_no_of_pages = (total_no_of_pages + slb_4a_page_cnt + slb_4b_page_cnt + slb_4c_page_cnt
+                                     + slb_4d_page_cnt + slb_5_page_cnt)
+
+        # sc_start_page = total_no_of_pages + 1
+        # total_no_of_pages += total_sc_pages
+
+        # sd_start_page = total_no_of_pages + 1
+        # total_no_of_pages += total_sd_pages
+
         # Schedule A line number processing starts here
         if sa_schedules_cnt > 0:
             # process Schedule 11AI
@@ -605,12 +647,40 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                             la_2_last_page_cnt, total_no_of_pages)
 
 
+        if slb_schedules_cnt > 0:
+            # process Schedule 4a
+            slb_4a_start_page = slb_start_page
+            process_slb_line(f3x_data, md5_directory, '4a', slb_4a, slb_4a_page_cnt, slb_4a_start_page,
+                            slb_4a_last_page_cnt, total_no_of_pages)
+
+            # process Schedule 4b
+            slb_4b_start_page = slb_4a_start_page + slb_4a_page_cnt
+            process_slb_line(f3x_data, md5_directory, '4b', slb_4b, slb_4b_page_cnt, slb_4b_start_page,
+                            slb_4b_last_page_cnt, total_no_of_pages)
+
+            # process Schedule 4c
+            slb_4c_start_page = slb_4b_start_page + slb_4b_page_cnt
+            process_slb_line(f3x_data, md5_directory, '4c', slb_4c, slb_4c_page_cnt, slb_4c_start_page,
+                            slb_4c_last_page_cnt, total_no_of_pages)
+
+            # process Schedule 4d
+            slb_4d_start_page = slb_4c_start_page + slb_4c_page_cnt
+            process_slb_line(f3x_data, md5_directory, '4c', slb_4c, slb_4c_page_cnt, slb_4c_start_page,
+                            slb_4c_last_page_cnt, total_no_of_pages)
+
+            # process Schedule 5
+            slb_5_start_page = slb_4d_start_page + slb_4d_page_cnt
+            process_slb_line(f3x_data, md5_directory, '5', slb_5, slb_5_page_cnt, slb_5_start_page,
+                            slb_5_last_page_cnt, total_no_of_pages)
+
+
         output_data = {
                         'has_sa_schedules': has_sa_schedules,
                         'has_sb_schedules': has_sb_schedules,
                         'has_sc_schedules': has_sc_schedules,
                         'has_sd_schedules': has_sd_schedules
                         'has_la_schedules': has_la_schedules
+                        'has_slb_schedules': has_slb_schedules
                         }
         return output_data, total_no_of_pages
 
@@ -1006,6 +1076,49 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
             os.rename(md5_directory + 'SLA/' + line_number + '/all_pages.pdf', md5_directory + 'SLA/all_pages.pdf')
     return has_la_schedules
 
+
+def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_page_cnt, slb_line_start_page,
+                    slb_line_last_page_cnt, total_no_of_pages):
+    has_slb_schedules = False
+    if len(slb_line) > 0:
+        schedule_total = 0.00
+        os.makedirs(md5_directory + 'SLB/' + line_number, exist_ok=True)
+        slb_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SLB')
+        if slb_line_page_cnt > 0:
+            slb_line_start_page += 1
+            for slb_page_no in range(slb_line_page_cnt):
+                page_subtotal = 0.00
+                last_page = False
+                slb_schedule_page_dict = {}
+                slb_schedule_page_dict['lineNumber'] = line_number
+                slb_schedule_page_dict['pageNo'] = slb_line_start_page + slb_page_no
+                slb_schedule_page_dict['totalPages'] = total_no_of_pages
+                page_start_index = slb_page_no * 3
+                if ((slb_page_no + 1) == slb_line_page_cnt):
+                    last_page = True
+                # This call prepares data to render on PDF
+                slb_schedule_dict = build_slb_per_page_schedule_dict(last_page, slb_line_last_page_cnt,
+                                                                   page_start_index, slb_schedule_page_dict,
+                                                                   slb_line)
+
+                page_subtotal = float(slb_schedule_page_dict['pageSubtotal'])
+                schedule_total += page_subtotal
+                if slb_line_page_cnt == (slb_page_no + 1):
+                    slb_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
+                slb_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                slb_outfile = md5_directory + 'SLB/' + line_number + '/page_' + str(slb_page_no) + '.pdf'
+                pypdftk.fill_form(slb_infile, slb_schedule_page_dict, slb_outfile)
+        pypdftk.concat(directory_files(md5_directory + 'SLB/' + line_number + '/'), md5_directory + 'SLB/' + line_number
+                       + '/all_pages.pdf')
+        # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
+        if path.isfile(md5_directory + 'SLB/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SLB/all_pages.pdf', md5_directory + 'SLB/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SLB/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SLB/temp_all_pages.pdf', md5_directory + 'SLB/all_pages.pdf')
+        else:
+            os.rename(md5_directory + 'SLB/' + line_number + '/all_pages.pdf', md5_directory + 'SLB/all_pages.pdf')
+    return has_slb_schedules
+
 # This method calculates number of pages for Schedules
 def calculate_page_count(schedules):
     schedules_cnt = len(schedules)
@@ -1226,6 +1339,55 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
     la_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
     return la_schedule_dict
 
+
+def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, slb_schedule_page_dict,
+                                    slb_schedules):
+    page_subtotal = 0.00
+    if not last_page:
+        transactions_in_page = 3
+    if transactions_in_page == 1:
+        index = 1
+        slb_schedule_dict = slb_schedules[page_start_index + 0]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+    elif transactions_in_page == 2:
+        index = 1
+        slb_schedule_dict = slb_schedules[page_start_index + 0]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+        index = 2
+        slb_schedule_dict = slb_schedules[page_start_index + 1]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+    elif transactions_in_page == 3:
+        index = 1
+        slb_schedule_dict = slb_schedules[page_start_index + 0]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+        index = 2
+        slb_schedule_dict = slb_schedules[page_start_index + 1]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+        index = 3
+        slb_schedule_dict = slb_schedules[page_start_index + 2]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+    slb_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
+    return slb_schedule_dict
+
+
 # This method filters data and message data to render PDF
 def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict):
     try:
@@ -1354,4 +1516,33 @@ def build_contributor_la_name_date_dict(index, key, la_schedule_dict, la_schedul
                 la_schedule_page_dict[key + '_' + str(index)] = la_schedule_dict[key]
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule SLA tranlaction: ' + str(la_schedule_dict))
+        raise e
+
+
+def build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict):
+    try:
+        if not slb_schedule_dict.get(key):
+            slb_schedule_dict[key] = ""
+
+        if 'payeeLastName' in slb_schedule_dict:
+            slb_schedule_page_dict['payeeName_' + str(index)] = (slb_schedule_dict['payeeLastName'] + ','
+                                                                      + slb_schedule_dict['payeeFirstName'] + ','
+                                                                      + slb_schedule_dict['payeeMiddleName'] + ','
+                                                                      + slb_schedule_dict['payeePrefix'] + ','
+                                                                      + slb_schedule_dict['payeeSuffix'])
+        elif 'payeeOrganizationName' in slb_schedule_dict:
+            slb_schedule_page_dict["payeeName_" + str(index)] = slb_schedule_dict['payeeOrganizationName']
+
+        if key == 'expenditureDate':
+            date_array = slb_schedule_dict[key].split("/")
+            slb_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
+            slb_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
+            slb_schedule_page_dict['expenditureDateYear_' + str(index)] = date_array[2]
+        else:
+            if key == 'expenditureAmount' or key == 'expenditureAggregate':
+                slb_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(slb_schedule_dict[key])
+            else:
+                slb_schedule_page_dict[key + '_' + str(index)] = slb_schedule_dict[key]
+    except Exception as e:
+        print('Error at key: ' + key + ' in Schedule B transaction: ' + str(slb_schedule_dict))
         raise e
