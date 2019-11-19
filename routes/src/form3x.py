@@ -480,7 +480,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 # calculate total number of pages
                 total_no_of_pages = (total_no_of_pages + la_1a_page_cnt + la_2_page_cnt)
 
-                lb_start_page = total_no_of_pages
+                # lb_start_page = total_no_of_pages
 
 
         if 'SLB' in schedules or len(slb_schedules) > 0:
