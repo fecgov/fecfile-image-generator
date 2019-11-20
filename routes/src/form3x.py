@@ -1198,7 +1198,7 @@ def process_la_line_numbers(la_1a, la_2, la_obj):
     elif la_obj['lineNumber'] == '2':
         la_2.append(la_obj)
 
-def process_slb_line_numbers(sls_4a, slb_4b, slb_4c, slb_4d, slb_5, slbla_obj):
+def process_slb_line_numbers(slb_4a, slb_4b, slb_4c, slb_4d, slb_5, slb_obj):
     if slb_obj['lineNumber'] == '4A' :
         slb_4a.append(slb_obj)
     elif slb_obj['lineNumber'] == '4B':
@@ -1367,7 +1367,6 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
         build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
     la_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
     return la_schedule_dict
-
 
 def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, slb_schedule_page_dict,
                                     slb_schedules):
