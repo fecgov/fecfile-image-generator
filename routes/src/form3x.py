@@ -172,6 +172,12 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SLA/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SLA')
 
+                if has_slb_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLB/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SLB/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SLB')
+
                 # if not (has_sa_schedules or has_sb_schedules or has_sc_schedules):
                 #     shutil.move(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
             else:
@@ -1181,6 +1187,19 @@ def process_la_line_numbers(la_1a, la_2, la_obj):
         la_1a.append(la_obj)
     elif la_obj['lineNumber'] == '2':
         la_2.append(la_obj)
+
+def process_slb_line_numbers(sls_4a, slb_4b, slb_4c, slb_4d, slb_5, slbla_obj):
+    if slb_obj['lineNumber'] == '4A' :
+        slb_4a.append(slb_obj)
+    elif slb_obj['lineNumber'] == '4B':
+        slb_4b.append(slb_obj)
+    elif slb_obj['lineNumber'] == '4C':
+        slb_4c.append(slb_obj)
+    elif slb_obj['lineNumber'] == '4D':
+        slb_4d.append(slb_obj)
+    elif slb_obj['lineNumber'] == '5':
+        slb_5.append(slb_obj)
+
 
 # This method builds data for individual SA page
 def build_sa_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sa_schedule_page_dict,
