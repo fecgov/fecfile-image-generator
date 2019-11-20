@@ -121,8 +121,12 @@ def print_pdftk(stamp_print):
                 f3x_data_summary_array = [f3x_data]
             f3x_data_summary = {i: j for x in f3x_data_summary_array for i, j in x.items()}
 
+            print("before Process Schedule")
+
             # process all schedules and build the PDF's
             process_output, total_no_of_pages = process_schedules(f3x_data, md5_directory,total_no_of_pages)
+
+            print("After !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
             print(process_output, 'ajjajjjjsjsjjsjjs')
 
@@ -170,6 +174,7 @@ def print_pdftk(stamp_print):
                 
                 # checking for sd transactions
                 if has_la_schedules:
+                    print("!!!!!!!!!!!!!!!!!!Inside La Condition!!!!!!!!!!!!!!!")
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL-A/all_pages.pdf')
@@ -483,9 +488,13 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 la_1a_page_cnt = la_2_page_cnt = 0
 
                 la_schedules_cnt = len(la_schedules)
+                print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
                 for la_count in range(la_schedules_cnt):
                     process_la_line_numbers(la_1a, la_2,
                                             la_schedules[la_count])
+                print("!!!!!!!!!!!!!!!!!!!!!!!!!! after for loop")
+                print(len(la_1a))
+
 
 
                 # calculate number of pages for la line numbers
@@ -495,6 +504,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
                 # calculate total number of pages
                 total_no_of_pages = (total_no_of_pages + la_1a_page_cnt + la_2_page_cnt)
+                print("!!!!!!!!!!!!!! total_no_of_pages", total_no_of_pages)
 
                 # lb_start_page = total_no_of_pages
 
@@ -648,22 +658,28 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             for sc1 in sc1_list:
                 process_sc1_line(f3x_data, md5_directory, sc1, sc1_start_page, total_no_of_pages)
                 sc1_start_page += 1
-
+       
         if 'SD' in schedules and sd_schedules_cnt > 0:
                 sd_total_balance = process_sd_line(f3x_data, md5_directory, sd_dict, sd_start_page, total_no_of_pages, total_sd_pages, totalOutstandingLoans)
 
         if la_schedules_cnt > 0:
             la_1a_start_page = la_start_page
+            print("la_1a_start_page", la_1a_start_page)
             process_la_line(f3x_data, md5_directory, '1A', la_1a, la_1a_page_cnt, la_1a_start_page,
                             la_1a_last_page_cnt, total_no_of_pages)
+            print("11111")
 
             # process Schedule 11B
             la_2_start_page = la_1a_start_page + la_1a_page_cnt
+            print("before la_2", la_2_start_page)
             process_la_line(f3x_data, md5_directory, '2', la_2, la_2_page_cnt, la_2_start_page,
                             la_2_last_page_cnt, total_no_of_pages)
+            print("---------------------------")
 
-
+        print("yeswanthhhhhhhhhhhhhhh")
         if slb_schedules_cnt > 0:
+
+            print("###########&&&&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!!!!!!!!!^^^^^^^^^^^^^^^^^^^^^^^^^")
             # process Schedule 4a
             slb_4a_start_page = slb_start_page
             process_slb_line(f3x_data, md5_directory, '4a', slb_4a, slb_4a_page_cnt, slb_4a_start_page,
@@ -689,6 +705,13 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             process_slb_line(f3x_data, md5_directory, '5', slb_5, slb_5_page_cnt, slb_5_start_page,
                             slb_5_last_page_cnt, total_no_of_pages)
 
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 has_sa_schedules",has_sa_schedules)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 has_sb_schedules", has_sb_schedules)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 has_sc_schedules", has_sc_schedules)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 has_sd_schedules", has_sd_schedules)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 has_la_schedules", has_la_schedules)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 has_slb_schedules", has_slb_schedules)
+        
 
         output_data = {
                         'has_sa_schedules': has_sa_schedules,
@@ -698,6 +721,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         'has_la_schedules': has_la_schedules,
                         'has_slb_schedules': has_slb_schedules
                         }
+        print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^******************************************",output_data)                
         return output_data, total_no_of_pages
 
 def process_sd_line(f3x_data, md5_directory, sd_dict, sd_start_page, total_no_of_pages, total_sd_pages, totalOutstandingLoans):
@@ -1052,6 +1076,7 @@ def process_sb_line(f3x_data, md5_directory, line_number, sb_line, sb_line_page_
 def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_cnt, la_line_start_page,
                     la_line_last_page_cnt, total_no_of_pages):
     has_la_schedules = False
+    print("inside process_la_line", len(la_line) )
     if len(la_line) > 0:
         la_line_start_page += 1
         has_la_schedules = True
@@ -1090,6 +1115,7 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
             os.rename(md5_directory + 'SL-A/temp_all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf')
         else:
             os.rename(md5_directory + 'SL-A/' + line_number + '/all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf')
+        print("!@@@@@@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!!!%%%%%%%%%%%%%%%%", has_la_schedules)
     return has_la_schedules
 
 
