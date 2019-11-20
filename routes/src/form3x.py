@@ -170,10 +170,10 @@ def print_pdftk(stamp_print):
                 
                 # checking for sd transactions
                 if has_la_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLA/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SLA/all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'SLA')
+                    os.remove(md5_directory + 'SL-A/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SL-A')
 
                 if has_slb_schedules:
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLB/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
@@ -215,10 +215,10 @@ def print_pdftk(stamp_print):
                     shutil.rmtree(md5_directory + 'SD')
 
                 if has_la_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLA/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SLA/all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'SLA')
+                    os.remove(md5_directory + 'SL-A/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SL-A')
 
                 if has_slb_schedules:
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLB/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
@@ -465,15 +465,15 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
         total_no_of_pages += total_sd_pages
 
 
-        if 'SLA' in schedules:
+        if 'SL-A' in schedules:
             la_start_page = total_no_of_pages
-            la_schedules.extend(schedules.get('SLA'))
+            la_schedules.extend(schedules.get('SL-A'))
             la_schedules_cnt = len(la_schedules)
 
             # if la_schedules_cnt > 0:
             if la_schedules:
                 has_la_schedules = True
-                os.makedirs(md5_directory + 'SLA', exist_ok=True)
+                os.makedirs(md5_directory + 'SL-A', exist_ok=True)
                 # building array for all la line numbers
                 la_1a = []
                 la_2 = []
@@ -1056,8 +1056,8 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
         la_line_start_page += 1
         has_la_schedules = True
         schedule_total = 0.00
-        os.makedirs(md5_directory + 'SLA/' + line_number, exist_ok=True)
-        la_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SLA')
+        os.makedirs(md5_directory + 'SL-A/' + line_number, exist_ok=True)
+        la_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SL-A')
         if la_line_page_cnt > 0:
             for la_page_no in range(la_line_page_cnt):
                 page_subtotal = 0.00
@@ -1079,17 +1079,17 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
                 if la_line_page_cnt == (la_page_no + 1):
                     la_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
                 la_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-                la_outfile = md5_directory + 'SLA/' + line_number + '/page_' + str(la_page_no) + '.pdf'
+                la_outfile = md5_directory + 'SL-A/' + line_number + '/page_' + str(la_page_no) + '.pdf'
                 pypdftk.fill_form(la_infile, la_schedule_page_dict, la_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SLA/' + line_number + '/'), md5_directory + 'SLA/' + line_number
+        pypdftk.concat(directory_files(md5_directory + 'SL-A/' + line_number + '/'), md5_directory + 'SL-A/' + line_number
                        + '/all_pages.pdf')
         # if all_pages.pdf exists in la folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + 'SLA/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SLA/all_pages.pdf', md5_directory + 'SLA/' + line_number + '/all_pages.pdf'],
-                           md5_directory + 'SLA/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SLA/temp_all_pages.pdf', md5_directory + 'SLA/all_pages.pdf')
+        if path.isfile(md5_directory + 'SL-A/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SL-A/all_pages.pdf', md5_directory + 'SL-A/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SL-A/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SL-A/temp_all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf')
         else:
-            os.rename(md5_directory + 'SLA/' + line_number + '/all_pages.pdf', md5_directory + 'SLA/all_pages.pdf')
+            os.rename(md5_directory + 'SL-A/' + line_number + '/all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf')
     return has_la_schedules
 
 
