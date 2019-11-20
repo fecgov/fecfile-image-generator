@@ -47,7 +47,7 @@ def print_pdftk(stamp_print):
         if 'json_file' in request.files:
             total_no_of_pages = 0
             page_no = 1
-            has_sa_schedules = has_sb_schedules = False
+            has_sa_schedules = has_sb_schedules = has_la_schedules = has_slb_schedules = False
             json_file = request.files.get('json_file')
 
             # generate md5 for json file
@@ -124,11 +124,14 @@ def print_pdftk(stamp_print):
             # process all schedules and build the PDF's
             process_output, total_no_of_pages = process_schedules(f3x_data, md5_directory,total_no_of_pages)
 
+            print(process_output, 'ajjajjjjsjsjjsjjs')
+
             has_sa_schedules = process_output.get('has_sa_schedules')
             has_sb_schedules = process_output.get('has_sb_schedules')
             has_sc_schedules = process_output.get('has_sc_schedules')
             has_sd_schedules = process_output.get('has_sd_schedules')
             has_la_schedules = process_output.get('has_la_schedules')
+            has_slb_schedules= process_output.get('has_slb_schedules')
 
             if len(f3x_summary) > 0:
                 f3x_data_summary['PAGESTR'] = "PAGE " + str(page_no) + " / " + str(total_no_of_pages)
@@ -217,6 +220,12 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SLA/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SLA')
 
+                if has_slb_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLB/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SLB/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SLB')
+
             # push output file to AWS
             s3 = boto3.client('s3')
             s3.upload_file(md5_directory + 'all_pages.pdf', current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
@@ -255,9 +264,10 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     sa_schedules = []
     sb_schedules = []
     la_schedules = []
-    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = False
+    slb_schedules = []
+    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_la_schedules = has_slb_schedules = False
     sa_schedules_cnt = sb_schedules_cnt = 0
-    la_schedules_cnt = lb_schedules_cnt = 0
+    la_schedules_cnt = slb_schedules_cnt = 0
     total_sc_pages = 0
     totalOutstandingLoans = '0.00'
 
@@ -684,8 +694,8 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         'has_sa_schedules': has_sa_schedules,
                         'has_sb_schedules': has_sb_schedules,
                         'has_sc_schedules': has_sc_schedules,
-                        'has_sd_schedules': has_sd_schedules
-                        'has_la_schedules': has_la_schedules
+                        'has_sd_schedules': has_sd_schedules,
+                        'has_la_schedules': has_la_schedules,
                         'has_slb_schedules': has_slb_schedules
                         }
         return output_data, total_no_of_pages
@@ -1563,5 +1573,5 @@ def build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_di
             else:
                 slb_schedule_page_dict[key + '_' + str(index)] = slb_schedule_dict[key]
     except Exception as e:
-        print('Error at key: ' + key + ' in Schedule B transaction: ' + str(slb_schedule_dict))
+        print('Error at key: ' + key + ' in Schedule-LB transaction: ' + str(slb_schedule_dict))
         raise e
