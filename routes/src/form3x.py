@@ -1544,7 +1544,7 @@ def build_contributor_la_name_date_dict(index, key, la_schedule_dict, la_schedul
             if key != 'lineNumber':
                 la_schedule_page_dict[key + '_' + str(index)] = la_schedule_dict[key]
     except Exception as e:
-        print('Error at key: ' + key + ' in Schedule SLA tranlaction: ' + str(la_schedule_dict))
+        print('Error at key: ' + key + ' in Schedule SL-A tranlaction: ' + str(la_schedule_dict))
         raise e
 
 
