@@ -531,21 +531,19 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 slb_5 = []
                
 
-                slb_4a_last_page_cnt = slb_4b_last_page_cnt = slb_4c_last_page_cnt = slb_4d_last_page_cnt = 5
-                slb_5_last_page_cnt = 5
+                slb_4a_last_page_cnt = slb_4b_last_page_cnt = slb_4c_last_page_cnt = slb_4d_last_page_cnt = slb_5_last_page_cnt = 5
 
-                slb_4a_page_cnt = slb_4b_page_cnt = slb_4c_page_cnt = slb_4d_page_cnt = 0
-                slb_5_page_cnt = 0
+                slb_4a_page_cnt = slb_4b_page_cnt = slb_4c_page_cnt = slb_4d_page_cnt = lb_5_page_cnt = 0
 
                 # process for each Schedule B
                 for slb_count in range(slb_schedules_cnt):
                     process_slb_line_numbers(slb_4a, slb_4b, slb_4c, slb_4d, slb_5, slb_schedules[slb_count])
 
-                slb_4a_page_cnt, slb_4a_last_page_cnt = calculate_page_count(slb_4a)
-                slb_4b_page_cnt, slb_4b_last_page_cnt = calculate_page_count(slb_4b)
-                slb_4c_page_cnt, slb_4c_last_page_cnt = calculate_page_count(slb_4c)
-                slb_4d_page_cnt, slb_4d_last_page_cnt = calculate_page_count(slb_4d)
-                slb_5_page_cnt, slb_5_last_page_cnt = calculate_page_count(slb_5)
+                slb_4a_page_cnt, slb_4a_last_page_cnt = calculate_slb_page_count(slb_4a)
+                slb_4b_page_cnt, slb_4b_last_page_cnt = calculate_slb_page_count(slb_4b)
+                slb_4c_page_cnt, slb_4c_last_page_cnt = calculate_slb_page_count(slb_4c)
+                slb_4d_page_cnt, slb_4d_last_page_cnt = calculate_slb_page_count(slb_4d)
+                slb_5_page_cnt, slb_5_last_page_cnt = calculate_slb_page_count(slb_5)
 
                 total_no_of_pages = (total_no_of_pages + slb_4a_page_cnt + slb_4b_page_cnt + slb_4c_page_cnt
                                      + slb_4d_page_cnt + slb_5_page_cnt)
@@ -1207,6 +1205,17 @@ def calculate_la_page_count(schedules):
     
     return pages_cnt, schedules_in_last_page
 
+def calculate_slb_page_count(schedules):
+    schedules_cnt = len(schedules)
+    if int(schedules_cnt % 5) == 0:
+        pages_cnt = int(schedules_cnt / 5)
+        schedules_in_last_page = 5
+    else:
+        pages_cnt = int(schedules_cnt / 5) + 1
+        schedules_in_last_page = int(schedules_cnt % 5)
+    
+    return pages_cnt, schedules_in_last_page
+
 
 # This method builds line number array for SA
 def process_sa_line_numbers(sa_11a, sa_11b, sa_11c, sa_12, sa_13, sa_14, sa_15, sa_16, sa_17, sa_obj):
@@ -1513,7 +1522,6 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
-
         index = 4
         slb_schedule_dict = slb_schedules[page_start_index + 3]
         if slb_schedule_dict['memoCode'] != 'X':
@@ -1539,7 +1547,6 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
-
         index = 4
         slb_schedule_dict = slb_schedules[page_start_index + 3]
         if slb_schedule_dict['memoCode'] != 'X':
