@@ -181,10 +181,10 @@ def print_pdftk(stamp_print):
                     shutil.rmtree(md5_directory + 'SL-A')
 
                 if has_slb_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLB/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-B/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SLB/all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'SLB')
+                    os.remove(md5_directory + 'SL-B/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SL-B')
 
                 # if not (has_sa_schedules or has_sb_schedules or has_sc_schedules):
                 #     shutil.move(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
@@ -226,10 +226,10 @@ def print_pdftk(stamp_print):
                     shutil.rmtree(md5_directory + 'SL-A')
 
                 if has_slb_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SLB/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-B/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SLB/all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'SLB')
+                    os.remove(md5_directory + 'SL-B/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SL-B')
 
             # push output file to AWS
             s3 = boto3.client('s3')
@@ -515,14 +515,14 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 slb_start_page = total_no_of_pages
 
 
-        if 'SLB' in schedules or len(slb_schedules) > 0:
+        if 'SL-B' in schedules or len(slb_schedules) > 0:
             slb_start_page = total_no_of_pages
-            if 'SLB' in schedules:
-                slb_schedules.extend(schedules['SLB'])
+            if 'SL-B' in schedules:
+                slb_schedules.extend(schedules['SL-B'])
             slb_schedules_cnt = len(slb_schedules)
             if slb_schedules_cnt > 0:
                 has_slb_schedules = True
-                os.makedirs(md5_directory + 'SLB', exist_ok=True)
+                os.makedirs(md5_directory + 'SL-B', exist_ok=True)
                 # building array for all SB line numbers
                 slb_4a = []
                 slb_4b = []
@@ -531,8 +531,8 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 slb_5 = []
                
 
-                slb_4a_last_page_cnt = slb_4b_last_page_cnt = slb_4c_last_page_cnt = slb_4d_last_page_cnt = 3
-                slb_5_last_page_cnt = 3
+                slb_4a_last_page_cnt = slb_4b_last_page_cnt = slb_4c_last_page_cnt = slb_4d_last_page_cnt = 5
+                slb_5_last_page_cnt = 5
 
                 slb_4a_page_cnt = slb_4b_page_cnt = slb_4c_page_cnt = slb_4d_page_cnt = 0
                 slb_5_page_cnt = 0
@@ -1143,8 +1143,8 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
     has_slb_schedules = False
     if len(slb_line) > 0:
         schedule_total = 0.00
-        os.makedirs(md5_directory + 'SLB/' + line_number, exist_ok=True)
-        slb_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SLB')
+        os.makedirs(md5_directory + 'SL-B/' + line_number, exist_ok=True)
+        slb_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SL-B')
         if slb_line_page_cnt > 0:
             slb_line_start_page += 1
             for slb_page_no in range(slb_line_page_cnt):
@@ -1154,7 +1154,7 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
                 slb_schedule_page_dict['lineNumber'] = line_number
                 slb_schedule_page_dict['pageNo'] = slb_line_start_page + slb_page_no
                 slb_schedule_page_dict['totalPages'] = total_no_of_pages
-                page_start_index = slb_page_no * 3
+                page_start_index = slb_page_no * 5
                 if ((slb_page_no + 1) == slb_line_page_cnt):
                     last_page = True
                 # This call prepares data to render on PDF
@@ -1162,22 +1162,26 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
                                                                    page_start_index, slb_schedule_page_dict,
                                                                    slb_line)
 
+                print('hererrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr22222222222222222222222',slb_schedule_dict)
+
+
                 page_subtotal = float(slb_schedule_page_dict['pageSubtotal'])
                 schedule_total += page_subtotal
                 if slb_line_page_cnt == (slb_page_no + 1):
                     slb_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
                 slb_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-                slb_outfile = md5_directory + 'SLB/' + line_number + '/page_' + str(slb_page_no) + '.pdf'
+                slb_outfile = md5_directory + 'SL-B/' + line_number + '/page_' + str(slb_page_no) + '.pdf'
                 pypdftk.fill_form(slb_infile, slb_schedule_page_dict, slb_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SLB/' + line_number + '/'), md5_directory + 'SLB/' + line_number
+        pypdftk.concat(directory_files(md5_directory + 'SL-B/' + line_number + '/'), md5_directory + 'SL-B/' + line_number
                        + '/all_pages.pdf')
         # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + 'SLB/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SLB/all_pages.pdf', md5_directory + 'SLB/' + line_number + '/all_pages.pdf'],
-                           md5_directory + 'SLB/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SLB/temp_all_pages.pdf', md5_directory + 'SLB/all_pages.pdf')
+        if path.isfile(md5_directory + 'SL-B/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SL-B/all_pages.pdf', md5_directory + 'SL-B/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SL-B/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SL-B/temp_all_pages.pdf', md5_directory + 'SL-B/all_pages.pdf')
         else:
-            os.rename(md5_directory + 'SLB/' + line_number + '/all_pages.pdf', md5_directory + 'SLB/all_pages.pdf')
+            os.rename(md5_directory + 'SL-B/' + line_number + '/all_pages.pdf', md5_directory + 'SL-B/all_pages.pdf')
+    
     return has_slb_schedules
 
 # This method calculates number of pages for Schedules
@@ -1445,10 +1449,11 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
     return la_schedule_dict
 
 def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, slb_schedule_page_dict,
-                                    slb_schedules):
+                                     slb_schedules):
+    print('here')
     page_subtotal = 0.00
     if not last_page:
-        transactions_in_page = 3
+        transactions_in_page = 5
     if transactions_in_page == 1:
         index = 1
         slb_schedule_dict = slb_schedules[page_start_index + 0]
@@ -1484,6 +1489,65 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 3
         slb_schedule_dict = slb_schedules[page_start_index + 2]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+
+    elif transactions_in_page == 4:
+        index = 1
+        slb_schedule_dict = slb_schedules[page_start_index + 0]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+        index = 2
+        slb_schedule_dict = slb_schedules[page_start_index + 1]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+        index = 3
+        slb_schedule_dict = slb_schedules[page_start_index + 2]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+
+        index = 4
+        slb_schedule_dict = slb_schedules[page_start_index + 3]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+    elif transactions_in_page == 5:
+        index = 1
+        slb_schedule_dict = slb_schedules[page_start_index + 0]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+        index = 2
+        slb_schedule_dict = slb_schedules[page_start_index + 1]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+        index = 3
+        slb_schedule_dict = slb_schedules[page_start_index + 2]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+
+        index = 4
+        slb_schedule_dict = slb_schedules[page_start_index + 3]
+        if slb_schedule_dict['memoCode'] != 'X':
+            page_subtotal += slb_schedule_dict['expenditureAmount']
+        for key in slb_schedules[page_start_index]:
+            build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
+        index = 5
+        slb_schedule_dict = slb_schedules[page_start_index + 4]
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
