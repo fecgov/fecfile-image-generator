@@ -692,22 +692,22 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             print("###########&&&&&&&&&&&&&&&&&&&&&@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!!!!!!!!!^^^^^^^^^^^^^^^^^^^^^^^^^")
             # process Schedule 4a
             slb_4a_start_page = slb_start_page
-            process_slb_line(f3x_data, md5_directory, '4a', slb_4a, slb_4a_page_cnt, slb_4a_start_page,
+            process_slb_line(f3x_data, md5_directory, '4A', slb_4a, slb_4a_page_cnt, slb_4a_start_page,
                             slb_4a_last_page_cnt, total_no_of_pages)
 
             # process Schedule 4b
             slb_4b_start_page = slb_4a_start_page + slb_4a_page_cnt
-            process_slb_line(f3x_data, md5_directory, '4b', slb_4b, slb_4b_page_cnt, slb_4b_start_page,
+            process_slb_line(f3x_data, md5_directory, '4B', slb_4b, slb_4b_page_cnt, slb_4b_start_page,
                             slb_4b_last_page_cnt, total_no_of_pages)
 
             # process Schedule 4c
             slb_4c_start_page = slb_4b_start_page + slb_4b_page_cnt
-            process_slb_line(f3x_data, md5_directory, '4c', slb_4c, slb_4c_page_cnt, slb_4c_start_page,
+            process_slb_line(f3x_data, md5_directory, '4C', slb_4c, slb_4c_page_cnt, slb_4c_start_page,
                             slb_4c_last_page_cnt, total_no_of_pages)
 
             # process Schedule 4d
             slb_4d_start_page = slb_4c_start_page + slb_4c_page_cnt
-            process_slb_line(f3x_data, md5_directory, '4c', slb_4c, slb_4c_page_cnt, slb_4c_start_page,
+            process_slb_line(f3x_data, md5_directory, '4D', slb_4c, slb_4c_page_cnt, slb_4c_start_page,
                             slb_4c_last_page_cnt, total_no_of_pages)
 
             # process Schedule 5
