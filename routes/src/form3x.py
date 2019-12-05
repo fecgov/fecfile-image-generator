@@ -121,6 +121,14 @@ def print_pdftk(stamp_print):
                 f3x_data_summary_array = [f3x_data]
             f3x_data_summary = {i: j for x in f3x_data_summary_array for i, j in x.items()}
 
+            sl_summary = []
+            if 'schedules' in f3x_data:
+                schedules = f3x_data['schedules']
+                if 'SL' in schedules:
+                    sl_data_summary = schedules.get('SL')
+                    
+                # sl_data_summary = {i: j for x in sl_data_summary_array for i, j in x.items()}
+
             print("before Process Schedule")
 
             # process all schedules and build the PDF's
@@ -186,6 +194,12 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SL-B/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL-B')
 
+                if sl_data_summary > 0:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SL/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SL')
+
                 # if not (has_sa_schedules or has_sb_schedules or has_sc_schedules):
                 #     shutil.move(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
             else:
@@ -230,6 +244,12 @@ def print_pdftk(stamp_print):
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL-B/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL-B')
+
+                if sl_data_summary > 0:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SL/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SL')
 
             # push output file to AWS
             s3 = boto3.client('s3')
