@@ -126,6 +126,7 @@ def print_pdftk(stamp_print):
                 schedules = f3x_data['schedules']
                 if 'SL' in schedules:
                     sl_data_summary = schedules.get('SL')
+            print(sl_data_summary)
                     
                 # sl_data_summary = {i: j for x in sl_data_summary_array for i, j in x.items()}
 
@@ -179,6 +180,8 @@ def print_pdftk(stamp_print):
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SD/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SD')
+
+
                 
                 # checking for sd transactions
                 if has_la_schedules:
@@ -194,12 +197,18 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SL-B/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL-B')
 
-                if sl_data_summary > 0:
+
+                if sl_data_summary:
+                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode sl_data_summary")
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    #pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@!insode sl_data_summary")
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    print("####################################insode sl_data_summary")
                     os.remove(md5_directory + 'SL/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL')
 
+                
                 # if not (has_sa_schedules or has_sb_schedules or has_sc_schedules):
                 #     shutil.move(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
             else:
@@ -233,6 +242,8 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SD/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SD')
 
+               
+
                 if has_la_schedules:
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
@@ -245,12 +256,14 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SL-B/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL-B')
 
-                if sl_data_summary > 0:
+                if sl_data_summary:
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL')
 
+
+                
             # push output file to AWS
             s3 = boto3.client('s3')
             s3.upload_file(md5_directory + 'all_pages.pdf', current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
@@ -291,15 +304,18 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     sb_schedules = []
     la_schedules = []
     slb_schedules = []
+    sl_summary = []
     has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_la_schedules = has_slb_schedules = False
     sa_schedules_cnt = sb_schedules_cnt = 0
     la_schedules_cnt = slb_schedules_cnt = 0
     total_sc_pages = 0
+    total_sd_pages = 0
     totalOutstandingLoans = '0.00'
 
     # check if schedules exist in data file
     if 'schedules' in f3x_data:
         schedules = f3x_data['schedules']
+        
 
         # Checking SC first as it has SA and SB transactions in it
         if 'SC' in schedules:
