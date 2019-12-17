@@ -1393,13 +1393,14 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
             tranlactions_in_page = 4
 
         if tranlactions_in_page == 1:
+            # print('here_dict page1',la_schedules)
             index = 1
             la_schedule_dict = la_schedules[page_start_index + 0]
             if la_schedule_dict['memoCode'] != 'X':
                 page_subtotal += la_schedule_dict['contributionAmount']
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
         elif tranlactions_in_page == 2:
-         
+            # print('here_dict page2',la_schedules)
             index = 1
             la_schedule_dict = la_schedules[page_start_index + 0]
             if la_schedule_dict['memoCode'] != 'X':
@@ -1412,10 +1413,13 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
         elif tranlactions_in_page == 3:
             try:
+                # print('here_dict page3',la_schedules)
                 index = 1
                 la_schedule_dict = la_schedules[page_start_index + 0]
+                # print(index, page_start_index, la_schedule_dict, la_schedule_page_dict,'djjjdjdjdjdjdjdjdj=======')
                 if la_schedule_dict['memoCode'] != 'X':
                     page_subtotal += la_schedule_dict['contributionAmount']
+                # print(index, page_start_index, la_schedule_dict, la_schedule_page_dict,'djjjdjdjdjdjdjdjdj=======')
                 build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
                 index = 2
                 la_schedule_dict = la_schedules[page_start_index + 1]
@@ -1427,12 +1431,12 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
                 if la_schedule_dict['memoCode'] != 'X':
                     page_subtotal += la_schedule_dict['contributionAmount']
                 build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
- 
+                # print('here_dict page3','end')
             except Exception as e:
-      
+                print(e)
         
         elif tranlactions_in_page == 4:
-
+            # print('here_dict page4',la_schedules)
             index = 1
             la_schedule_dict = la_schedules[page_start_index + 0]
             if la_schedule_dict['memoCode'] != 'X':
@@ -1455,7 +1459,7 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
     
     except Exception as e:
-
+        print('Error : ' + e + ' in Schedule SL_A process_la_line' )
         raise e
     
     la_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
