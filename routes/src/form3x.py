@@ -123,6 +123,7 @@ def print_pdftk(stamp_print):
 
             sl_summary = []
             sl_data_summary={}
+            has_sl_schedules=True
             if 'schedules' in f3x_data:
                 schedules = f3x_data['schedules']
                 if 'SL' in schedules:
@@ -1188,9 +1189,9 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
     
     return has_slb_schedules
 
-# def process_sl_sched(f3x_data, md5_directory):
+def process_sl_sched(f3x_data, md5_directory, total_no_of_pages):
    
-    has_sl_schedules = True
+    
     os.makedirs(md5_directory + 'SL/', exist_ok=True)
     sl_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SL')
 
