@@ -47,7 +47,7 @@ def print_pdftk(stamp_print):
         if 'json_file' in request.files:
             total_no_of_pages = 0
             page_no = 1
-            has_sa_schedules = has_sb_schedules = has_la_schedules = has_slb_schedules = False
+            has_sa_schedules = has_sb_schedules = has_la_schedules = has_slb_schedules = has_sl_schedules=False
             json_file = request.files.get('json_file')
 
             # generate md5 for json file
@@ -127,6 +127,9 @@ def print_pdftk(stamp_print):
                 schedules = f3x_data['schedules']
                 if 'SL' in schedules:
                     sl_data_summary = schedules.get('SL')
+
+            
+
             # print(sl_data_summary)
                     
               
@@ -141,6 +144,7 @@ def print_pdftk(stamp_print):
             has_sd_schedules = process_output.get('has_sd_schedules')
             has_la_schedules = process_output.get('has_la_schedules')
             has_slb_schedules= process_output.get('has_slb_schedules')
+            has_sl_schedules = process_output.get('has_sl_schedules')
 
             if len(f3x_summary) > 0:
                 f3x_data_summary['PAGESTR'] = "PAGE " + str(page_no) + " / " + str(total_no_of_pages)
@@ -193,17 +197,14 @@ def print_pdftk(stamp_print):
                     shutil.rmtree(md5_directory + 'SL-B')
 
 
-                if sl_data_summary:
-                    # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode sl_data_summary")
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
-                    #pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf') 
+                if has_sl_schedules:
+                    sl_data_summary['PAGESTR'] = "PAGE " + str(page_no) + " / " + str(total_no_of_pages)
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf') 
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL')
 
                 
-                # if not (has_sa_schedules or has_sb_schedules or has_sc_schedules):
-                #     shutil.move(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
             else:
                 # no summary, expecting it to be from individual transactions
                 if has_sa_schedules:
@@ -249,7 +250,8 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SL-B/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL-B')
 
-                if sl_data_summary:
+                if has_sl_schedules:
+                    sl_data_summary['PAGESTR'] = "PAGE " + str(page_no) + " / " + str(total_no_of_pages)
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL/all_pages.pdf')
@@ -298,7 +300,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     la_schedules = []
     slb_schedules = []
     sl_summary = []
-    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_la_schedules = has_slb_schedules = False
+    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_la_schedules = has_slb_schedules = has_sl_schedules=False
     sa_schedules_cnt = sb_schedules_cnt = 0
     la_schedules_cnt = slb_schedules_cnt = 0
     total_sc_pages = 0
@@ -576,11 +578,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
         sd_start_page = total_no_of_pages + 1
         total_no_of_pages += total_sd_pages
 
-        # sc_start_page = total_no_of_pages + 1
-        # total_no_of_pages += total_sc_pages
-
-        # sd_start_page = total_no_of_pages + 1
-        # total_no_of_pages += total_sd_pages
+    
 
         # Schedule A line number processing starts here
         if sa_schedules_cnt > 0:
@@ -741,7 +739,9 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         'has_sc_schedules': has_sc_schedules,
                         'has_sd_schedules': has_sd_schedules,
                         'has_la_schedules': has_la_schedules,
-                        'has_slb_schedules': has_slb_schedules
+                        'has_slb_schedules': has_slb_schedules,
+                        'has_sl_schedules': has_sl_schedules
+
                         }
                      
         return output_data, total_no_of_pages
@@ -1169,9 +1169,6 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
                                                                    page_start_index, slb_schedule_page_dict,
                                                                    slb_line)
 
-               
-
-
                 page_subtotal = float(slb_schedule_page_dict['pageSubtotal'])
                 schedule_total += page_subtotal
                 if slb_line_page_cnt == (slb_page_no + 1):
@@ -1190,6 +1187,25 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
             os.rename(md5_directory + 'SL-B/' + line_number + '/all_pages.pdf', md5_directory + 'SL-B/all_pages.pdf')
     
     return has_slb_schedules
+
+# def process_sl_sched(f3x_data, md5_directory):
+   
+    has_sl_schedules = True
+    os.makedirs(md5_directory + 'SL/', exist_ok=True)
+    sl_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SL')
+
+     
+    sl_outfile = md5_directory + 'SL' + '/all_pages.pdf'
+    pypdftk.fill_form(sl_infile,sl_data_summary, sl_outfile)
+    
+    if path.isfile(md5_directory + 'SL/all_pages.pdf'):
+        pypdftk.concat([md5_directory + 'SL/all_pages.pdf', md5_directory + 'SL' + '/all_pages.pdf'],
+                    md5_directory + 'SL/temp_all_pages.pdf')
+        os.rename(md5_directory + 'SL/temp_all_pages.pdf', md5_directory + 'SL/all_pages.pdf')
+    else:
+        os.rename(md5_directory + 'SL' + '/all_pages.pdf', md5_directory + 'SL/all_pages.pdf')
+                   
+    return 
 
 # This method calculates number of pages for Schedules
 def calculate_page_count(schedules):
