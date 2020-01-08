@@ -496,6 +496,38 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                                      + sb_28c_page_cnt + sb_29_page_cnt + sb_30b_page_cnt)
 
 
+        if 'SL' in schedules or len(sl_summary) > 0:
+            sl_start_page = 0
+            sl_start_page = total_no_of_pages
+            total_sl_pages = total_no_of_pages+1
+            total_no_of_pages += total_sl_pages
+            if 'SL' in schedules:
+                sl_summary.extend(schedules['SL'])
+            
+            sl_summary_cnt = len(sl_summary)
+            if sl_summary_cnt > 0:
+                has_sl_summary = True
+                os.makedirs(md5_directory + 'SL', exist_ok=True)
+
+                # building array for all SB line numbers
+                sl_levin_page_cnt = 0
+                levin_name_dict = {}
+                levin_name_dict_list = []
+
+                # process for each Schedule B
+                for sl_count in range(sl_summary_cnt):
+                    sl_levin_list = []
+                    sl_levin_list.append(slb_schedules[sl_count])
+                    sl_levin_page_cnt += len(sl_levin_list)
+                    #levin_name_data = slb_schedules[sl_count]
+                    sl_page_cnt, sl_last_page_cnt = calculate_slb_page_count(slb_4a)
+                    total_no_of_pages = (total_no_of_pages + sl_levin_page_cnt)
+                    levin_name_data = slb_schedules[sl_count]
+
+                    process_sl_levin(f3x_data, md5_directory, levin_name_data['accountName'], levin_name_data, sa_11a_page_cnt, sl_page_cnt,
+                            sl_last_page_cnt, total_no_of_pages)
+
+
         if 'SL-A' in schedules:
             la_start_page = total_no_of_pages
             la_schedules.extend(schedules.get('SL-A'))
@@ -750,37 +782,6 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
         #     if slb_schedules_cnt > 0:
         #         has_sl_summary = True
         #         os.makedirs(md5_directory + 'SL', exist_ok=True)
-
-
-
-        if 'SL' in schedules or len(sl_summary) > 0:
-            sl_start_page = 0
-            sl_start_page = total_no_of_pages
-            total_sl_pages = total_no_of_pages+1
-            total_no_of_pages += total_sl_pages
-            if 'SL' in schedules:
-                sl_summary.extend(schedules['SL'])
-            
-            sl_summary_cnt = len(sl_summary)
-            if sl_summary_cnt > 0:
-                has_sl_summary = True
-                os.makedirs(md5_directory + 'SL', exist_ok=True)
-
-                # building array for all SB line numbers
-                sl_levin_page_cnt = 0
-                levin_name_dict = {}
-                levin_name_dict_list = []
-
-                # process for each Schedule B
-                for sl_count in range(sl_summary_cnt):
-
-                    sl_levin_page_cnt += len(slb_schedules[sl_count])
-                    sl_page_cnt, sl_last_page_cnt = calculate_slb_page_count(slb_4a)
-                    total_no_of_pages = (total_no_of_pages + sl_levin_page_cnt)
-                    levin_name_data = slb_schedules[sl_count]
-
-                    process_sl_levin(f3x_data, md5_directory, levin_name_data['accountName'], levin_name_data, sa_11a_page_cnt, sl_page_cnt,
-                            sl_last_page_cnt, total_no_of_pages)
         
 
         output_data = {
