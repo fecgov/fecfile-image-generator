@@ -181,15 +181,11 @@ def print_pdftk(stamp_print):
 
                 if has_sl_summary:
                     print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode sl_data_summary")
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
-                    #pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf') 
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf') 
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL')
 
-
-                
-                # checking for sd transactions
                 if has_la_schedules:
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
@@ -204,9 +200,7 @@ def print_pdftk(stamp_print):
 
 
 
-                
-                # if not (has_sa_schedules or has_sb_schedules or has_sc_schedules):
-                #     shutil.move(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
+              
             else:
                 # no summary, expecting it to be from individual transactions
                 if has_sa_schedules:
@@ -240,7 +234,7 @@ def print_pdftk(stamp_print):
 
 
                 if has_sl_summary:
-                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode 111111111111111111111111111sl_data_summary")
+                    # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode 111111111111111111111111111sl_data_summary")
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL/all_pages.pdf')
@@ -301,8 +295,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     la_schedules = []
     slb_schedules = []
     sl_summary = []
-    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_la_schedules = has_slb_schedules = False
-    has_sl_summary = False
+    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_sl_summary= has_la_schedules = has_slb_schedules = False
     sa_schedules_cnt = sb_schedules_cnt = 0
     la_schedules_cnt = slb_schedules_cnt = sl_summary_cnt = 0
     total_sc_pages = 0
@@ -1270,7 +1263,7 @@ def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_
             sl_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SL')
             if sl_line_page_cnt > 0:
                 for sl_page_no in range(sl_line_page_cnt):
-                    page_subtotal = 0.00
+                    # page_subtotal = 0.00
                     last_page = False
                     sl_schedule_page_dict = {}
                     sl_schedule_page_dict['accountName'] = levin_name
@@ -1286,11 +1279,11 @@ def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_
                                                                        sl_line)
 
 
-                    page_subtotal = float(sl_schedule_page_dict['pageSubtotal'])
-                    schedule_total += page_subtotal
+                    # page_subtotal = float(sl_schedule_page_dict['pageSubtotal'])
+                    # schedule_total += page_subtotal
                 
-                    if sl_line_page_cnt == (sl_page_no + 1):
-                        sl_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
+                    # if sl_line_page_cnt == (sl_page_no + 1):
+                    #     sl_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
                     sl_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                     sl_outfile = md5_directory + 'SL/' + str(levin_name).replace(' ','') + '/page_' + str(sl_page_no) + '.pdf'
 
@@ -1307,8 +1300,7 @@ def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_
                                md5_directory + 'SL/temp_all_pages.pdf')
                 os.rename(md5_directory + 'SL/temp_all_pages.pdf', md5_directory + 'SL/all_pages.pdf')
             else:
-                os.rename(md5_directory + 'SL/' + str(levin_name).replace(' ','') + '/all_pages.pdf', md5_directory + 'SL/all_pages.pdf')
-           
+                os.rename(md5_directory + 'SL/' + str(levin_name).replace(' ','') + '/all_pages.pdf', md5_directory + 'SL/all_pages.pdf')          
 
     except Exception as e:
         raise e
@@ -1699,7 +1691,7 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
 
 def build_sl_levin_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_index, sl_levin_schedule_page_dict,
                                     sl_levin_schedules):
-    page_subtotal = 0.00
+    # page_subtotal = 0.00
     
     try:
         if not last_page:
@@ -1717,7 +1709,7 @@ def build_sl_levin_per_page_schedule_dict(last_page, tranlactions_in_page, page_
         print('Error : ' + e + ' in Schedule SL process_sl_levin_line' )
         raise e
     
-    sl_levin_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
+    # sl_levin_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
 
     return sl_levin_schedule_dict
 
@@ -1740,9 +1732,6 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
             sa_schedule_page_dict["contributorName_" + str(index)] = sa_schedule_dict['contributorOrgName']
             del sa_schedule_dict['contributorOrgName']
 
-        # if 'lineNumber' in sa_schedule_dict:
-        #     sa_schedule_page_dict['lineNumber'] = sa_schedule_dict['lineNumber']
-        #     del sa_schedule_dict['lineNumber']
 
         if 'contributionDate' in sa_schedule_dict:
             date_array = sa_schedule_dict['contributionDate'].split("/")
@@ -1773,58 +1762,6 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
         raise e
 
 
-# def build_contributor_sl_levin_name_date_dict(index, key, sl_schedule_dict, sl_schedule_page_dict):
-
-#     try:
-#         #print("la", sl_schedule_dict, sl_schedule_page_dict, index, key)
-#         if 'contributorLastName' in sl_schedule_dict:
-#             sl_schedule_page_dict['contributorName_' + str(index)] = (sl_schedule_dict['contributorLastName'] + ','
-#                                                                       + sl_schedule_dict['contributorFirstName'] + ','
-#                                                                       + sl_schedule_dict['contributorMiddleName'] + ','
-#                                                                       + sl_schedule_dict['contributorPrefix'] + ','
-#                                                                       + sl_schedule_dict['contributorSuffix'])
-#             del sl_schedule_dict['contributorLastName']
-#             del sl_schedule_dict['contributorFirstName']
-#             del sl_schedule_dict['contributorMiddleName']
-#             del sl_schedule_dict['contributorPrefix']
-#             del sl_schedule_dict['contributorSuffix']
-#         elif 'contributorOrgName' in sl_schedule_dict:
-#             sl_schedule_page_dict["contributorName_" + str(index)] = sl_schedule_dict['contributorOrgName']
-#             del sl_schedule_dict['contributorOrgName']
-
-#         # if 'lineNumber' in sl_schedule_dict:
-#         #     sl_schedule_page_dict['lineNumber'] = sl_schedule_dict['lineNumber']
-#         #     del sl_schedule_dict['lineNumber']
-
-#         if 'contributionDate' in sl_schedule_dict:
-#             date_array = sl_schedule_dict['contributionDate'].split("/")
-#             sl_schedule_page_dict['contributionDateMonth_' + str(index)] = date_array[0]
-#             sl_schedule_page_dict['contributionDateDay_' + str(index)] = date_array[1]
-#             sl_schedule_page_dict['contributionDateYear_' + str(index)] = date_array[2]
-#             del sl_schedule_dict['contributionDate']
-
-#         if 'contributionAmount' in sl_schedule_dict:
-#             if sl_schedule_dict['contributionAmount'] == '':
-#                 sl_schedule_dict['contributionAmount'] = 0.0
-#             sl_schedule_page_dict['contributionAmount_' + str(index)] = '{0:.2f}'.format(
-#                 sl_schedule_dict['contributionAmount'])
-#             del sl_schedule_dict['contributionAmount']
-
-#         if 'contributionAggregate' in sl_schedule_dict:
-#             if sl_schedule_dict['contributionAggregate'] == '':
-#                 sl_schedule_dict['contributionAggregate'] = 0.0
-#             sl_schedule_page_dict['contributionAggregate_' + str(index)] = '{0:.2f}'.format(
-#                 sl_schedule_dict['contributionAggregate'])
-#             del sl_schedule_dict['contributionAggregate']
-
-#         for key in sl_schedule_dict:
-#             if key != 'lineNumber':
-#                 sl_schedule_page_dict[key + '_' + str(index)] = sl_schedule_dict[key]
-#     except Exception as e:
-#         print('Error at key: ' + key + ' in Schedule SL-A tranlaction: ' + str(sl_schedule_dict))
-#         raise e
-
-# This method filters data and message data to render PDF
 def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict):
     try:
         if not sb_schedule_dict.get(key):
