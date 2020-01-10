@@ -180,7 +180,7 @@ def print_pdftk(stamp_print):
 
 
                 if has_sl_summary:
-                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode sl_data_summary")
+                    # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode sl_data_summary")
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf') 
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL/all_pages.pdf')
@@ -234,7 +234,7 @@ def print_pdftk(stamp_print):
 
 
                 if has_sl_summary:
-                    # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode 111111111111111111111111111sl_data_summary")
+                    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!insode 111111111111111111111111111sl_data_summary")
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SL/all_pages.pdf')
@@ -511,7 +511,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
                 # process for each Schedule B
                 for sl_count in range(sl_summary_cnt):
-                    print('levin_name==============================',sl_count)
+                    # print('levin_name==============================',sl_count)
                     levin_name = sl_summary[sl_count]['accountName']
                     print('levin_name',levin_name)
 
@@ -531,7 +531,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         #levin_name_data = slb_schedules[sl_count]
                         sl_page_cnt, sl_last_page_cnt = 1,1
                         total_no_of_pages = (total_no_of_pages + sl_levin_page_cnt)
-                        import ipdb;ipdb.set_trace()
+                        
                         process_sl_levin(f3x_data, md5_directory, name, account_data, sl_levin_page_cnt, sl_page_cnt,
                             sl_last_page_cnt, total_no_of_pages)
 
@@ -1142,6 +1142,7 @@ def process_sb_line(f3x_data, md5_directory, line_number, sb_line, sb_line_page_
                 sb_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sb_outfile = md5_directory + 'SB/' + line_number + '/page_' + str(sb_page_no) + '.pdf'
                 pypdftk.fill_form(sb_infile, sb_schedule_page_dict, sb_outfile)
+                print(sb_infile, sb_schedule_page_dict, sb_outfile,'sbbb-inot----------------------------------------------------------------------')
         pypdftk.concat(directory_files(md5_directory + 'SB/' + line_number + '/'), md5_directory + 'SB/' + line_number
                        + '/all_pages.pdf')
         # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
@@ -1253,13 +1254,23 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
 
 def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_cnt, sl_line_start_page,
                     sl_line_last_page_cnt, total_no_of_pages):
-    has_sl_schedules = False
+    has_sl_summary = False
     try:
         if len(sl_line) > 0:
+            levin_name = str(levin_name)
+
+            import re
+
+            reg = re.compile('^[a-z0-9._A-Z]+$')
+            reg = bool(reg.match(levin_name))
+            p_levin_name = levin_name
+            if reg is False:
+                p_levin_name = re.sub('[^A-Za-z0-9]+', '', levin_name)
+            p_levin_name = str(p_levin_name).replace(' ','')
             sl_line_start_page += 1
-            has_sl_schedules = True
+            has_sl_summary = True
             schedule_total = 0.00
-            os.makedirs(md5_directory + 'SL/' + levin_name, exist_ok=True)
+            os.makedirs(md5_directory + 'SL/' + p_levin_name, exist_ok=True)
             sl_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SL')
             if sl_line_page_cnt > 0:
                 for sl_page_no in range(sl_line_page_cnt):
@@ -1278,34 +1289,44 @@ def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_
                                                                        page_start_index, sl_schedule_page_dict,
                                                                        sl_line)
 
-
-                    # page_subtotal = float(sl_schedule_page_dict['pageSubtotal'])
-                    # schedule_total += page_subtotal
-                
-                    # if sl_line_page_cnt == (sl_page_no + 1):
-                    #     sl_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(schedule_total)
                     sl_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-                    sl_outfile = md5_directory + 'SL/' + str(levin_name).replace(' ','') + '/page_' + str(sl_page_no) + '.pdf'
+                    sl_outfile = md5_directory + 'SL/' + p_levin_name + '/page.pdf'
 
-                    print('sl_schedule_dict',sl_schedule_dict,sl_page_no,'builddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
+                    # print('sl_schedule_dict',sl_schedule_dict,sl_page_no,'builddddddddddddddddddddddddddddddddddddddddddddddddddddddddd')
+
+                    print(sl_infile, sl_schedule_page_dict, sl_outfile,p_levin_name,'sl------------ yesssssssssssssssssssssssssss file')
+
+                    import ipdb;ipdb.set_trace()
+
 
                     pypdftk.fill_form(sl_infile, sl_schedule_page_dict, sl_outfile)
-                    print('sl_schedule_dict',pypdftk,'ldldldlldld')
+            ###################################################
+                    print(levin_name,'############################')
 
-            pypdftk.concat(directory_files(md5_directory + 'SL/' + str(levin_name).replace(' ','') + '/'), md5_directory + 'SL/' + levin_name
+            
+
+
+            ####################################################
+                    
+
+            pypdftk.concat(directory_files(md5_directory + 'SL/' + p_levin_name + '/'), md5_directory + 'SL/' + p_levin_name
                            + '/all_pages.pdf')
+
+            print('sl_schedule_dict',pypdftk,'ldldldlldld')
             # if all_pages.pdf exists in la folder, concatenate line number pdf to all_pages.pdf
             if path.isfile(md5_directory + 'SL/all_pages.pdf'):
-                pypdftk.concat([md5_directory + 'SL/all_pages.pdf', md5_directory + 'SL/' + str(levin_name).replace(' ','') + '/all_pages.pdf'],
+                pypdftk.concat([md5_directory + 'SL/all_pages.pdf', md5_directory + 'SL/' + p_levin_name + '/all_pages.pdf'],
                                md5_directory + 'SL/temp_all_pages.pdf')
                 os.rename(md5_directory + 'SL/temp_all_pages.pdf', md5_directory + 'SL/all_pages.pdf')
             else:
-                os.rename(md5_directory + 'SL/' + str(levin_name).replace(' ','') + '/all_pages.pdf', md5_directory + 'SL/all_pages.pdf')          
+                print(sl_infile, sl_schedule_page_dict, sl_outfile,'sl------------ exxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx file')
+                os.rename(md5_directory + 'SL/' + p_levin_name + '/all_pages.pdf', md5_directory + 'SL/all_pages.pdf')          
 
     except Exception as e:
         raise e
-    print(has_sl_schedules,'sl hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
-    return has_sl_schedules
+        print(has_sl_summary,'sl execceeeeeeeeeee')
+    print(has_sl_summary,'sl hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+    return has_sl_summary
 
 
 # This method calculates number of pages for Schedules
@@ -1691,7 +1712,7 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
 
 def build_sl_levin_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_index, sl_levin_schedule_page_dict,
                                     sl_levin_schedules):
-    # page_subtotal = 0.00
+    page_subtotal = 0.00
     
     try:
         if not last_page:
@@ -1701,7 +1722,7 @@ def build_sl_levin_per_page_schedule_dict(last_page, tranlactions_in_page, page_
             # print('here_dict page1',sl_levin_schedules)
             index = 1
             sl_levin_schedule_dict = sl_levin_schedules[page_start_index + 0]
-            print(sl_levin_schedules,'indexxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+            # print(sl_levin_schedules,'indexxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
             build_contributor_sl_levin_name_date_dict(index, page_start_index, sl_levin_schedule_dict, sl_levin_schedule_page_dict)
         
     
@@ -1709,7 +1730,7 @@ def build_sl_levin_per_page_schedule_dict(last_page, tranlactions_in_page, page_
         print('Error : ' + e + ' in Schedule SL process_sl_levin_line' )
         raise e
     
-    # sl_levin_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
+    sl_levin_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
 
     return sl_levin_schedule_dict
 
@@ -1876,10 +1897,10 @@ def build_contributor_sl_levin_name_date_dict(index, key, sl_schedule_dict, sl_s
 
     try:
         for key in sl_schedule_dict:
-            print(sl_schedule_dict[key],key,'sjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
+            # print(sl_schedule_dict[key],key,'sjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj')
             if key != 'accountName':
-                sl_schedule_page_dict[key + '_' + str(index)] = sl_schedule_dict[key]
-            print(sl_schedule_dict[key],key,'skkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
+                sl_schedule_page_dict[key] = sl_schedule_dict[key]
+            # print(sl_schedule_dict[key],key,'skkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk')
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule SL tranlaction: ' + str(sl_schedule_dict))
         raise e
