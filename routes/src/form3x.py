@@ -1353,6 +1353,11 @@ def process_sh_line(f3x_data, md5_directory, line_number, sh_line, sh_line_page_
         total_federal_share = 0.00
         total_levin_share = 0.00
         total_fed_levin_share = 0.00
+
+        total_fedshare=0.00
+        tota_nonfedshare=0.00
+        total_fednonfed_share=0.00
+
         os.makedirs(md5_directory + schedule_name + line_number, exist_ok=True)
         sh_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH')
         if sh_line_page_cnt > 0:
@@ -1387,18 +1392,17 @@ def process_sh_line(f3x_data, md5_directory, line_number, sh_line, sh_line_page_
                     sh_schedule_dict = build_sh4_per_page_schedule_dict(last_page, sh_line_last_page_cnt,
                                                                    page_start_index, sh_schedule_page_dict,
                                                                    sh_line)
-                    page_fed_subtotal = float(sh_schedule_page_dict['subTotalFederalShare'])
-                    page_levin_subtotal = float(sh_schedule_page_dict['subTotalLevinShare'])
+                    page_fed_subtotal = float(sh_schedule_page_dict['subFedShare'])
+                    page_nonfed_subtotal = float(sh_schedule_page_dict['subNonFedShare'])
+                    sh_schedule_page_dict['subTotalFedNonFedShare'] = page_fed_subtotal+page_nonfed_subtotal
 
 
-                    sh_schedule_page_dict['fedLevinSubTotalShare'] = page_fed_subtotal+page_levin_subtotal
-
-                    total_federal_share += page_fed_subtotal
-                    total_levin_share += page_levin_subtotal
+                    total_fedeshare += page_fed_subtotal
+                    total_nonfedshare += page_nonfed_subtotal
                     if sh_line_page_cnt == (sh_page_no + 1):
-                        sh_schedule_page_dict['totalFederalShare'] = '{0:.2f}'.format(total_federal_share)
-                        sh_schedule_page_dict['totallevinShare'] = '{0:.2f}'.format(total_levin_share)
-                        sh_schedule_page_dict['fedLevinTotalShare'] = total_federal_share+total_levin_share
+                        sh_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
+                        sh_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
+                        sh_schedule_page_dict['TotalFedNonFedShare'] = total_fedshare+total_nonfedshare
 
                 sh_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh_outfile = md5_directory + schedule_name + line_number + '/page_' + str(sh_page_no) + '.pdf'
@@ -1661,9 +1665,9 @@ def build_sh4_per_page_schedule_dict(last_page, transactions_in_page, page_start
             page_fed_subtotal += sh_schedule_dict['federalShare']
             page_nonfed_subtotal += sh_schedule_dict['nonfederalShare']
         build_sh_name_date_dict(index, page_start_index, sh_schedule_dict, sh_schedule_page_dict)
-    sh_schedule_page_dict['subTotalFederalShare'] = '{0:.2f}'.format(page_fed_subtotal)
-    sh_schedule_page_dict['subTotalLevinShare'] = '{0:.2f}'.format(page_levin_subtotal)
-    sh_schedule_page_dict['fedLevinSubTotalShare'] = float(sh_schedule_page_dict['subTotalFederalShare'])+float(sh_schedule_page_dict['subTotalLevinShare'])
+    sh_schedule_page_dict['subFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
+    sh_schedule_page_dict['subNonFedShare'] = '{0:.2f}'.format( page_nonfed_subtotal)
+    sh_schedule_page_dict['subTotalFedNonFedShare'] = float(sh_schedule_page_dict['subFedShare'])+float(sh_schedule_page_dict['subNonFedShare'])
 
     return sh_schedule_dict
 
@@ -2104,5 +2108,5 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
             if key != 'lineNumber':
                 sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
     except Exception as e:
-        print('Error at key: ' + key + ' in Schedule A transaction: ' + str(sh_schedule_dict))
+        print('Error at key: ' + key + ' in Schedule SH transaction: ' + str(sh_schedule_dict))
         raise e
