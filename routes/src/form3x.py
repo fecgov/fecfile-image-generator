@@ -315,6 +315,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     la_schedules = []
     slb_schedules = []
     sl_summary = []
+    sh_schedules = []
     has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_sl_summary= has_la_schedules = has_slb_schedules = False
     has_sh_schedules = has_sh6_schedules = has_sh4_schedules = False
     sa_schedules_cnt = sb_schedules_cnt = sh_schedules_cnt = 0
@@ -513,25 +514,28 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
 
         if 'SH' in schedules:
+            import ipdb;ipdb.set_trace()
             sh_start_page = total_no_of_pages
             sh_schedules.extend(schedules.get('SH'))
             sh_schedules_cnt = len(sh_schedules)
+            print(sh_schedules,'akkakakkakakka ----------------------------------------------sh ssssssss')
             # if sh_schedules_cnt > 0:
             if sh_schedules:
                 has_sh_schedules = True
                 os.makedirs(md5_directory + 'SH', exist_ok=True)
                 # building array for all SA line numbers
+                sh_line_page_cnt = 0
 
 
                 line_number_dict = {}
 
                 for sh_linenum in range(sh_schedules_cnt):
                     if 'child' in sh_schedules[sh_linenum]:
-                        sh_child_schedules = sh_schedules[sh_count]['child']
+                        sh_child_schedules = sh_schedules[sh_linenum]['child']
 
                         sh_child_schedules_count = len(sh_child_schedules)
                         for sh_child_count in range(sh_child_schedules_count):
-                            sh_schedules.append(sh_schedules[sh_count]['child'][sh_child_count])
+                            sh_schedules.append(sh_schedules[sh_linenum]['child'][sh_child_count])
 
                     line_num = sh_schedules[sh_linenum]['lineNumber']
                     if not line_number_dict.get(line_num):
@@ -548,21 +552,23 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         sl_page_cnt, sl_last_page_cnt = 0,3
                         total_no_of_pages = (total_no_of_pages + sh_line_page_cnt)
 
-                        if linenum == "30B":
+                        print(linenum,linenum_data,'dattaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
+
+                        if linenum.upper() == "30A":
                             if sh_schedules:
                                 has_sh6_schedules = True
                                 os.makedirs(md5_directory + 'SH6', exist_ok=True)
                                 schedule_name = 'SH6/'
-                                has_secd = process_sh_line(f3x_data, md5_directory, name, linenum_data, sh_line_page_cnt, sl_page_cnt,
+                                has_secd = process_sh_line(f3x_data, md5_directory, linenum, linenum_data, sh_line_page_cnt, sl_page_cnt,
                                     sl_last_page_cnt, total_no_of_pages,schedule_name)
                                 has_sh6_schedules = has_secd
-                        elif linenum == "21A":
+                        elif linenum.upper() == "21A":
                             if sh_schedules:
                                 has_sh6_schedules = True
                                 os.makedirs(md5_directory + 'SH4', exist_ok=True)
                                 schedule_name = 'SH4/'
 
-                                has_secd = process_sh_line(f3x_data, md5_directory, name, linenum_data, sh_line_page_cnt, sl_page_cnt,
+                                has_secd = process_sh_line(f3x_data, md5_directory, linenum, linenum_data, sh_line_page_cnt, sl_page_cnt,
                                     sl_last_page_cnt, total_no_of_pages,schedule_name)
                                 has_sh4_schedules = has_secd
 
@@ -1359,7 +1365,7 @@ def process_sh_line(f3x_data, md5_directory, line_number, sh_line, sh_line_page_
         total_fednonfed_share=0.00
 
         os.makedirs(md5_directory + schedule_name + line_number, exist_ok=True)
-        sh_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH')
+        sh_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format(schedule_name)
         if sh_line_page_cnt > 0:
             for sh_page_no in range(sh_line_page_cnt):
                 page_subtotal = 0.00
@@ -2103,6 +2109,30 @@ def build_contributor_sl_levin_name_date_dict(index, key, sl_schedule_dict, sl_s
 
 def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict):
     try:
+        if not sh_schedule_dict.get(key):
+            sh_schedule_dict[key] = ""
+
+        if 'payeeLastName' in sh_schedule_dict:
+            sh_schedule_page_dict['payeeName_' + str(index)] = (sh_schedule_dict['payeeLastName'] + ','
+                                                                      + sh_schedule_dict['payeeFirstName'] + ','
+                                                                      + sh_schedule_dict['payeeMiddleName'] + ','
+                                                                      + sh_schedule_dict['payeePrefix'] + ','
+                                                                      + sh_schedule_dict['payeeSuffix'])
+        elif 'payeeOrganizationName' in sh_schedule_dict:
+            sh_schedule_page_dict["payeeName_" + str(index)] = sh_schedule_dict['payeeOrganizationName']
+
+        if key == 'expenditureDate':
+            date_array = sh_schedule_dict[key].split("/")
+            sh_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
+            sh_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
+            sh_schedule_page_dict['expenditureDateYear_' + str(index)] = date_array[2]
+
+        if key in ('federalShare','levinShare','totalFedLevinAmount','nonfederalShare', 'totalFedNonfedAmount'):
+
+            sh_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sh_schedule_dict[key])
+        else:
+            sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
+
 
         for key in sh_schedule_dict:
             if key != 'lineNumber':
