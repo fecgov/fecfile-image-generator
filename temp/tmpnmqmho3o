@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xfdf xmlns="http://ns.adobe.com/xfdf/" xml:space="preserve">
+    <fields>
+        <field name="accountName"><value>Levin Account 1</value></field>
+        <field name="pageNo"><value>2</value></field>
+        <field name="totalPages"><value>200</value></field>
+        <field name="transactionTypeIdentifier_1"><value>SCHED_L_SUM</value></field>
+        <field name="transactionId_1"><value>SL20191211000002412</value></field>
+        <field name="recordId_1"><value>1</value></field>
+        <field name="coverageFromDate_1"><value>09/01/2019</value></field>
+        <field name="coverageThroughDate_1"><value>09/30/2019</value></field>
+        <field name="itemizedReceiptsFromPersons_1"><value>3430.0</value></field>
+        <field name="unitemizedReceiptsFromPersons_1"><value>352.0</value></field>
+        <field name="totalReceiptsFromPersons_1"><value>3782.0</value></field>
+        <field name="otherReceipts_1"><value>880.0</value></field>
+        <field name="totalReceipts_1"><value>4662.0</value></field>
+        <field name="voterRegistrationDisbursements_1"><value>130.0</value></field>
+        <field name="voterIdDisbursements_1"><value>130.0</value></field>
+        <field name="gotvDisbursements_1"><value>130.0</value></field>
+        <field name="genericCampaignDisbursements_1"><value>130.0</value></field>
+        <field name="totalSubDisbursements_1"><value>0.0</value></field>
+        <field name="otherDisbursements_1"><value>130.0</value></field>
+        <field name="totalDisbursements_1"><value>650.0</value></field>
+        <field name="beginningCashOnHand_1"><value>23573.0</value></field>
+        <field name="receipts_1"><value>4662.0</value></field>
+        <field name="subtotal_1"><value>28235.0</value></field>
+        <field name="disbursements_1"><value>650.0</value></field>
+        <field name="endingCashOnHand_1"><value>27585.0</value></field>
+        <field name="itemizedReceiptsFromPersonsYTD_1"><value>12100.0</value></field>
+        <field name="unitemizedReceiptsFromPersonsYTD_1"><value>815.0</value></field>
+        <field name="totalReceiptsFromPersonsYTD_1"><value>12915.0</value></field>
+        <field name="otherReceiptsYTD_1"><value>3310.0</value></field>
+        <field name="totalReceiptsYTD_1"><value>16225.0</value></field>
+        <field name="voterRegistrationDisbursementsYTD_1"><value>4760.0</value></field>
+        <field name="voterIdDisbursementsYTD_1"><value>3030.0</value></field>
+        <field name="gotvDisbursementsYTD_1"><value>3030.0</value></field>
+        <field name="genericCampaignDisbursementsYTD_1"><value>4260.0</value></field>
+        <field name="totalSubDisbursementsYTD_1"><value>0.0</value></field>
+        <field name="otherDisbursementsYTD_1"><value>2660.0</value></field>
+        <field name="totalDisbursementsYTD_1"><value>17740.0</value></field>
+        <field name="beginningCashOnHandYTD_1"><value>25000.0</value></field>
+        <field name="receiptsYTD_1"><value>16225.0</value></field>
+        <field name="subtotalYTD_1"><value>41225.0</value></field>
+        <field name="disbursementsYTD_1"><value>17740.0</value></field>
+        <field name="endingCashOnHandYTD_1"><value>23485.0</value></field>
+        <field name="pageSubtotal"><value>0.00</value></field>
+        <field name="scheduleTotal"><value>0.00</value></field>
+        <field name="committeeName"><value>INTERNATIONAL ASSOCIATION OF FIREFIGHTERS INTERESTED IN REGISTRATION AND EDUCATION PAC</value></field>
+    </fields>
+</xfdf>
