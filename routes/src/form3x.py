@@ -1477,6 +1477,7 @@ def process_sh6_line(f3x_data, md5_directory, line_number, sh6_line, sh6_line_pa
 
 def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_page_cnt, sh4_line_start_page,
                     sh4_line_last_page_cnt, total_no_of_pages):
+    import ipdb;ipdb.set_trace()
     has_sh4_schedules = False
     if len(sh4_line) > 0:
         schedule_total = 0.00
@@ -1485,11 +1486,11 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
         # total_fed_levin_share = 0.00
 
         total_fedshare=0.00
-        tota_nonfedshare=0.00
+        total_nonfedshare=0.00
         total_fednonfed_share=0.00
         has_sh4_schedules = True
         os.makedirs(md5_directory + 'SH4/' + line_number, exist_ok=True)
-        sh4_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH6')
+        sh4_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH4')
         if sh4_line_page_cnt > 0:
             sh4_line_start_page += 1
             for sh4_page_no in range(sh4_line_page_cnt):
@@ -1515,7 +1516,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 sh4_schedule_page_dict['subTotalFedNonFedShare'] = page_fed_subtotal+page_nonfed_subtotal
 
 
-                total_fedeshare += page_fed_subtotal
+                total_fedshare += page_fed_subtotal
                 total_nonfedshare += page_nonfed_subtotal
                 if sh4_line_page_cnt == (sh4_page_no + 1):
                     sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
