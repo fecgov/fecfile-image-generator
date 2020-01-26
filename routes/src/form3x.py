@@ -222,7 +222,7 @@ def print_pdftk(stamp_print):
                         shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     else:
                         shutil.move(md5_directory + 'SB/all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SB/all_pages.pdf')
+                    # os.remove(md5_directory + 'SB/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SB')
 
                 if has_sc_schedules:
@@ -250,15 +250,21 @@ def print_pdftk(stamp_print):
                
 
                 if has_la_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
-                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SL-A/all_pages.pdf')
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SL-A/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    #os.remove(md5_directory + 'SL-A/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL-A')
 
                 if has_slb_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-B/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
-                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SL-B/all_pages.pdf')
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL-B/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SL-B/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    #os.remove(md5_directory + 'SL-B/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL-B')
 
                 if has_sh_schedules:
@@ -266,12 +272,26 @@ def print_pdftk(stamp_print):
                     shutil.rmtree(md5_directory + 'SH')
 
                 if has_sh_schedules:
-                    shutil.move(md5_directory + 'SH6/all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'SH6')
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH4/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SH4/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    #os.remove(md5_directory + 'SL-B/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH4')
 
                 if has_sh_schedules:
-                    shutil.move(md5_directory + 'SH6/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH6/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SH6/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    #os.remove(md5_directory + 'SL-B/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SH6')
+
+                # if has_sh_schedules:
+                #     shutil.move(md5_directory + 'SH6/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                #     shutil.rmtree(md5_directory + 'SH6')
 
                 
             # push output file to AWS
