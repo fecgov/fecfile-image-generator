@@ -48,7 +48,7 @@ def print_pdftk(stamp_print):
             total_no_of_pages = 0
             page_no = 1
             has_sa_schedules = has_sb_schedules = has_la_schedules = has_slb_schedules = has_sl_summary = False
-            has_sh_schedules = has_sh6_schedules = has_sh4_schedules = False
+            has_sh_schedules = has_sh6_schedules = has_sh4_schedules = has_sh5_schedules =False
             json_file = request.files.get('json_file')
 
             # generate md5 for json file
@@ -136,6 +136,7 @@ def print_pdftk(stamp_print):
             has_sh6_schedules = process_output.get('has_sh6_schedules')
             has_sh4_schedules = process_output.get('has_sh4_schedules')
             has_slb_schedules= process_output.get('has_slb_schedules')
+            has_sh5_schedules = process_output.get('has_sh5_schedules')
             has_sl_summary= process_output.get('has_sl_summary')
 
             if len(f3x_summary) > 0:
@@ -196,14 +197,21 @@ def print_pdftk(stamp_print):
                     pypdftk.concat([md5_directory + 'F3X_Summary.pdf', md5_directory + 'SH/all_pages.pdf'], md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SH/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SH')
+
                 if has_sh6_schedules:
                     pypdftk.concat([md5_directory + 'F3X_Summary.pdf', md5_directory + 'SH6/all_pages.pdf'], md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SH6/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SH6')
-                if has_sh6_schedules:
-                    pypdftk.concat([md5_directory + 'F3X_Summary.pdf', md5_directory + 'SH6/all_pages.pdf'], md5_directory + 'all_pages.pdf')
+
+                if has_sh4_schedules:
+                    pypdftk.concat([md5_directory + 'F3X_Summary.pdf', md5_directory + 'SH4/all_pages.pdf'], md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SH4/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SH4')
+
+                if has_sh5_schedules:
+                    pypdftk.concat([md5_directory + 'F3X_Summary.pdf', md5_directory + 'SH5/all_pages.pdf'], md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SH5/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH5')
                 else:
                     shutil.copy(md5_directory + 'F3X_Summary.pdf', md5_directory + 'all_pages.pdf')
 
@@ -271,23 +279,32 @@ def print_pdftk(stamp_print):
                     shutil.move(md5_directory + 'SH/all_pages.pdf', md5_directory + 'all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SH')
 
-                if has_sh_schedules:
+                if has_sh4_schedules:
                     if path.exists(md5_directory + 'all_pages.pdf'):
                         pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH4/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                         shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     else:
                         shutil.move(md5_directory + 'SH4/all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    #os.remove(md5_directory + 'SL-B/all_pages.pdf')
+
                     shutil.rmtree(md5_directory + 'SH4')
 
-                if has_sh_schedules:
+                if has_sh6_schedules:
                     if path.exists(md5_directory + 'all_pages.pdf'):
                         pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH6/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
                         shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     else:
                         shutil.move(md5_directory + 'SH6/all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    #os.remove(md5_directory + 'SL-B/all_pages.pdf')
+
                     shutil.rmtree(md5_directory + 'SH6')
+
+                if has_sh5_schedules:
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH5/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SH5/all_pages.pdf', md5_directory + 'all_pages.pdf')
+
+                    shutil.rmtree(md5_directory + 'SH5')
 
                 # if has_sh_schedules:
                 #     shutil.move(md5_directory + 'SH6/all_pages.pdf', md5_directory + 'all_pages.pdf')
@@ -338,7 +355,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     sh_schedules = []
     has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_sl_summary= has_la_schedules = has_slb_schedules = False
     has_sh_schedules = has_sh6_schedules = has_sh4_schedules = False
-    sa_schedules_cnt = sb_schedules_cnt = sh_schedules_cnt = sh4_schedules_cnt = sh6_schedules_cnt = 0
+    sa_schedules_cnt = sb_schedules_cnt = sh_schedules_cnt = sh4_schedules_cnt = sh6_schedules_cnt = sh6_schedules_cnt= 0
     la_schedules_cnt = slb_schedules_cnt = sl_summary_cnt = 0
     total_sc_pages = 0
     total_sd_pages = 0
@@ -573,10 +590,19 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
             sh_30a = []
             sh_21a = []
+            sh_18b = []
             
             sh_30a_last_page_cnt = 3
 
             sh_30a_page_cnt = 0
+
+            sh_21a_last_page_cnt = 3
+
+            sh_21a_page_cnt = 0
+
+            # sh_18b_last_page_cnt = 3
+
+            # sh_18b_page_cnt = 0
 
 
             # process for each Schedule B
@@ -606,6 +632,13 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         has_sh4_schedules = True
                         os.makedirs(md5_directory + 'SH4', exist_ok=True)
 
+                if len(sh_18b) != 0:
+                    sh5_start_page = total_no_of_pages
+                    sh5_schedules_cnt = len(sh_18b)
+                    if sh5_schedules_cnt > 0:
+                        has_sh5_schedules = True
+                        os.makedirs(md5_directory + 'SH5', exist_ok=True)
+
                 sh_30a_page_cnt, sh_30a_last_page_cnt = calculate_page_count(sh_30a)
 
                 total_no_of_pages = (total_no_of_pages + sh_30a_page_cnt)
@@ -613,6 +646,10 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 sh_21a_page_cnt, sh_21a_last_page_cnt = calculate_page_count(sh_21a)
 
                 total_no_of_pages = (total_no_of_pages + sh_21a_page_cnt)
+
+                sh_18b_page_cnt, sh_18b_last_page_cnt = calculate_page_count(sh_18b)
+
+                total_no_of_pages = (total_no_of_pages + sh_18b_page_cnt)
 
 
 
@@ -918,6 +955,12 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                     process_sh4_line(f3x_data, md5_directory, '21A', sh_21a, sh_21a_page_cnt, sh_21a_start_page,
                                     sh_21a_last_page_cnt, total_no_of_pages)
 
+        if sh5_schedules_cnt > 0:
+                    sh_18b_start_page = total_no_of_pages
+                    process_sh4_line(f3x_data, md5_directory, '18B', sh_18b, sh_18b_page_cnt, sh_18b_start_page,
+                                    sh_18b_last_page_cnt, total_no_of_pages)
+
+
 
         output_data = {
                         'has_sa_schedules': has_sa_schedules,
@@ -929,6 +972,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         'has_sh_schedules': has_sh_schedules,
                         'has_sh6_schedules': has_sh6_schedules,
                         'has_sh4_schedules': has_sh4_schedules,
+                        'has_sh5_schedules': has_sh5_schedules,
                         'has_sl_summary' : has_sl_summary
                         }
                      
@@ -1555,6 +1599,56 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
             os.rename(md5_directory + 'SH4/' + line_number + '/all_pages.pdf', md5_directory + 'SH4/all_pages.pdf')
     
     return has_sh4_schedules
+
+def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_page_cnt, sh5_line_start_page,
+                    sh5_line_last_page_cnt, total_no_of_pages):
+    has_sh5_schedules = False
+    if len(sh5_line) > 0:
+        totalvoterRegistrationAmount = 0.00
+        totalvoterIdAmount = 0.00
+        totalgotvAmount= 0.00
+        totalgenericCampaignAmount = 0.00
+        totalAmountOfTransfersReceived = 0.00
+
+        has_sh5_schedules = True
+        os.makedirs(md5_directory + 'SH5/' + line_number, exist_ok=True)
+        sh5_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH5')
+        if sh5_line_page_cnt > 0:
+            sh5_line_start_page += 1
+            for sh5_page_no in range(sh5_line_page_cnt):
+                last_page = False
+                sh5_schedule_page_dict = {}
+                sh5_schedule_page_dict['lineNumber'] = line_number
+                sh5_schedule_page_dict['pageNo'] = sh5_line_start_page + sh5_page_no
+                sh5_schedule_page_dict['totalPages'] = total_no_of_pages
+                # page_start_index = sh6_page_no * 5
+                if ((sh6_page_no + 1) == sh6_line_page_cnt):
+                    last_page = True
+                # This call prepares data to render on PDF
+                sh5_schedule_dict = build_sh5_line_per_page_schedule_dict(last_page, sh5_line_last_page_cnt,
+                                                                   page_start_index, sh5_schedule_page_dict,
+                                                                   sh5_line)
+
+               
+                total_federal_share += page_fed_subtotal
+                total_levin_share += page_levin_subtotal
+                if sh6_line_page_cnt == (sh6_page_no + 1):
+                    sh6_schedule_page_dict['totalFederalShare'] = '{0:.2f}'.format(total_federal_share)
+                    sh6_schedule_page_dict['totallevinShare'] = '{0:.2f}'.format(total_levin_share)
+                    sh6_schedule_page_dict['fedLevinTotalShare'] = total_federal_share+total_levin_share
+                sh6_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                sh6_outfile = md5_directory + 'SH6/' + line_number + '/page_' + str(sh6_page_no) + '.pdf'
+                pypdftk.fill_form(sh6_infile, sh6_schedule_page_dict, sh6_outfile)
+        pypdftk.concat(directory_files(md5_directory + 'SH6/' + line_number + '/'), md5_directory + 'SH6/' + line_number
+                       + '/all_pages.pdf')
+        if path.isfile(md5_directory + 'SH6/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SH6/all_pages.pdf', md5_directory + 'SH6/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SH6/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SH6/temp_all_pages.pdf', md5_directory + 'SH6/all_pages.pdf')
+        else:
+            os.rename(md5_directory + 'SH6/' + line_number + '/all_pages.pdf', md5_directory + 'SH6/all_pages.pdf')
+    
+    return has_sh6_schedules
 
 def process_sh_line(f3x_data, md5_directory, line_number, sh_line, sh_line_page_cnt, sh_line_start_page,
                     sh_line_last_page_cnt, total_no_of_pages,schedule_name):
