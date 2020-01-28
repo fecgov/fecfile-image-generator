@@ -569,6 +569,11 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             sh_21a_page_cnt = 0
 
 
+            sh_18b_last_page_cnt = 2
+
+            sh_18b_page_cnt = 0
+
+
             # process for each Schedule B
             for sh_count in range(sh_schedules_cnt):
                 process_sh_line_numbers(sh_30a, sh_21a, sh_schedules[sh_count])
@@ -579,7 +584,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                     sh_child_schedules_count = len(sh_child_schedules)
                     for sh_child_count in range(sh_child_schedules_count):
                         if sh_schedules[sh_count]['child'][sh_child_count]['lineNumber'] in sh_line_numbers:
-                            process_sh_line_numbers(sh_30a,sh_21a, sh_schedules[sh_count]['child'][sh_child_count])
+                            process_sh_line_numbers(sh_30a,sh_21a,sh_schedules[sh_count]['child'][sh_child_count])
 
 
                 if len(sh_30a) != 0:
@@ -1699,11 +1704,14 @@ def process_slb_line_numbers(slb_4a, slb_4b, slb_4c, slb_4d, slb_5, slb_obj):
         slb_5.append(slb_obj)
 
 
-def process_sh_line_numbers(sh_30a, sh_21a, sh_obj):
+def process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_obj):
     if sh_obj['lineNumber'] == '30A':
         sh_30a.append(sh_obj)
 
     if sh_obj['lineNumber'] == '21A':
+        sh_21a.append(sh_obj)
+
+    if sh_obj['lineNumber'] == '18B':
         sh_21a.append(sh_obj)
 
 # This method builds data for individual SA page
