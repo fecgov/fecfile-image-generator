@@ -1650,80 +1650,80 @@ def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_pa
     
     return has_sh6_schedules
 
-def process_sh_line(f3x_data, md5_directory, line_number, sh_line, sh_line_page_cnt, sh_line_start_page,
-                    sh_line_last_page_cnt, total_no_of_pages,schedule_name):
-    has_sh_schedules_status = False
-    if len(sh_line) > 0:
-        sh_line_start_page += 1
-        has_sh_schedules_status = True
-        total_federal_share = 0.00
-        total_levin_share = 0.00
-        total_fed_levin_share = 0.00
+# def process_sh_line(f3x_data, md5_directory, line_number, sh_line, sh_line_page_cnt, sh_line_start_page,
+#                     sh_line_last_page_cnt, total_no_of_pages,schedule_name):
+#     has_sh_schedules_status = False
+#     if len(sh_line) > 0:
+#         sh_line_start_page += 1
+#         has_sh_schedules_status = True
+#         total_federal_share = 0.00
+#         total_levin_share = 0.00
+#         total_fed_levin_share = 0.00
 
-        total_fedshare=0.00
-        tota_nonfedshare=0.00
-        total_fednonfed_share=0.00
+#         total_fedshare=0.00
+#         tota_nonfedshare=0.00
+#         total_fednonfed_share=0.00
 
-        os.makedirs(md5_directory + schedule_name + line_number, exist_ok=True)
-        sh_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format(schedule_name)
-        if sh_line_page_cnt > 0:
-            for sh_page_no in range(sh_line_page_cnt):
-                page_subtotal = 0.00
-                last_page = False
-                sh_schedule_page_dict = {}
-                sh_schedule_page_dict['lineNumber'] = line_number
-                sh_schedule_page_dict['pageNo'] = sh_line_start_page + sh_page_no
-                sh_schedule_page_dict['totalPages'] = total_no_of_pages
-                page_start_index = sh_page_no * 3
-                if ((sh_page_no + 1) == sh_line_page_cnt):
-                    last_page = True
-                # This call prepares data to render on PDF
-                if schedule_name == "SH6/":
-                    print(schedule_name,'SH66666',last_page, sh_line_last_page_cnt,page_start_index, sh_schedule_page_dict,sh_line,'***************************************************************')
-                    sh_schedule_dict = build_sh6_per_page_schedule_dict(last_page, sh_line_last_page_cnt,
-                                                                   page_start_index, sh_schedule_page_dict,
-                                                                   sh_line)
-                    page_fed_subtotal = float(sh_schedule_page_dict['subTotalFederalShare'])
-                    page_levin_subtotal = float(sh_schedule_page_dict['subTotalLevinShare'])
+#         os.makedirs(md5_directory + schedule_name + line_number, exist_ok=True)
+#         sh_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format(schedule_name)
+#         if sh_line_page_cnt > 0:
+#             for sh_page_no in range(sh_line_page_cnt):
+#                 page_subtotal = 0.00
+#                 last_page = False
+#                 sh_schedule_page_dict = {}
+#                 sh_schedule_page_dict['lineNumber'] = line_number
+#                 sh_schedule_page_dict['pageNo'] = sh_line_start_page + sh_page_no
+#                 sh_schedule_page_dict['totalPages'] = total_no_of_pages
+#                 page_start_index = sh_page_no * 3
+#                 if ((sh_page_no + 1) == sh_line_page_cnt):
+#                     last_page = True
+#                 # This call prepares data to render on PDF
+#                 if schedule_name == "SH6/":
+#                     print(schedule_name,'SH66666',last_page, sh_line_last_page_cnt,page_start_index, sh_schedule_page_dict,sh_line,'***************************************************************')
+#                     sh_schedule_dict = build_sh6_per_page_schedule_dict(last_page, sh_line_last_page_cnt,
+#                                                                    page_start_index, sh_schedule_page_dict,
+#                                                                    sh_line)
+#                     page_fed_subtotal = float(sh_schedule_page_dict['subTotalFederalShare'])
+#                     page_levin_subtotal = float(sh_schedule_page_dict['subTotalLevinShare'])
 
-                    sh_schedule_page_dict['fedLevinSubTotalShare'] = page_fed_subtotal+page_levin_subtotal
+#                     sh_schedule_page_dict['fedLevinSubTotalShare'] = page_fed_subtotal+page_levin_subtotal
 
-                    total_federal_share += page_fed_subtotal
-                    total_levin_share += page_levin_subtotal
-                    if sh_line_page_cnt == (sh_page_no + 1):
-                        sh_schedule_page_dict['totalFederalShare'] = '{0:.2f}'.format(total_federal_share)
-                        sh_schedule_page_dict['totallevinShare'] = '{0:.2f}'.format(total_levin_share)
-                        sh_schedule_page_dict['fedLevinTotalShare'] = total_federal_share+total_levin_share
+#                     total_federal_share += page_fed_subtotal
+#                     total_levin_share += page_levin_subtotal
+#                     if sh_line_page_cnt == (sh_page_no + 1):
+#                         sh_schedule_page_dict['totalFederalShare'] = '{0:.2f}'.format(total_federal_share)
+#                         sh_schedule_page_dict['totallevinShare'] = '{0:.2f}'.format(total_levin_share)
+#                         sh_schedule_page_dict['fedLevinTotalShare'] = total_federal_share+total_levin_share
 
-                if schedule_name == "SH4/":
-                    sh_schedule_dict = build_sh4_per_page_schedule_dict(last_page, sh_line_last_page_cnt,
-                                                                   page_start_index, sh_schedule_page_dict,
-                                                                   sh_line)
-                    page_fed_subtotal = float(sh_schedule_page_dict['subFedShare'])
-                    page_nonfed_subtotal = float(sh_schedule_page_dict['subNonFedShare'])
-                    sh_schedule_page_dict['subTotalFedNonFedShare'] = page_fed_subtotal+page_nonfed_subtotal
+#                 if schedule_name == "SH4/":
+#                     sh_schedule_dict = build_sh4_per_page_schedule_dict(last_page, sh_line_last_page_cnt,
+#                                                                    page_start_index, sh_schedule_page_dict,
+#                                                                    sh_line)
+#                     page_fed_subtotal = float(sh_schedule_page_dict['subFedShare'])
+#                     page_nonfed_subtotal = float(sh_schedule_page_dict['subNonFedShare'])
+#                     sh_schedule_page_dict['subTotalFedNonFedShare'] = page_fed_subtotal+page_nonfed_subtotal
 
 
-                    total_fedeshare += page_fed_subtotal
-                    total_nonfedshare += page_nonfed_subtotal
-                    if sh_line_page_cnt == (sh_page_no + 1):
-                        sh_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
-                        sh_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
-                        sh_schedule_page_dict['TotalFedNonFedShare'] = total_fedshare+total_nonfedshare
+#                     total_fedeshare += page_fed_subtotal
+#                     total_nonfedshare += page_nonfed_subtotal
+#                     if sh_line_page_cnt == (sh_page_no + 1):
+#                         sh_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
+#                         sh_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
+#                         sh_schedule_page_dict['TotalFedNonFedShare'] = total_fedshare+total_nonfedshare
 
-                sh_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-                sh_outfile = md5_directory + schedule_name + line_number + '/page_' + str(sh_page_no) + '.pdf'
-                pypdftk.fill_form(sh_infile, sh_schedule_page_dict, sh_outfile)
-        pypdftk.concat(directory_files(md5_directory + schedule_name + line_number + '/'), md5_directory + schedule_name + line_number
-                       + '/all_pages.pdf')
-        # if all_pages.pdf exists in SA folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + schedule_name+'all_pages.pdf'):
-            pypdftk.concat([md5_directory + schedule_name+'all_pages.pdf', md5_directory + schedule_name + line_number + '/all_pages.pdf'],
-                           md5_directory + schedule_name+'temp_all_pages.pdf')
-            os.rename(md5_directory + schedule_name+'temp_all_pages.pdf', md5_directory + schedule_name+'all_pages.pdf')
-        else:
-            os.rename(md5_directory + schedule_name + line_number + '/all_pages.pdf', md5_directory + schedule_name+'all_pages.pdf')
-    return has_sh_schedules_status
+#                 sh_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+#                 sh_outfile = md5_directory + schedule_name + line_number + '/page_' + str(sh_page_no) + '.pdf'
+#                 pypdftk.fill_form(sh_infile, sh_schedule_page_dict, sh_outfile)
+#         pypdftk.concat(directory_files(md5_directory + schedule_name + line_number + '/'), md5_directory + schedule_name + line_number
+#                        + '/all_pages.pdf')
+#         # if all_pages.pdf exists in SA folder, concatenate line number pdf to all_pages.pdf
+#         if path.isfile(md5_directory + schedule_name+'all_pages.pdf'):
+#             pypdftk.concat([md5_directory + schedule_name+'all_pages.pdf', md5_directory + schedule_name + line_number + '/all_pages.pdf'],
+#                            md5_directory + schedule_name+'temp_all_pages.pdf')
+#             os.rename(md5_directory + schedule_name+'temp_all_pages.pdf', md5_directory + schedule_name+'all_pages.pdf')
+#         else:
+#             os.rename(md5_directory + schedule_name + line_number + '/all_pages.pdf', md5_directory + schedule_name+'all_pages.pdf')
+#     return has_sh_schedules_status
 
 
 # This method calculates number of pages for Schedules
