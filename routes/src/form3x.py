@@ -1526,7 +1526,6 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
 
                 sh3_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 if last_page:
-                    print('here',total_dict)
                     sh3_schedule_page_dict['totalAmountPeriod'] = sum(total_dict.values())
                     for total_key in total_dict:
                         sh3_schedule_page_dict[total_key] = total_dict[total_key]
@@ -1655,7 +1654,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
 
 def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_page_cnt, sh5_line_start_page,
                     sh5_line_last_page_cnt, total_no_of_pages):
-    import ipdb;ipdb.set_trace()
+    # import ipdb;ipdb.set_trace()
     has_sh5_schedules = False
     if len(sh5_line) > 0:
         total_transferred_amt_subtotal = 0.00
@@ -1679,11 +1678,9 @@ def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_pa
                 if ((sh5_page_no + 1) == sh5_line_page_cnt):
                     last_page = True
                 # This call prepares data to render on PDF
-                print('hereeeeeeeeeeeeeeeeeeeeeee')
                 sh5_schedule_dict = build_sh5_per_page_schedule_dict(last_page, sh5_line_last_page_cnt,
                                                                    page_start_index, sh5_schedule_page_dict,
                                                                    sh5_line)
-
 
                 transferred_amt_subtotal = float(sh5_schedule_page_dict['subtotalAmountTransferred'])
                 voter_reg_amt_subtotal = float(sh5_schedule_page_dict['subvoterRegistrationAmount'])
@@ -1953,9 +1950,6 @@ def build_sh5_per_page_schedule_dict(last_page, transactions_in_page, page_start
     gotv_amt_subtotal = 0.00
     generic_camp_amt_subtotal = 0.00
 
-    print(last_page, transactions_in_page, page_start_index, sh5_schedule_page_dict,
-                                    sh5_schedules,'hereeeeeeeeeeeeeeeeeeeeeee')
-
     if not last_page:
         transactions_in_page = 2
 
@@ -2030,7 +2024,6 @@ def build_sh6_line_per_page_schedule_dict(last_page, transactions_in_page, page_
         build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
 
     elif transactions_in_page == 3:
-        print(sh6_schedules[page_start_index + 0],'start')
         index = 1
         sh6_schedule_dict = sh6_schedules[page_start_index + 0]
         if sh6_schedule_dict['memoCode'] != 'X':
@@ -2052,8 +2045,6 @@ def build_sh6_line_per_page_schedule_dict(last_page, transactions_in_page, page_
     sh6_schedule_page_dict['subTotalFederalShare'] = '{0:.2f}'.format(page_fed_subtotal)
     sh6_schedule_page_dict['subTotalLevinShare'] = '{0:.2f}'.format(page_levin_subtotal)
     sh6_schedule_page_dict['fedLevinSubTotalShare'] = float(sh6_schedule_page_dict['subTotalFederalShare'])+float(sh6_schedule_page_dict['subTotalLevinShare'])
-
-    print(sh6_schedule_dict,'skskkskskkskskkskskskskksksksks        dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
     return sh6_schedule_dict
 
@@ -2116,7 +2107,6 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
             tranlactions_in_page = 4
 
         if tranlactions_in_page == 1:
-            # print('here_dict page1',la_schedules)
             index = 1
             la_schedule_dict = la_schedules[page_start_index + 0]
             if la_schedule_dict['memoCode'] != 'X':
@@ -2489,9 +2479,9 @@ def build_contributor_sl_levin_name_date_dict(index, key, sl_schedule_dict, sl_s
 
 def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict):
     try:
-
-        # if not sh_schedule_dict.get(key):
-        #     sh_schedule_dict[key] = ""
+        float_val = ('federalShare','levinShare','totalFedLevinAmount','nonfederalShare', 'totalFedNonfedAmount', 
+                     'totalAmountTransferred','voterRegistrationAmount','voterIdAmount', 'gotvAmount', 
+                     'genericCampaignAmount')
 
         if 'payeeLastName' in sh_schedule_dict:
             sh_schedule_page_dict['payeeName_' + str(index)] = (sh_schedule_dict['payeeLastName'] + ','
@@ -2503,30 +2493,21 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
             sh_schedule_page_dict["payeeName_" + str(index)] = sh_schedule_dict['payeeOrganizationName']
 
         for key in sh_schedule_dict:
-            print(sh_schedule_dict,'datataata dict')
-
             if key == 'expenditureDate':
-                print(key,'sh expenditureDate')
                 date_array = sh_schedule_dict[key].split("/")
                 sh_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
                 sh_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
                 sh_schedule_page_dict['expenditureDateYear_' + str(index)] = date_array[2]
 
             if key in float_val:
-                print(key,'sh federalShare')
-
                 sh_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sh_schedule_dict[key])
             else:
-                print(key,';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;')
-                print(key,'sh sh_schedule_page_dict')
                 if key != 0:
                     sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
 
             if key != 'lineNumber' and key != 0:
-                print(key,'sh !    lineNumber')
                 sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
 
-        print(sh_schedule_page_dict,'page dictlllllllllllllllllllllllllllllllllllllllllllllll')
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule SH transaction: ' + str(sh_schedule_dict))
         raise e
