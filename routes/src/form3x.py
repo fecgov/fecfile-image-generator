@@ -554,7 +554,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             sh_start_page = total_no_of_pages
             sh_schedules.extend(schedules.get('SH'))
             sh_schedules_cnt = len(sh_schedules)
-            sh_line_numbers = ['30A', '21A']
+            sh_line_numbers = ['30A', '21A', '18B']
 
             sh_30a = []
             sh_21a = []
@@ -573,10 +573,10 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
             sh_18b_page_cnt = 0
 
-
+            import ipdb;ipdb.set_trace()
             # process for each Schedule B
             for sh_count in range(sh_schedules_cnt):
-                process_sh_line_numbers(sh_30a, sh_21a, sh_schedules[sh_count])
+                process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_schedules[sh_count])
 
                 if 'child' in sh_schedules[sh_count]:
                     sh_child_schedules = sh_schedules[sh_count]['child']
@@ -584,7 +584,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                     sh_child_schedules_count = len(sh_child_schedules)
                     for sh_child_count in range(sh_child_schedules_count):
                         if sh_schedules[sh_count]['child'][sh_child_count]['lineNumber'] in sh_line_numbers:
-                            process_sh_line_numbers(sh_30a,sh_21a,sh_schedules[sh_count]['child'][sh_child_count])
+                            process_sh_line_numbers(sh_30a,sh_21a, sh_18b, sh_schedules[sh_count]['child'][sh_child_count])
 
 
                 if len(sh_30a) != 0:
@@ -885,6 +885,8 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             process_sh6_line(f3x_data, md5_directory, '30A', sh_30a, sh_30a_page_cnt, sh_30a_start_page,
                             sh_30a_last_page_cnt, total_no_of_pages)
 
+        print(sh4_schedules_cnt,'-cnttttttttttttttttttttttttt')
+
 
         if sh4_schedules_cnt > 0:
                     sh_21a_start_page = total_no_of_pages
@@ -893,6 +895,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
         if sh5_schedules_cnt > 0:
                     sh_18b_start_page = total_no_of_pages
+                    print('akkakakakkka')
                     process_sh5_line(f3x_data, md5_directory, '18B', sh_18b, sh_18b_page_cnt, sh_18b_start_page,
                                     sh_18b_last_page_cnt, total_no_of_pages)
 
@@ -1550,10 +1553,11 @@ def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_pa
                 sh5_schedule_page_dict['lineNumber'] = line_number
                 sh5_schedule_page_dict['pageNo'] = sh5_line_start_page + sh5_page_no
                 sh5_schedule_page_dict['totalPages'] = total_no_of_pages
-                page_start_index = sh5_page_no * 5
+                page_start_index = sh5_page_no * 2
                 if ((sh5_page_no + 1) == sh5_line_page_cnt):
                     last_page = True
                 # This call prepares data to render on PDF
+                print('hereeeeeeeeeeeeeeeeeeeeeee')
                 sh5_schedule_dict = build_sh5_per_page_schedule_dict(last_page, sh5_line_last_page_cnt,
                                                                    page_start_index, sh5_schedule_page_dict,
                                                                    sh5_line)
@@ -1575,11 +1579,12 @@ def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_pa
 
                 
                 if sh5_line_page_cnt == (sh5_page_no + 1):
-                    sh5_schedule_page_dict['TotalAmountTransferred'] = '{0:.2f}'.format(total_transferred_amt_subtotal)
-                    sh5_schedule_page_dict['TotalvoterRegistrationAmount'] = '{0:.2f}'.format( total_voter_reg_amt_subtotal)
-                    sh5_schedule_page_dict['TotalvoterIdAmount'] = '{0:.2f}'.format(total_voter_id_amt_subtotal)
-                    sh5_schedule_page_dict['TotalgotvAmount'] = '{0:.2f}'.format( total_gotv_amt_subtotal)
-                    sh5_schedule_page_dict['TotalgenericCampaignAmount'] = '{0:.2f}'.format(total_generic_camp_amt_subtotal)
+                    sh5_schedule_page_dict['totalvoterRegistrationAmount'] = '{0:.2f}'.format( total_voter_reg_amt_subtotal)
+                    sh5_schedule_page_dict['totalvoterIdAmount'] = '{0:.2f}'.format(total_voter_id_amt_subtotal)
+                    sh5_schedule_page_dict['totalgotvAmount'] = '{0:.2f}'.format( total_gotv_amt_subtotal)
+                    sh5_schedule_page_dict['totalgenericCampaignAmount'] = '{0:.2f}'.format(total_generic_camp_amt_subtotal)
+                    sh5_schedule_page_dict['totalAmountOfTransfersReceived'] = total_voter_reg_amt_subtotal+total_voter_id_amt_subtotal+total_gotv_amt_subtotal+total_generic_camp_amt_subtotal
+
                 sh5_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh5_outfile = md5_directory + 'SH5/' + line_number + '/page_' + str(sh5_page_no) + '.pdf'
                 pypdftk.fill_form(sh5_infile, sh5_schedule_page_dict, sh5_outfile)
@@ -1712,7 +1717,7 @@ def process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_obj):
         sh_21a.append(sh_obj)
 
     if sh_obj['lineNumber'] == '18B':
-        sh_21a.append(sh_obj)
+        sh_18b.append(sh_obj)
 
 # This method builds data for individual SA page
 def build_sa_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sa_schedule_page_dict,
@@ -1821,6 +1826,9 @@ def build_sh5_per_page_schedule_dict(last_page, transactions_in_page, page_start
     voter_id_amt_subtotal = 0.00
     gotv_amt_subtotal = 0.00
     generic_camp_amt_subtotal = 0.00
+
+    print(last_page, transactions_in_page, page_start_index, sh5_schedule_page_dict,
+                                    sh5_schedules,'hereeeeeeeeeeeeeeeeeeeeeee')
 
     if not last_page:
         transactions_in_page = 2
@@ -2359,8 +2367,8 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
         float_val = ('federalShare','levinShare','totalFedLevinAmount','nonfederalShare', 'totalFedNonfedAmount', 
                      'totalAmountTransferred','voterRegistrationAmount','voterIdAmount', 'gotvAmount', 
                      'genericCampaignAmount')
-        if not sh_schedule_dict.get(key):
-            sh_schedule_dict[key] = ""
+        # if not sh_schedule_dict.get(key):
+        #     sh_schedule_dict[key] = ""
 
         if 'payeeLastName' in sh_schedule_dict:
             sh_schedule_page_dict['payeeName_' + str(index)] = (sh_schedule_dict['payeeLastName'] + ','
