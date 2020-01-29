@@ -1435,7 +1435,7 @@ def process_sh6_line(f3x_data, md5_directory, line_number, sh6_line, sh6_line_pa
                 sh6_schedule_page_dict['lineNumber'] = line_number
                 sh6_schedule_page_dict['pageNo'] = sh6_line_start_page + sh6_page_no
                 sh6_schedule_page_dict['totalPages'] = total_no_of_pages
-                page_start_index = sh6_page_no * 5
+                page_start_index = sh6_page_no * 3
                 if ((sh6_page_no + 1) == sh6_line_page_cnt):
                     last_page = True
                 # This call prepares data to render on PDF
@@ -1490,6 +1490,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
             for sh4_page_no in range(sh4_line_page_cnt):
                 page_subtotal = 0.00
                 last_page = False
+                has_sh4_schedules = True
                 sh4_schedule_page_dict = {}
                 sh4_schedule_page_dict['lineNumber'] = line_number
                 sh4_schedule_page_dict['pageNo'] = sh4_line_start_page + sh4_page_no
