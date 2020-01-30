@@ -1447,26 +1447,35 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
                 if sh3_line_dict[ind].get('dfsubs'):
                     sh3_line_dict[ind]['dfsubs'].append(sh3)
+                    sh3_line_dict[ind]['dftotal'] += sh3['transferredAmount']
                 else:
                     sh3_line_dict[ind]['dfsubs'] = [sh3]
+                    sh3_line_dict[ind]['dftotal'] = sh3['transferredAmount']
             elif sh3['activityEventType'] == 'DC':
                 ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
                 if sh3_line_dict[ind].get('dcsubs'):
                     sh3_line_dict[ind]['dcsubs'].append(sh3)
+                    sh3_line_dict[ind]['dctotal'] += sh3['transferredAmount']
                 else:
                     sh3_line_dict[ind]['dcsubs'] = [sh3]
+                    sh3_line_dict[ind]['dctotal'] = sh3['transferredAmount']
             else:
                 ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
                 if sh3_line_dict[ind].get('subs'):
                     sh3_line_dict[ind]['subs'].append(sh3)
                 else:
                     sh3_line_dict[ind]['subs'] = [sh3]
+            if sh3['activityEventType'] in total_dict:
+                total_dict[sh3['activityEventType']] += sh3['transferredAmount']
+            else:
+                total_dict[sh3['activityEventType']] = sh3['transferredAmount']
+        
         if sh3_line_page_cnt > 0:
             sh3_line_start_page += 1
             for sh3_page_no, sh3_page in enumerate(sh3_line_dict):
+                page_subtotal = 0.00
                 last_page = False
                 sh3_schedule_page_dict = {}
-                total_dict ={}
                 sh3_schedule_page_dict['lineNumber'] = line_number
                 sh3_schedule_page_dict['pageNo'] = sh3_line_start_page + sh3_page_no
                 sh3_schedule_page_dict['totalPages'] = total_no_of_pages
@@ -1478,10 +1487,6 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 sh3_schedule_page_dict['adtransferredAmount'] = sh3_page['transferredAmount']
                 sh3_schedule_page_dict['accountName'] = sh3_page['accountName']
                 sh3_schedule_page_dict['totalAmountTransferred'] = sh3_page['totalAmountTransferred']
-                if 'totalAdministrativeAmount' not in total_dict:
-                    total_dict['totalAdministrativeAmount']= float(sh3_page['transferredAmount'])
-                else:
-                    total_dict['totalAdministrativeAmount']+=float(sh3_page['transferredAmount'])
 
                 if 'receiptDate' in sh3_page:
                     
@@ -1495,46 +1500,32 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'] = sub_sh3['transactionId']
                     sh3_schedule_page_dict[s_+'transferredAmount'] = sub_sh3['transferredAmount']
-                    if s_ not in total_dict:
-                        total_dict[s_+'total'] = float(sub_sh3['transferredAmount'])
-                    else:
-                        total_dict[s_+'total'] +=float(sub_sh3['transferredAmount'])
 
                 df_inc = ''
+
                 for sub_sh3 in sh3_page.get('dfsubs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'+df_inc] = sub_sh3['transactionId']
                     sh3_schedule_page_dict[s_+'transferredAmount'+df_inc] = sub_sh3['transferredAmount']
-                    sh3_schedule_page_dict[s_+'dfactivityEventName'+df_inc] = sub_sh3['activityEventName']
-                    df_subtotal += float(sub_sh3['transferredAmount'])
-                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = df_subtotal
-                    if s_ not in total_dict:
-                        total_dict[s_+'total']= float(sub_sh3['transferredAmount'])
-                    else:
-                        total_dict[s_+'total']+=float(sub_sh3['transferredAmount'])
+                    sh3_schedule_page_dict[s_+'activityEventName'+df_inc] = sub_sh3['activityEventName']
+                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = sh3_page.get(s_+'total', '')
                     df_inc = '_1'
 
                 dc_inc = ''
+                
                 for sub_sh3 in sh3_page.get('dcsubs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'+dc_inc] = sub_sh3['transactionId']
                     sh3_schedule_page_dict[s_+'transferredAmount'+dc_inc] = sub_sh3['transferredAmount']
-                    dc_subtotal += float(sub_sh3['transferredAmount'])
-                    sh3_schedule_page_dict[s_+'dcactivityEventName'+dc_inc] = sub_sh3['activityEventName']
-                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = dc_subtotal
-
-                    if s_ not in total_dict:
-                        total_dict[s_+'total']= float(sub_sh3['transferredAmount'])
-                    else:
-                        total_dict[s_+'total']+=float(sub_sh3['transferredAmount'])
-
+                    sh3_schedule_page_dict[s_+'activityEventName'+dc_inc] = sub_sh3['activityEventName']
+                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = sh3_page.get(s_+'total', '')
                     dc_inc = '_1'
 
                 sh3_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 if last_page:
                     sh3_schedule_page_dict['totalAmountPeriod'] = sum(total_dict.values())
                     for total_key in total_dict:
-                        sh3_schedule_page_dict[total_key] = total_dict[total_key]
+                        sh3_schedule_page_dict[total_key.lower()+'total'] = total_dict[total_key]
                 
                 sh3_outfile = md5_directory + 'SH3/' + line_number + '/page_' + str(sh3_page_no) + '.pdf'
                 pypdftk.fill_form(sh3_infile, sh3_schedule_page_dict, sh3_outfile)
