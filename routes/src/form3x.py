@@ -1618,7 +1618,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 sh4_schedule_page_dict['lineNumber'] = line_number
                 sh4_schedule_page_dict['pageNo'] = sh4_line_start_page + sh4_page_no
                 sh4_schedule_page_dict['totalPages'] = total_no_of_pages
-                page_start_index = sh4_page_no * 5
+                page_start_index = sh4_page_no * 3
                 if ((sh4_page_no + 1) == sh4_line_page_cnt):
                     last_page = True
                 # This call prepares data to render on PDF
