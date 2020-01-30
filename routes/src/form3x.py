@@ -1429,6 +1429,9 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
         sh3_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH3')
         sh3_line_dict = []
         sh3_line_transaction = []
+        total_dict ={}
+        dc_subtotal = 0.00
+        df_subtotal = 0.00
         for sh3 in sh3_line:
             if sh3['activityEventType'] == 'AD':
                 sh3_line_dict.append(sh3)
@@ -1454,7 +1457,6 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
         if sh3_line_page_cnt > 0:
             sh3_line_start_page += 1
             for sh3_page_no, sh3_page in enumerate(sh3_line_dict):
-                page_subtotal = 0.00
                 last_page = False
                 sh3_schedule_page_dict = {}
                 total_dict ={}
@@ -1492,8 +1494,6 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                         total_dict[s_+'total'] +=float(sub_sh3['transferredAmount'])
 
                 df_inc = ''
-                df_subtotal = 0.00
-
                 for sub_sh3 in sh3_page.get('dfsubs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'+df_inc] = sub_sh3['transactionId']
@@ -1508,7 +1508,6 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                     df_inc = '_1'
 
                 dc_inc = ''
-                dc_subtotal = 0.00
                 for sub_sh3 in sh3_page.get('dcsubs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'+dc_inc] = sub_sh3['transactionId']
@@ -2498,6 +2497,13 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
                 sh_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
                 sh_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
                 sh_schedule_page_dict['expenditureDateYear_' + str(index)] = date_array[2]
+
+            if key == 'receiptDate':
+                
+                date_array = sh_schedule_dict[key].split("/")
+                sh_schedule_page_dict['receiptDateMonth_' + str(index)] = date_array[0]
+                sh_schedule_page_dict['receiptDateDay_' + str(index)] = date_array[1]
+                sh_schedule_page_dict['receiptDateYear_' + str(index)] = date_array[2]
 
             if key in float_val:
                 sh_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sh_schedule_dict[key])
