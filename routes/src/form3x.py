@@ -48,6 +48,7 @@ def print_pdftk(stamp_print):
             total_no_of_pages = 0
             page_no = 1
             has_sa_schedules = has_sb_schedules = has_la_schedules = has_slb_schedules = has_sl_summary = False
+            has_sh6_schedules = has_sh4_schedules = has_sh5_schedules = has_s3_schedules = False
             json_file = request.files.get('json_file')
 
             # generate md5 for json file
@@ -131,6 +132,10 @@ def print_pdftk(stamp_print):
             has_sc_schedules = process_output.get('has_sc_schedules')
             has_sd_schedules = process_output.get('has_sd_schedules')
             has_la_schedules = process_output.get('has_la_schedules')
+            has_sh6_schedules = process_output.get('has_sh6_schedules')
+            has_sh4_schedules = process_output.get('has_sh4_schedules')
+            has_sh5_schedules = process_output.get('has_sh5_schedules')
+            has_sh3_schedules = process_output.get('has_sh3_schedules')
             has_slb_schedules= process_output.get('has_slb_schedules')
             has_sl_summary= process_output.get('has_sl_summary')
 
@@ -189,7 +194,29 @@ def print_pdftk(stamp_print):
                     shutil.rmtree(md5_directory + 'SL-B')
 
 
+                if has_sh6_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH6/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SH6/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH6')
 
+                if has_sh4_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH4/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SH4/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH4')
+
+                if has_sh5_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH5/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SH5/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH5')
+
+                if has_sh3_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH3/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SH3/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH3')
               
             else:
                 # no summary, expecting it to be from individual transactions
@@ -203,7 +230,6 @@ def print_pdftk(stamp_print):
                         shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     else:
                         shutil.move(md5_directory + 'SB/all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    #os.remove(md5_directory + 'SB/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SB')
 
                 if has_sc_schedules:
@@ -256,6 +282,41 @@ def print_pdftk(stamp_print):
                     #os.remove(md5_directory + 'SL-B/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL-B')
 
+
+                if has_sh4_schedules:
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH4/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SH4/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH4')
+
+                if has_sh6_schedules:
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH6/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SH6/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH6')
+
+                
+                if has_sh5_schedules:
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH5/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SH5/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH5')
+
+                if has_sh3_schedules:
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH3/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SH3/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SH3')
+
+
                 
             # push output file to AWS
             s3 = boto3.client('s3')
@@ -298,8 +359,10 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     la_schedules = []
     slb_schedules = []
     sl_summary = []
+    sh_schedules = []
     has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_sl_summary= has_la_schedules = has_slb_schedules = False
-    sa_schedules_cnt = sb_schedules_cnt = 0
+    has_sh6_schedules = has_sh4_schedules = has_sh5_schedules =  has_sh3_schedules = False
+    sa_schedules_cnt = sb_schedules_cnt = sh_schedules_cnt = sh4_schedules_cnt = sh6_schedules_cnt = sh5_schedules_cnt=sh3_schedules_cnt= 0
     la_schedules_cnt = slb_schedules_cnt = sl_summary_cnt = 0
     total_sc_pages = 0
     total_sd_pages = 0
@@ -494,6 +557,84 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                                      + sb_28c_page_cnt + sb_29_page_cnt + sb_30b_page_cnt)
 
 
+        if 'SH' in schedules:
+            sh_start_page = total_no_of_pages
+            sh_schedules.extend(schedules.get('SH'))
+            sh_schedules_cnt = len(sh_schedules)
+            sh_line_numbers = ['30A', '21A', '18B', '18A']
+
+            sh_30a = []
+            sh_21a = []
+            sh_18b = []
+            sh_18a = []
+            
+            sh_30a_last_page_cnt = 3
+
+            sh_30a_page_cnt = 0
+
+            sh_21a_last_page_cnt = 3
+
+            sh_21a_page_cnt = 0
+
+
+            sh_18b_last_page_cnt = 2
+
+            sh_18b_page_cnt = 0
+
+
+            for sh_count in range(sh_schedules_cnt):
+                process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_18a,sh_schedules[sh_count])
+
+                if 'child' in sh_schedules[sh_count]:
+                    sh_child_schedules = sh_schedules[sh_count]['child']
+
+                    sh_child_schedules_count = len(sh_child_schedules)
+                    for sh_child_count in range(sh_child_schedules_count):
+                        if sh_schedules[sh_count]['child'][sh_child_count]['lineNumber'] in sh_line_numbers:
+                            process_sh_line_numbers(sh_30a,sh_21a, sh_18b,sh_18a, sh_schedules[sh_count]['child'][sh_child_count])
+
+
+                if len(sh_30a) != 0:
+                    sh6_start_page = total_no_of_pages
+                    sh6_schedules_cnt = len(sh_30a)
+                    if sh6_schedules_cnt > 0:
+                        has_sh6_schedules = True
+                        os.makedirs(md5_directory + 'SH6', exist_ok=True)
+
+                if len(sh_21a) != 0:
+                    sh4_start_page = total_no_of_pages
+                    sh4_schedules_cnt = len(sh_21a)
+                    if sh4_schedules_cnt > 0:
+                        has_sh4_schedules = True
+                        os.makedirs(md5_directory + 'SH4', exist_ok=True)
+
+                if len(sh_18b) != 0:
+                    sh5_start_page = total_no_of_pages
+                    sh5_schedules_cnt = len(sh_18b)
+                    if sh5_schedules_cnt > 0:
+                        has_sh5_schedules = True
+                        os.makedirs(md5_directory + 'SH5', exist_ok=True)
+
+                if len(sh_18a) != 0:
+                    sh3_start_page = total_no_of_pages
+                    sh3_schedules_cnt = len(sh_18a)
+                    if sh3_schedules_cnt > 0:
+                        has_sh3_schedules = True
+                        os.makedirs(md5_directory + 'SH3', exist_ok=True)
+
+                sh_30a_page_cnt, sh_30a_last_page_cnt = calculate_page_count(sh_30a)
+                total_no_of_pages = (total_no_of_pages + sh_30a_page_cnt)
+
+                sh_21a_page_cnt, sh_21a_last_page_cnt = calculate_page_count(sh_21a)
+                total_no_of_pages = (total_no_of_pages + sh_21a_page_cnt)
+
+                sh_18b_page_cnt, sh_18b_last_page_cnt = calculate_sh5page_count(sh_18b)
+                total_no_of_pages = (total_no_of_pages + sh_18b_page_cnt)
+
+                sh_18a_page_cnt, sh_18a_last_page_cnt = calculate_page_count(sh_18a)
+                total_no_of_pages = (total_no_of_pages + sh_18a_page_cnt)
+
+
         if 'SL' in schedules or len(sl_summary) > 0:
             sl_start_page = 0
             sl_start_page = total_no_of_pages
@@ -555,10 +696,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
                         la_child_schedules_count = len(la_child_schedules)
                         for la_child_count in range(la_child_schedules_count):
-                            if la_schedules[la_count]['child'][la_child_count]['lineNumber'] in slb_line_numbers:
-                                slb_schedules.append(la_schedules[la_count]['child'][la_child_count])
-                            else:
-                                la_schedules.append(la_schedules[la_count]['child'][la_child_count])
+                            la_schedules.append(la_schedules[la_count]['child'][la_child_count])
                 la_1a_page_cnt, la_1a_last_page_cnt = calculate_la_page_count(la_1a)
                 la_2_page_cnt, la_2_last_page_cnt = calculate_la_page_count(la_2)
                 
@@ -756,6 +894,25 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             process_slb_line(f3x_data, md5_directory, '5', slb_5, slb_5_page_cnt, slb_5_start_page,
                             slb_5_last_page_cnt, total_no_of_pages)
 
+        if sh6_schedules_cnt > 0:
+            sh_30a_start_page = total_no_of_pages
+            process_sh6_line(f3x_data, md5_directory, '30A', sh_30a, sh_30a_page_cnt, sh_30a_start_page,
+                            sh_30a_last_page_cnt, total_no_of_pages)
+
+        if sh4_schedules_cnt > 0:
+                    sh_21a_start_page = total_no_of_pages
+                    process_sh4_line(f3x_data, md5_directory, '21A', sh_21a, sh_21a_page_cnt, sh_21a_start_page,
+                                    sh_21a_last_page_cnt, total_no_of_pages)
+
+        if sh5_schedules_cnt > 0:
+                    sh_18b_start_page = total_no_of_pages
+                    process_sh5_line(f3x_data, md5_directory, '18B', sh_18b, sh_18b_page_cnt, sh_18b_start_page,
+                                    sh_18b_last_page_cnt, total_no_of_pages)
+
+        if sh3_schedules_cnt > 0:
+                    sh_18a_start_page = total_no_of_pages
+                    process_sh3_line(f3x_data, md5_directory, '18A', sh_18a, sh_18a_page_cnt, sh_18a_start_page,
+                                    sh_18a_last_page_cnt, total_no_of_pages)
 
         output_data = {
                         'has_sa_schedules': has_sa_schedules,
@@ -764,6 +921,10 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         'has_sd_schedules': has_sd_schedules,
                         'has_la_schedules': has_la_schedules,
                         'has_slb_schedules': has_slb_schedules,
+                        'has_sh3_schedules': has_sh3_schedules,
+                        'has_sh6_schedules': has_sh6_schedules,
+                        'has_sh4_schedules': has_sh4_schedules,
+                        'has_sh5_schedules': has_sh5_schedules,
                         'has_sl_summary' : has_sl_summary
                         }
                      
@@ -1266,8 +1427,315 @@ def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_
         raise e
     return has_sl_summary
 
+def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_page_cnt, sh3_line_start_page,
+                    sh3_line_last_page_cnt, total_no_of_pages):
+    has_sh3_schedules = False
+    if len(sh3_line) > 0:
+        has_sh3_schedules = True
+        os.makedirs(md5_directory + 'SH3/' + line_number, exist_ok=True)
+        sh3_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH3')
+        sh3_line_dict = []
+        sh3_line_transaction = []
+        total_dict ={}
+        dc_subtotal = 0.00
+        df_subtotal = 0.00
+        for sh3 in sh3_line:
+            if sh3['activityEventType'] == 'AD':
+                sh3_line_dict.append(sh3)
+                sh3_line_transaction.append(sh3['transactionId'])
+            elif sh3['activityEventType'] == 'DF':
+                ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
+                if sh3_line_dict[ind].get('dfsubs'):
+                    sh3_line_dict[ind]['dfsubs'].append(sh3)
+                else:
+                    sh3_line_dict[ind]['dfsubs'] = [sh3]
+            elif sh3['activityEventType'] == 'DC':
+                ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
+                if sh3_line_dict[ind].get('dcsubs'):
+                    sh3_line_dict[ind]['dcsubs'].append(sh3)
+                else:
+                    sh3_line_dict[ind]['dcsubs'] = [sh3]
+            else:
+                ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
+                if sh3_line_dict[ind].get('subs'):
+                    sh3_line_dict[ind]['subs'].append(sh3)
+                else:
+                    sh3_line_dict[ind]['subs'] = [sh3]
+        if sh3_line_page_cnt > 0:
+            sh3_line_start_page += 1
+            for sh3_page_no, sh3_page in enumerate(sh3_line_dict):
+                last_page = False
+                sh3_schedule_page_dict = {}
+                total_dict ={}
+                sh3_schedule_page_dict['lineNumber'] = line_number
+                sh3_schedule_page_dict['pageNo'] = sh3_line_start_page + sh3_page_no
+                sh3_schedule_page_dict['totalPages'] = total_no_of_pages
+                page_start_index = sh3_page_no * 1
+                if ((sh3_page_no + 1) == sh3_line_page_cnt):
+                    last_page = True
+                # This call prepares data to render on PDF
+                sh3_schedule_page_dict['adtransactionId'] = sh3_page['transactionId']
+                sh3_schedule_page_dict['adtransferredAmount'] = sh3_page['transferredAmount']
+                sh3_schedule_page_dict['accountName'] = sh3_page['accountName']
+                sh3_schedule_page_dict['totalAmountTransferred'] = sh3_page['totalAmountTransferred']
+                if 'totalAdministrativeAmount' not in total_dict:
+                    total_dict['totalAdministrativeAmount']= float(sh3_page['transferredAmount'])
+                else:
+                    total_dict['totalAdministrativeAmount']+=float(sh3_page['transferredAmount'])
 
-# This method calculates number of pages for Schedules
+                if 'receiptDate' in sh3_page:
+                    
+                    date_array = sh3_page['receiptDate'].split("/")
+                    sh3_schedule_page_dict['receiptDateMonth'] = date_array[0]
+                    sh3_schedule_page_dict['receiptDateDay'] = date_array[1]
+                    sh3_schedule_page_dict['receiptDateYear'] = date_array[2]
+                
+
+                for sub_sh3 in sh3_page.get('subs', []):
+                    s_ = sub_sh3['activityEventType'].lower()
+                    sh3_schedule_page_dict[s_+'transactionId'] = sub_sh3['transactionId']
+                    sh3_schedule_page_dict[s_+'transferredAmount'] = sub_sh3['transferredAmount']
+                    if s_ not in total_dict:
+                        total_dict[s_+'total'] = float(sub_sh3['transferredAmount'])
+                    else:
+                        total_dict[s_+'total'] +=float(sub_sh3['transferredAmount'])
+
+                df_inc = ''
+                for sub_sh3 in sh3_page.get('dfsubs', []):
+                    s_ = sub_sh3['activityEventType'].lower()
+                    sh3_schedule_page_dict[s_+'transactionId'+df_inc] = sub_sh3['transactionId']
+                    sh3_schedule_page_dict[s_+'transferredAmount'+df_inc] = sub_sh3['transferredAmount']
+                    sh3_schedule_page_dict[s_+'dfactivityEventName'+df_inc] = sub_sh3['activityEventName']
+                    df_subtotal += float(sub_sh3['transferredAmount'])
+                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = df_subtotal
+                    if s_ not in total_dict:
+                        total_dict[s_+'total']= float(sub_sh3['transferredAmount'])
+                    else:
+                        total_dict[s_+'total']+=float(sub_sh3['transferredAmount'])
+                    df_inc = '_1'
+
+                dc_inc = ''
+                for sub_sh3 in sh3_page.get('dcsubs', []):
+                    s_ = sub_sh3['activityEventType'].lower()
+                    sh3_schedule_page_dict[s_+'transactionId'+dc_inc] = sub_sh3['transactionId']
+                    sh3_schedule_page_dict[s_+'transferredAmount'+dc_inc] = sub_sh3['transferredAmount']
+                    dc_subtotal += float(sub_sh3['transferredAmount'])
+                    sh3_schedule_page_dict[s_+'dcactivityEventName'+dc_inc] = sub_sh3['activityEventName']
+                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = dc_subtotal
+
+                    if s_ not in total_dict:
+                        total_dict[s_+'total']= float(sub_sh3['transferredAmount'])
+                    else:
+                        total_dict[s_+'total']+=float(sub_sh3['transferredAmount'])
+
+                    dc_inc = '_1'
+
+                sh3_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                if last_page:
+                    sh3_schedule_page_dict['totalAmountPeriod'] = sum(total_dict.values())
+                    for total_key in total_dict:
+                        sh3_schedule_page_dict[total_key] = total_dict[total_key]
+                
+                sh3_outfile = md5_directory + 'SH3/' + line_number + '/page_' + str(sh3_page_no) + '.pdf'
+                pypdftk.fill_form(sh3_infile, sh3_schedule_page_dict, sh3_outfile)
+        pypdftk.concat(directory_files(md5_directory + 'SH3/' + line_number + '/'), md5_directory + 'SH3/' + line_number
+                       + '/all_pages.pdf')
+        if path.isfile(md5_directory + 'SH3/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SH3/all_pages.pdf', md5_directory + 'SH3/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SH3/temp_allpages.pdf')
+            os.rename(md5_directory + 'SH3/temp_all_pages.pdf', md5_directory + 'SH3/all_pages.pdf')
+        else:
+            os.rename(md5_directory + 'SH3/' + line_number + '/all_pages.pdf', md5_directory + 'SH3/all_pages.pdf')
+    
+    return has_sh3_schedules
+
+
+def process_sh6_line(f3x_data, md5_directory, line_number, sh6_line, sh6_line_page_cnt, sh6_line_start_page,
+                    sh6_line_last_page_cnt, total_no_of_pages):
+    has_sh6_schedules = False
+    if len(sh6_line) > 0:
+        total_federal_share = 0.00
+        total_levin_share = 0.00
+        total_fed_levin_share = 0.00
+
+        has_sh6_schedules = True
+        os.makedirs(md5_directory + 'SH6/' + line_number, exist_ok=True)
+        sh6_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH6')
+        if sh6_line_page_cnt > 0:
+            sh6_line_start_page += 1
+            for sh6_page_no in range(sh6_line_page_cnt):
+                page_subtotal = 0.00
+                last_page = False
+                sh6_schedule_page_dict = {}
+                sh6_schedule_page_dict['lineNumber'] = line_number
+                sh6_schedule_page_dict['pageNo'] = sh6_line_start_page + sh6_page_no
+                sh6_schedule_page_dict['totalPages'] = total_no_of_pages
+                page_start_index = sh6_page_no * 3
+                if ((sh6_page_no + 1) == sh6_line_page_cnt):
+                    last_page = True
+                # This call prepares data to render on PDF
+                sh6_schedule_dict = build_sh6_line_per_page_schedule_dict(last_page, sh6_line_last_page_cnt,
+                                                                   page_start_index, sh6_schedule_page_dict,
+                                                                   sh6_line)
+
+                page_fed_subtotal = float(sh6_schedule_page_dict['subTotalFederalShare'])
+                page_levin_subtotal = float(sh6_schedule_page_dict['subTotalLevinShare'])
+
+                sh6_schedule_page_dict['fedLevinSubTotalShare'] = page_fed_subtotal+page_levin_subtotal
+
+                total_federal_share += page_fed_subtotal
+                total_levin_share += page_levin_subtotal
+                if sh6_line_page_cnt == (sh6_page_no + 1):
+                    sh6_schedule_page_dict['totalFederalShare'] = '{0:.2f}'.format(total_federal_share)
+                    sh6_schedule_page_dict['totallevinShare'] = '{0:.2f}'.format(total_levin_share)
+                    sh6_schedule_page_dict['fedLevinTotalShare'] = total_federal_share+total_levin_share
+                sh6_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                sh6_outfile = md5_directory + 'SH6/' + line_number + '/page_' + str(sh6_page_no) + '.pdf'
+                pypdftk.fill_form(sh6_infile, sh6_schedule_page_dict, sh6_outfile)
+        pypdftk.concat(directory_files(md5_directory + 'SH6/' + line_number + '/'), md5_directory + 'SH6/' + line_number
+                       + '/all_pages.pdf')
+        if path.isfile(md5_directory + 'SH6/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SH6/all_pages.pdf', md5_directory + 'SH6/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SH6/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SH6/temp_all_pages.pdf', md5_directory + 'SH6/all_pages.pdf')
+        else:
+            os.rename(md5_directory + 'SH6/' + line_number + '/all_pages.pdf', md5_directory + 'SH6/all_pages.pdf')
+    
+    return has_sh6_schedules
+
+def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_page_cnt, sh4_line_start_page,
+                    sh4_line_last_page_cnt, total_no_of_pages):
+    # import ipdb;ipdb.set_trace()
+    has_sh4_schedules = False
+    if len(sh4_line) > 0:
+        total_fedshare=0.00
+        total_nonfedshare=0.00
+        total_fednonfed_share=0.00
+        has_sh4_schedules = True
+        os.makedirs(md5_directory + 'SH4/' + line_number, exist_ok=True)
+        sh4_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH4')
+        if sh4_line_page_cnt > 0:
+            sh4_line_start_page += 1
+            for sh4_page_no in range(sh4_line_page_cnt):
+                page_subtotal = 0.00
+                last_page = False
+                has_sh4_schedules = True
+                sh4_schedule_page_dict = {}
+                sh4_schedule_page_dict['lineNumber'] = line_number
+                sh4_schedule_page_dict['pageNo'] = sh4_line_start_page + sh4_page_no
+                sh4_schedule_page_dict['totalPages'] = total_no_of_pages
+                page_start_index = sh4_page_no * 3
+                if ((sh4_page_no + 1) == sh4_line_page_cnt):
+                    last_page = True
+                # This call prepares data to render on PDF
+                sh4_schedule_dict = build_sh4_per_page_schedule_dict(last_page, sh4_line_last_page_cnt,
+                                                                   page_start_index, sh4_schedule_page_dict,
+                                                                   sh4_line)
+
+                page_fed_subtotal = float(sh4_schedule_page_dict['subFedShare'])
+                page_nonfed_subtotal = float(sh4_schedule_page_dict['subNonFedShare'])
+                sh4_schedule_page_dict['subTotalFedNonFedShare'] = page_fed_subtotal+page_nonfed_subtotal
+
+
+                total_fedshare += page_fed_subtotal
+                total_nonfedshare += page_nonfed_subtotal
+                if sh4_line_page_cnt == (sh4_page_no + 1):
+                    sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
+                    sh4_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
+                    sh4_schedule_page_dict['TotalFedNonFedShare'] = total_fedshare+total_nonfedshare
+                sh4_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                sh4_outfile = md5_directory + 'SH4/' + line_number + '/page_' + str(sh4_page_no) + '.pdf'
+                pypdftk.fill_form(sh4_infile, sh4_schedule_page_dict, sh4_outfile)
+        pypdftk.concat(directory_files(md5_directory + 'SH4/' + line_number + '/'), md5_directory + 'SH4/' + line_number
+                       + '/all_pages.pdf')
+        if path.isfile(md5_directory + 'SH4/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SH4/all_pages.pdf', md5_directory + 'SH4/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SH4/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SH4/temp_all_pages.pdf', md5_directory + 'SH4/all_pages.pdf')
+        else:
+            os.rename(md5_directory + 'SH4/' + line_number + '/all_pages.pdf', md5_directory + 'SH4/all_pages.pdf')
+    
+    return has_sh4_schedules
+
+
+def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_page_cnt, sh5_line_start_page,
+                    sh5_line_last_page_cnt, total_no_of_pages):
+    # import ipdb;ipdb.set_trace()
+    has_sh5_schedules = False
+    if len(sh5_line) > 0:
+        total_transferred_amt_subtotal = 0.00
+        total_voter_reg_amt_subtotal = 0.00
+        total_voter_id_amt_subtotal = 0.00
+        total_gotv_amt_subtotal = 0.00
+        total_generic_camp_amt_subtotal = 0.00
+        has_sh5_schedules = True
+        os.makedirs(md5_directory + 'SH5/' + line_number, exist_ok=True)
+        sh5_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH5')
+        if sh5_line_page_cnt > 0:
+            sh5_line_start_page += 1
+            for sh5_page_no in range(sh5_line_page_cnt):
+                page_subtotal = 0.00
+                last_page = False
+                sh5_schedule_page_dict = {}
+                sh5_schedule_page_dict['lineNumber'] = line_number
+                sh5_schedule_page_dict['pageNo'] = sh5_line_start_page + sh5_page_no
+                sh5_schedule_page_dict['totalPages'] = total_no_of_pages
+                page_start_index = sh5_page_no * 2
+                if ((sh5_page_no + 1) == sh5_line_page_cnt):
+                    last_page = True
+                # This call prepares data to render on PDF
+                sh5_schedule_dict = build_sh5_per_page_schedule_dict(last_page, sh5_line_last_page_cnt,
+                                                                   page_start_index, sh5_schedule_page_dict,
+                                                                   sh5_line)
+
+                transferred_amt_subtotal = float(sh5_schedule_page_dict['subtotalAmountTransferred'])
+                voter_reg_amt_subtotal = float(sh5_schedule_page_dict['subvoterRegistrationAmount'])
+                voter_id_amt_subtotal = float(sh5_schedule_page_dict['subvoterIdAmount'])
+                gotv_amt_subtotal = float(sh5_schedule_page_dict['subgotvAmount'])
+                generic_camp_amt_subtotal = float(sh5_schedule_page_dict['subgenericCampaignAmount'])
+
+
+                total_transferred_amt_subtotal += transferred_amt_subtotal
+                total_voter_reg_amt_subtotal += voter_reg_amt_subtotal
+                total_voter_id_amt_subtotal += voter_id_amt_subtotal
+                total_gotv_amt_subtotal += gotv_amt_subtotal
+                total_generic_camp_amt_subtotal += generic_camp_amt_subtotal
+
+
+                
+                if sh5_line_page_cnt == (sh5_page_no + 1):
+                    sh5_schedule_page_dict['totalvoterRegistrationAmount'] = '{0:.2f}'.format( total_voter_reg_amt_subtotal)
+                    sh5_schedule_page_dict['totalvoterIdAmount'] = '{0:.2f}'.format(total_voter_id_amt_subtotal)
+                    sh5_schedule_page_dict['totalgotvAmount'] = '{0:.2f}'.format( total_gotv_amt_subtotal)
+                    sh5_schedule_page_dict['totalgenericCampaignAmount'] = '{0:.2f}'.format(total_generic_camp_amt_subtotal)
+                    sh5_schedule_page_dict['totalAmountOfTransfersReceived'] = total_voter_reg_amt_subtotal+total_voter_id_amt_subtotal+total_gotv_amt_subtotal+total_generic_camp_amt_subtotal
+
+                sh5_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                sh5_outfile = md5_directory + 'SH5/' + line_number + '/page_' + str(sh5_page_no) + '.pdf'
+                pypdftk.fill_form(sh5_infile, sh5_schedule_page_dict, sh5_outfile)
+        pypdftk.concat(directory_files(md5_directory + 'SH5/' + line_number + '/'), md5_directory + 'SH5/' + line_number
+                       + '/all_pages.pdf')
+        if path.isfile(md5_directory + 'SH5/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SH5/all_pages.pdf', md5_directory + 'SH5/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SH5/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SH5/temp_all_pages.pdf', md5_directory + 'SH5/all_pages.pdf')
+        else:
+            os.rename(md5_directory + 'SH5/' + line_number + '/all_pages.pdf', md5_directory + 'SH5/all_pages.pdf')
+    
+    return has_sh5_schedules
+
+
+def calculate_sh5page_count(schedules):
+    schedules_cnt = len(schedules)
+    if int(schedules_cnt % 2) == 0:
+        pages_cnt = int(schedules_cnt / 2)
+        schedules_in_last_page = 2
+    else:
+        pages_cnt = int(schedules_cnt / 2) + 1
+        schedules_in_last_page = int(schedules_cnt % 2)
+    return pages_cnt, schedules_in_last_page
+
+
 def calculate_page_count(schedules):
     schedules_cnt = len(schedules)
     if int(schedules_cnt % 3) == 0:
@@ -1366,6 +1834,20 @@ def process_slb_line_numbers(slb_4a, slb_4b, slb_4c, slb_4d, slb_5, slb_obj):
         slb_5.append(slb_obj)
 
 
+def process_sh_line_numbers(sh_30a, sh_21a,sh_18b,sh_18a, sh_obj):
+    if sh_obj['lineNumber'] == '30A':
+        sh_30a.append(sh_obj)
+
+    if sh_obj['lineNumber'] == '21A':
+        sh_21a.append(sh_obj)
+
+    if sh_obj['lineNumber'] == '18B':
+        sh_18b.append(sh_obj)
+
+    if sh_obj['lineNumber'] == '18A':
+        sh_18a.append(sh_obj)
+
+
 # This method builds data for individual SA page
 def build_sa_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sa_schedule_page_dict,
                                     sa_schedules):
@@ -1409,6 +1891,168 @@ def build_sa_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     sa_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
     return sa_schedule_dict
 
+
+
+
+def build_sh4_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sh4_schedule_page_dict,
+                                    sh4_schedules):
+    page_fed_subtotal = 0.00
+    page_nonfed_subtotal = 0.00
+    if not last_page:
+        transactions_in_page = 3
+
+    if transactions_in_page == 1:
+        index = 1
+        sh4_schedule_dict = sh4_schedules[page_start_index + 0]
+        if sh4_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh4_schedule_dict['federalShare']
+            page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
+        build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
+
+    elif transactions_in_page == 2:
+        index = 1
+        sh4_schedule_dict = sh4_schedules[page_start_index + 0]
+        if sh4_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh4_schedule_dict['federalShare']
+            page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
+        build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
+        index = 2
+        sh4_schedule_dict = sh4_schedules[page_start_index + 1]
+        if sh4_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh4_schedule_dict['federalShare']
+            page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
+        build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
+
+    elif transactions_in_page == 3:
+        index = 1
+        sh4_schedule_dict = sh4_schedules[page_start_index + 0]
+        if sh4_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh4_schedule_dict['federalShare']
+            page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
+        build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
+        index = 2
+        sh4_schedule_dict = sh4_schedules[page_start_index + 1]
+        if sh4_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh4_schedule_dict['federalShare']
+            page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
+        build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
+        index = 3
+        sh4_schedule_dict = sh4_schedules[page_start_index + 2]
+        if sh4_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh4_schedule_dict['federalShare']
+            page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
+        build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
+    sh4_schedule_page_dict['subFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
+    sh4_schedule_page_dict['subNonFedShare'] = '{0:.2f}'.format( page_nonfed_subtotal)
+    sh4_schedule_page_dict['subTotalFedNonFedShare'] = float(sh4_schedule_page_dict['subFedShare'])+float(sh4_schedule_page_dict['subNonFedShare'])
+
+    return sh4_schedules
+
+def build_sh5_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sh5_schedule_page_dict,
+                                    sh5_schedules):
+    transferred_amt_subtotal = 0.00
+    voter_reg_amt_subtotal = 0.00
+    voter_id_amt_subtotal = 0.00
+    gotv_amt_subtotal = 0.00
+    generic_camp_amt_subtotal = 0.00
+
+    if not last_page:
+        transactions_in_page = 2
+
+    if transactions_in_page == 1:
+        index = 1
+        sh5_schedule_dict = sh5_schedules[page_start_index + 0]
+        transferred_amt_subtotal += sh5_schedule_dict['totalAmountTransferred']
+        voter_reg_amt_subtotal += sh5_schedule_dict['voterRegistrationAmount']
+        voter_id_amt_subtotal += sh5_schedule_dict['voterIdAmount']
+        gotv_amt_subtotal += sh5_schedule_dict['gotvAmount']
+        generic_camp_amt_subtotal += sh5_schedule_dict['genericCampaignAmount']
+        build_sh_name_date_dict(index, page_start_index, sh5_schedule_dict, sh5_schedule_page_dict)
+
+    elif transactions_in_page == 2:
+        index = 1
+        sh5_schedule_dict = sh5_schedules[page_start_index + 0]
+        transferred_amt_subtotal += sh5_schedule_dict['totalAmountTransferred']
+        voter_reg_amt_subtotal += sh5_schedule_dict['voterRegistrationAmount']
+        voter_id_amt_subtotal += sh5_schedule_dict['voterIdAmount']
+        gotv_amt_subtotal += sh5_schedule_dict['gotvAmount']
+        generic_camp_amt_subtotal += sh5_schedule_dict['genericCampaignAmount']
+        build_sh_name_date_dict(index, page_start_index, sh5_schedule_dict, sh5_schedule_page_dict)
+        index = 2
+        sh5_schedule_dict = sh5_schedules[page_start_index + 1]
+        transferred_amt_subtotal += sh5_schedule_dict['totalAmountTransferred']
+        voter_reg_amt_subtotal += sh5_schedule_dict['voterRegistrationAmount']
+        voter_id_amt_subtotal += sh5_schedule_dict['voterIdAmount']
+        gotv_amt_subtotal += sh5_schedule_dict['gotvAmount']
+        generic_camp_amt_subtotal += sh5_schedule_dict['genericCampaignAmount']
+        build_sh_name_date_dict(index, page_start_index, sh5_schedule_dict, sh5_schedule_page_dict)
+
+    sh5_schedule_page_dict['subtotalAmountTransferred'] = '{0:.2f}'.format(transferred_amt_subtotal)
+    sh5_schedule_page_dict['subvoterRegistrationAmount'] = '{0:.2f}'.format( voter_reg_amt_subtotal)
+    sh5_schedule_page_dict['subvoterIdAmount'] = '{0:.2f}'.format(voter_id_amt_subtotal)
+    sh5_schedule_page_dict['subgotvAmount'] = '{0:.2f}'.format( gotv_amt_subtotal)
+    sh5_schedule_page_dict['subgenericCampaignAmount'] = '{0:.2f}'.format(generic_camp_amt_subtotal)
+
+
+
+    # sh5_schedule_page_dict['subTotalFedNonFedShare'] = float(sh5_schedule_page_dict['subFedShare'])+float(sh5_schedule_page_dict['subNonFedShare'])
+
+    return sh5_schedules
+
+
+def build_sh6_line_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sh6_schedule_page_dict,
+                                    sh6_schedules):
+    page_fed_subtotal = 0.00
+    page_levin_subtotal = 0.00
+    if not last_page:
+        transactions_in_page = 3
+
+    if transactions_in_page == 1:
+        index = 1
+        sh6_schedule_dict = sh6_schedules[page_start_index + 0]
+        if sh6_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh6_schedule_dict['federalShare']
+            page_levin_subtotal += sh6_schedule_dict['levinShare']
+        build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
+
+    elif transactions_in_page == 2:
+        index = 1
+        sh6_schedule_dict = sh6_schedules[page_start_index + 0]
+        if sh6_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh6_schedule_dict['federalShare']
+            page_levin_subtotal += sh6_schedule_dict['levinShare']
+        build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
+        index = 2
+        sh6_schedule_dict = sh6_schedules[page_start_index + 1]
+        if sh6_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh6_schedule_dict['federalShare']
+            page_levin_subtotal += sh6_schedule_dict['levinShare']
+        build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
+
+    elif transactions_in_page == 3:
+        index = 1
+        sh6_schedule_dict = sh6_schedules[page_start_index + 0]
+        if sh6_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh6_schedule_dict['federalShare']
+            page_levin_subtotal += sh6_schedule_dict['levinShare']
+        build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
+        index = 2
+        sh6_schedule_dict = sh6_schedules[page_start_index + 1]
+        if sh6_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh6_schedule_dict['federalShare']
+            page_levin_subtotal += sh6_schedule_dict['levinShare']
+        build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
+        index = 3
+        sh6_schedule_dict = sh6_schedules[page_start_index + 2]
+        if sh6_schedule_dict['memoCode'] != 'X':
+            page_fed_subtotal += sh6_schedule_dict['federalShare']
+            page_levin_subtotal += sh6_schedule_dict['levinShare']
+        build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
+    sh6_schedule_page_dict['subTotalFederalShare'] = '{0:.2f}'.format(page_fed_subtotal)
+    sh6_schedule_page_dict['subTotalLevinShare'] = '{0:.2f}'.format(page_levin_subtotal)
+    sh6_schedule_page_dict['fedLevinSubTotalShare'] = float(sh6_schedule_page_dict['subTotalFederalShare'])+float(sh6_schedule_page_dict['subTotalLevinShare'])
+
+    return sh6_schedule_dict
 
 # This method builds data for individual SB page
 def build_sb_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sb_schedule_page_dict,
@@ -1469,7 +2113,6 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
             tranlactions_in_page = 4
 
         if tranlactions_in_page == 1:
-            # print('here_dict page1',la_schedules)
             index = 1
             la_schedule_dict = la_schedules[page_start_index + 0]
             if la_schedule_dict['memoCode'] != 'X':
@@ -1837,4 +2480,47 @@ def build_contributor_sl_levin_name_date_dict(index, key, sl_schedule_dict, sl_s
 
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule SL tranlaction: ' + str(sl_schedule_dict))
+        raise e
+
+
+def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict):
+    try:
+        float_val = ('federalShare','levinShare','totalFedLevinAmount','nonfederalShare', 'totalFedNonfedAmount', 
+                     'totalAmountTransferred','voterRegistrationAmount','voterIdAmount', 'gotvAmount', 
+                     'genericCampaignAmount')
+
+        if 'payeeLastName' in sh_schedule_dict:
+            sh_schedule_page_dict['payeeName_' + str(index)] = (sh_schedule_dict['payeeLastName'] + ','
+                                                                      + sh_schedule_dict['payeeFirstName'] + ','
+                                                                      + sh_schedule_dict['payeeMiddleName'] + ','
+                                                                      + sh_schedule_dict['payeePrefix'] + ','
+                                                                      + sh_schedule_dict['payeeSuffix'])
+        elif 'payeeOrganizationName' in sh_schedule_dict:
+            sh_schedule_page_dict["payeeName_" + str(index)] = sh_schedule_dict['payeeOrganizationName']
+
+        for key in sh_schedule_dict:
+            if key == 'expenditureDate':
+                date_array = sh_schedule_dict[key].split("/")
+                sh_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
+                sh_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
+                sh_schedule_page_dict['expenditureDateYear_' + str(index)] = date_array[2]
+
+            if key == 'receiptDate':
+                
+                date_array = sh_schedule_dict[key].split("/")
+                sh_schedule_page_dict['receiptDateMonth_' + str(index)] = date_array[0]
+                sh_schedule_page_dict['receiptDateDay_' + str(index)] = date_array[1]
+                sh_schedule_page_dict['receiptDateYear_' + str(index)] = date_array[2]
+
+            if key in float_val:
+                sh_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sh_schedule_dict[key])
+            else:
+                if key != 0:
+                    sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
+
+            if key != 'lineNumber' and key != 0:
+                sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
+
+    except Exception as e:
+        print('Error at key: ' + key + ' in Schedule SH transaction: ' + str(sh_schedule_dict))
         raise e
