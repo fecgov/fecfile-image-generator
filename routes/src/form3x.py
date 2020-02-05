@@ -48,7 +48,7 @@ def print_pdftk(stamp_print):
             total_no_of_pages = 0
             page_no = 1
             has_sa_schedules = has_sb_schedules = has_la_schedules = has_slb_schedules = has_sl_summary = False
-            has_sh6_schedules = has_sh4_schedules = has_sh5_schedules = has_s3_schedules =has_s3_schedules = False
+            has_sh6_schedules = has_sh4_schedules = has_sh5_schedules = has_s3_schedules =has_s1_schedules = False
             json_file = request.files.get('json_file')
 
             # generate md5 for json file
@@ -225,11 +225,11 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SH1/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SH1')
 
-                if has_sh2_schedules:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH2/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
-                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SH2/all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'SH2')
+                # if has_sh2_schedules:
+                #     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH2/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                #     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                #     os.remove(md5_directory + 'SH2/all_pages.pdf')
+                #     shutil.rmtree(md5_directory + 'SH2')
               
             else:
                 # no summary, expecting it to be from individual transactions
@@ -337,13 +337,13 @@ def print_pdftk(stamp_print):
                         shutil.move(md5_directory + 'SH1/all_pages.pdf', md5_directory + 'all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SH1')
 
-                if has_sh2_schedules:
-                    if path.exists(md5_directory + 'all_pages.pdf'):
-                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH2/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
-                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    else:
-                        shutil.move(md5_directory + 'SH2/all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    shutil.rmtree(md5_directory + 'SH2')
+                # if has_sh2_schedules:
+                #     if path.exists(md5_directory + 'all_pages.pdf'):
+                #         pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SH2/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                #         shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                #     else:
+                #         shutil.move(md5_directory + 'SH2/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                #     shutil.rmtree(md5_directory + 'SH2')
 
 
                 
@@ -1485,32 +1485,39 @@ def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_
 def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_cnt, sh1_start_page,
                      sh1_last_page_cnt, total_no_of_pages):
     has_sh1_schedules = False
+    # presidentialOnly = presidentialAndSenate = senateOnly = nonPresidentialAndNonSenate = False
+    print(sh_h1,'data here')
     try:
         has_sh1_schedules = True
         os.makedirs(md5_directory + 'SH1/' + tran_type_ident, exist_ok=True)
         sh1_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH1')
 
         if sh1_page_cnt > 0:
-            presidentialOnly = sh1_line['presidentialOnly']
-            presidentialAndSenate = sh1_line['presidentialAndSenate']
-            senateOnly = sh1_line['senateOnly']
-            nonPresidentialAndNonSenate = sh1_line['nonPresidentialAndNonSenate']
             sh1_schedule_page_dict = {}
+            sh1_schedule_page_dict['pageNo'] = sh1_start_page + 1
+            sh1_schedule_page_dict['totalPages'] = total_no_of_pages
+            for sh1_line in sh_h1:
+                presidentialOnly = sh1_line['presidentialOnly']
+                presidentialAndSenate = sh1_line['presidentialAndSenate']
+                senateOnly = sh1_line['senateOnly']
+                nonPresidentialAndNonSenate = sh1_line['nonPresidentialAndNonSenate']
+                if presidentialOnly or presidentialAndSenate or senateOnly or nonPresidentialAndNonSenate:
+                    sh1_schedule_page_dict['presidentialOnly'] = sh1_line['presidentialOnly']
+                    sh1_schedule_page_dict['presidentialAndSenate'] = sh1_line['presidentialAndSenate']
+                    sh1_schedule_page_dict['senateOnly'] = sh1_line['senateOnly']
+                    sh1_schedule_page_dict['nonPresidentialAndNonSenate'] = sh1_line['nonPresidentialAndNonSenate']
+                else:
+                    sh1_schedule_page_dict['federalPercent'] = sh1_line['federalPercent']
+                    sh1_schedule_page_dict['nonFederalPercent'] = sh1_line['nonFederalPercent']
+                    sh1_schedule_page_dict['administrative'] = sh1_line['administrative']
+                    sh1_schedule_page_dict['genericVoterDrive'] = sh1_line['genericVoterDrive']
+                    sh1_schedule_page_dict['publicCommunications'] = sh1_line['publicCommunications']
 
-            if presidentialOnly or presidentialAndSenate or senateOnly or nonPresidentialAndNonSenate is True:
-                sh1_schedule_page_dict['presidentialOnly'] = sh1_line['presidentialOnly']
-                sh1_schedule_page_dict['presidentialAndSenate'] = sh1_line['presidentialAndSenate']
-                sh1_schedule_page_dict['senateOnly'] = sh1_line['senateOnly']
-                sh1_schedule_page_dict['nonPresidentialAndNonSenate'] = sh1_line['nonPresidentialAndNonSenate']
-            else:
-                sh1_schedule_page_dict['federalPercent'] = sh1_line['federalPercent']
-                sh1_schedule_page_dict['nonFederalPercent'] = sh1_line['nonFederalPercent']
-                sh1_schedule_page_dict['administrative'] = sh1_line['administrative']
-                sh1_schedule_page_dict['genericVoterDrive'] = sh1_line['genericVoterDrive']
-                sh1_schedule_page_dict['publicCommunications'] = sh1_line['publicCommunications']
+            print(sh1_schedule_page_dict,'final outline data') 
 
-                sh1_outfile = md5_directory + 'SH1/' + tran_type_ident + '/page.pdf'
-                pypdftk.fill_form(sh1_infile, sh1_schedule_page_dict, sh1_outfile)
+            sh1_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+            sh1_outfile = md5_directory + 'SH1/' + tran_type_ident + '/page.pdf'
+            pypdftk.fill_form(sh1_infile, sh1_schedule_page_dict, sh1_outfile)
 
         pypdftk.concat(directory_files(md5_directory + 'SH1/' + tran_type_ident + '/'), md5_directory + 'SH1/' + tran_type_ident
                        + '/all_pages.pdf')
