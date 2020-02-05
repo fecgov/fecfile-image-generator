@@ -1558,7 +1558,6 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
 
 def process_sh2_line(f3x_data, md5_directory, tran_type_ident, sh2_line, sh2_line_page_cnt, sh2_line_start_page,
                     sh2_line_last_page_cnt, total_no_of_pages):
-    import ipdb;ipdb.set_trace()
     has_sh2_schedules = False
     if len(sh2_line) > 0:
         has_sh2_schedules = True
@@ -1579,10 +1578,9 @@ def process_sh2_line(f3x_data, md5_directory, tran_type_ident, sh2_line, sh2_lin
                 sh2_schedule_dict = build_sh2_per_page_schedule_dict(last_page, sh2_line_last_page_cnt,
                                                                        page_start_index, sh2_schedule_page_dict,
                                                                        sh2_line)
-
-            sh2_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-            sh2_outfile = md5_directory + 'SH2/' + tran_type_ident + '/page.pdf'
-            pypdftk.fill_form(sh2_infile, sh2_schedule_page_dict, sh2_outfile)
+                sh2_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                sh2_outfile = md5_directory + 'SH2/' + tran_type_ident + '/page.pdf'
+                pypdftk.fill_form(sh2_infile, sh2_schedule_page_dict, sh2_outfile)
 
         pypdftk.concat(directory_files(md5_directory + 'SH2/' + tran_type_ident + '/'), md5_directory + 'SH2/' + tran_type_ident
                        + '/all_pages.pdf')
