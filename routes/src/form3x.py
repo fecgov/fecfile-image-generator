@@ -2782,6 +2782,9 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
                      'totalAmountTransferred','voterRegistrationAmount','voterIdAmount', 'gotvAmount', 
                      'genericCampaignAmount')
 
+        if 'activityEventType' in sh_schedule_dict:
+            sh_schedule_page_dict["activityEventType_" + str(index)] = sh_schedule_dict['activityEventType']
+
         if 'payeeLastName' in sh_schedule_dict:
             sh_schedule_page_dict['payeeName_' + str(index)] = (sh_schedule_dict['payeeLastName'] + ','
                                                                       + sh_schedule_dict['payeeFirstName'] + ','
@@ -2790,6 +2793,7 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
                                                                       + sh_schedule_dict['payeeSuffix'])
         elif 'payeeOrganizationName' in sh_schedule_dict:
             sh_schedule_page_dict["payeeName_" + str(index)] = sh_schedule_dict['payeeOrganizationName']
+
 
         for key in sh_schedule_dict:
             if key == 'expenditureDate':
@@ -2813,6 +2817,8 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
 
             if key != 'lineNumber' and key != 0:
                 sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
+
+            
 
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule SH transaction: ' + str(sh_schedule_dict))
