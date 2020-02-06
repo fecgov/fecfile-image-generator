@@ -1558,7 +1558,7 @@ def process_sh2_line(f3x_data, md5_directory, tran_type_ident, sh2_line, sh2_lin
     if len(sh2_line) > 0:
         has_sh2_schedules = True
         os.makedirs(md5_directory + 'SH2/' + tran_type_ident, exist_ok=True)
-        sh2_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH2/')
+        sh2_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH2')
         if sh2_line_page_cnt > 0:
             
             sh2_line_start_page += 1
@@ -1581,7 +1581,7 @@ def process_sh2_line(f3x_data, md5_directory, tran_type_ident, sh2_line, sh2_lin
         pypdftk.concat(directory_files(md5_directory + 'SH2/' + tran_type_ident + '/'), md5_directory + 'SH2/' + tran_type_ident
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SH1/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SH2/all_pages.pdf', md5_directory + 'SH2/' + tran_type_ident + '/all_pages.pdf'],
+            pypdftk.concat([md5_directory + 'SH1/all_pages.pdf', md5_directory + 'SH2/' + tran_type_ident + '/all_pages.pdf'],
                            md5_directory + 'SH2/temp_all_pages.pdf')
             os.rename(md5_directory + 'SH2/temp_all_pages.pdf', md5_directory + 'SH2/all_pages.pdf')
         else:
