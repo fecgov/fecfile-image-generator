@@ -602,7 +602,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
             sh_21a_page_cnt = 0
 
-            sh2_page_cnt = 0
+            #sh2_page_cnt = 0
 
 
             sh_18b_last_page_cnt = 2
@@ -684,6 +684,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 total_no_of_pages = (total_no_of_pages + sh_18a_page_cnt)
 
                 sh2_page_cnt, sh2_last_page_cnt = calculate_sh2_page_count(sh_h2)
+                print(sh2_page_cnt, sh2_last_page_cnt,'page-details')
                 total_no_of_pages = (total_no_of_pages + sh2_page_cnt)
 
 
@@ -981,7 +982,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
         if sh2_schedules_cnt > 0:
             tran_type_ident = sh_h2[0]['transactionTypeIdentifier']
-            print(tran_type_ident)
+            print(tran_type_ident,sh_h2,'datalistttttttttttttttttttttttttttttttttttttttttttttttttttttttttt')
 
             if tran_type_ident:
                 sh2_start_page = total_no_of_pages                
@@ -1554,6 +1555,7 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
 
 def process_sh2_line(f3x_data, md5_directory, tran_type_ident, sh2_line, sh2_line_page_cnt, sh2_line_start_page,
                     sh2_line_last_page_cnt, total_no_of_pages):
+    import ipdb;ipdb.set_trace()
     has_sh2_schedules = False
     if len(sh2_line) > 0:
         has_sh2_schedules = True
@@ -1574,14 +1576,16 @@ def process_sh2_line(f3x_data, md5_directory, tran_type_ident, sh2_line, sh2_lin
                 sh2_schedule_dict = build_sh2_per_page_schedule_dict(last_page, sh2_line_last_page_cnt,
                                                                        page_start_index, sh2_schedule_page_dict,
                                                                        sh2_line)
+                print(sh2_schedule_page_dict,'final outline data...........................') 
                 sh2_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh2_outfile = md5_directory + 'SH2/' + tran_type_ident + '/page.pdf'
                 pypdftk.fill_form(sh2_infile, sh2_schedule_page_dict, sh2_outfile)
 
+
         pypdftk.concat(directory_files(md5_directory + 'SH2/' + tran_type_ident + '/'), md5_directory + 'SH2/' + tran_type_ident
                        + '/all_pages.pdf')
-        if path.isfile(md5_directory + 'SH1/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SH1/all_pages.pdf', md5_directory + 'SH2/' + tran_type_ident + '/all_pages.pdf'],
+        if path.isfile(md5_directory + 'SH2/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SH2/all_pages.pdf', md5_directory + 'SH2/' + tran_type_ident + '/all_pages.pdf'],
                            md5_directory + 'SH2/temp_all_pages.pdf')
             os.rename(md5_directory + 'SH2/temp_all_pages.pdf', md5_directory + 'SH2/all_pages.pdf')
         else:
@@ -2122,6 +2126,8 @@ def build_sh4_per_page_schedule_dict(last_page, transactions_in_page, page_start
 
 def build_sh2_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sh2_schedule_page_dict,
                                      sh2_schedules):
+    print(last_page, transactions_in_page, page_start_index, 'sh-page----',sh2_schedule_page_dict,
+                                     'sh-ss--',sh2_schedules,'shhshhshhshhshshhhsh')
 
     page_subtotal = 0.00
     if not last_page:
@@ -2828,8 +2834,9 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
 def build_sh2_name_date_dict(index, key, sh2_schedule_dict, sh2_schedule_page_dict):
 
     try:
+        print(sh2_schedule_dict)
         for key in sh2_schedule_dict:
-            sh2_schedule_page_dict[key] = sh2_schedule_dict[key]
+            sh2_schedule_page_dict[key + '_' + str(index)] = sh2_schedule_dict[key]
 
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule SH2 tranlaction: ' + str(sh2_schedule_dict))
