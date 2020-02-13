@@ -1521,16 +1521,16 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
                 senateOnly = sh1_line['senateOnly']
                 nonPresidentialAndNonSenate = sh1_line['nonPresidentialAndNonSenate']
                 if presidentialOnly or presidentialAndSenate or senateOnly or nonPresidentialAndNonSenate:
-                    sh1_schedule_page_dict['presidentialOnly'] = sh1_line['presidentialOnly']
-                    sh1_schedule_page_dict['presidentialAndSenate'] = sh1_line['presidentialAndSenate']
-                    sh1_schedule_page_dict['senateOnly'] = sh1_line['senateOnly']
-                    sh1_schedule_page_dict['nonPresidentialAndNonSenate'] = sh1_line['nonPresidentialAndNonSenate']
+                    sh1_schedule_page_dict['presidentialOnly'] = str(sh1_line['presidentialOnly'])
+                    sh1_schedule_page_dict['presidentialAndSenate'] = str(sh1_line['presidentialAndSenate'])
+                    sh1_schedule_page_dict['senateOnly'] = str(sh1_line['senateOnly'])
+                    sh1_schedule_page_dict['nonPresidentialAndNonSenate'] = str(sh1_line['nonPresidentialAndNonSenate'])
                 else:
                     sh1_schedule_page_dict['federalPercent'] = sh1_line['federalPercent']
                     sh1_schedule_page_dict['nonFederalPercent'] = sh1_line['nonFederalPercent']
-                    sh1_schedule_page_dict['administrative'] = sh1_line['administrative']
-                    sh1_schedule_page_dict['genericVoterDrive'] = sh1_line['genericVoterDrive']
-                    sh1_schedule_page_dict['publicCommunications'] = sh1_line['publicCommunications']
+                    sh1_schedule_page_dict['administrative'] = str(sh1_line['administrative'])
+                    sh1_schedule_page_dict['genericVoterDrive'] = str(sh1_line['genericVoterDrive'])
+                    sh1_schedule_page_dict['publicCommunications'] = str(sh1_line['publicCommunications'])
 
 
             sh1_schedule_page_dict['committeeName'] = f3x_data['committeeName']
@@ -2825,6 +2825,10 @@ def build_sh2_name_date_dict(index, key, sh2_schedule_dict, sh2_schedule_page_di
 
     try:
         for key in sh2_schedule_dict:
+            if key in ['fundraising','directCandidateSupport']:
+                sh2_schedule_dict[key] = str(sh2_schedule_dict[key])
+
+
             sh2_schedule_page_dict[key + '_' + str(index)] = sh2_schedule_dict[key]
 
     except Exception as e:
