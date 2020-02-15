@@ -635,13 +635,56 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 sf_none =list(set([sub['payeeFirstName'] for sub in sf_empty_none if sub['coordinateExpenditure']  == '' and sub['subordinateCommitteeName'] == '' and sub['designatingCommitteeName'] == '']))
                 print("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ", cor_exp)
                 # d = [{'key':_} for _ in range(count) ]
-                di = {}
-                for val in cor_exp:
-                    for i in range(len(sf_crd)):
-                        if sf_crd[i]['coordinateExpenditure'] == 'Y' and sf_crd[i]['designatingCommitteeName'] == val:
-                            di[val] = sf_crd[i]['designatingCommitteeName']
+                # di = {}
+                # for val in range(len(cor_exp)):
+                #     for i in sf_crd:
+                #         if sf_crd[i]['coordinateExpenditure'] == 'Y' and sf_crd[i]['designatingCommitteeName'] == val:
+                #             di[val] = sf_crd[i]['designatingCommitteeName']
 
-                print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@(((((((((((((((((((((((((((((((((((((((((((9",di)        
+                newdict_cor = {}
+                for val in range(len(cor_exp)):
+                    for i in sf_crd:
+                        if i['coordinateExpenditure'] == 'Y' and i['designatingCommitteeName'] == cor_exp[val]:
+                            if cor_exp[val] not in newdict_cor:
+                                newdict_cor[cor_exp[val]]=[i]
+                            else: 
+                                newdict_cor[cor_exp[val]].append(i)
+
+                newdict_non_cor = {}
+                for val in range(len(non_cor_exp)):
+                    for i in sf_non_crd:
+                        if i['coordinateExpenditure'] == 'N' and i['subordinateCommitteeName'] == non_cor_exp[val]:
+                            if non_cor_exp[val] not in newdict_non_cor:
+                                newdict_non_cor[non_cor_exp[val]]=[i]
+                            else: 
+                                newdict_non_cor[non_cor_exp[val]].append(i)
+
+                newdict_empty_non_ord = {}
+                for val in range(len(empty_non_ord)):
+                    for i in sf_empty_non_ord:
+                        if i['coordinateExpenditure'] == '' and i['designatingCommitteeName'] == '':
+                            if empty_non_ord[val] not in newdict_empty_non_ord:
+                                newdict_empty_non_ord[empty_non_ord[val]]=[i]
+                            else: 
+                                newdict_empty_non_ord[empty_non_ord[val]].append(i)
+
+                newdict_empty_ord = {}
+                for val in range(len(empty_ord)):
+                    for i in sf_empty_ord:
+                        if i['coordinateExpenditure'] == '' and i['subordinateCommitteeName'] == '':
+                            if empty_ord[val] not in newdict_empty_ord:
+                                newdict_empty_ord[empty_ord[val]]=[i]
+                            else: 
+                                newdict_empty_ord[empty_ord[val]].append(i)
+                
+                newdict_sf_none = {}
+                for val in range(len(sf_none)):
+                    for i in sf_empty_none:
+                        if i['coordinateExpenditure'] == '' and i['subordinateCommitteeName'] == '' and i['designatingCommitteeName'] == '' :
+                            if sf_none[val] not in newdict_sf_none:
+                                newdict_sf_none[sf_none[val]]=[i]
+                            else: 
+                                newdict_sf_none[sf_none[val]].append(i)
 
 
                         # and sf_crd[i]['designatingCommitteeName'] == val]
