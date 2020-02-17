@@ -620,21 +620,20 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
 
 
-                    # if 'child' in sf_schedules[sf_count]:
-                    #     sf_child_schedules = sf_schedules[sf_count]['child']
+                if 'child' in sf_schedules[sf_count]:
+                    sf_child_schedules = sf_schedules[sf_count]['child']
 
-                    #     sf_child_schedules_count = len(sf_child_schedules)
-                    #     for sf_child_count in range(sf_child_schedules_count):
-                    #         sf_schedules.append(sf_schedules[sf_count]['child'][sf_child_count])
-                # list(set(a))
+                    sf_child_schedules_count = len(sf_child_schedules)
+                    for sf_child_count in range(sf_child_schedules_count):
+                        sf_schedules.append(sf_schedules[sf_count]['child'][sf_child_count])
+
                 
                 cor_exp = list(set([sub['designatingCommitteeName'] for sub in sf_crd if sub['coordinateExpenditure'] == 'Y']))
                 non_cor_exp = list(set([sub['subordinateCommitteeName'] for sub in sf_non_crd if sub['coordinateExpenditure'] == 'N']))
                 empty_non_ord = list(set([sub['subordinateCommitteeName'] for sub in sf_empty_non_ord if sub['coordinateExpenditure'] == ''] and sub['designatingCommitteeName'] == '' ))
                 empty_ord  = list(set([sub['designatingCommitteeName'] for sub in sf_empty_ord if sub['coordinateExpenditure'] == ''] and sub['subordinateCommitteeName'] == '' ))
                 sf_none =list(set([sub['payeeFirstName'] for sub in sf_empty_none if sub['coordinateExpenditure']  == '' and sub['subordinateCommitteeName'] == '' and sub['designatingCommitteeName'] == '']))
-                print("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ", cor_exp)
-                
+
 
                 newdict_cor = {}
                 for val in range(len(cor_exp)):
@@ -644,7 +643,6 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                                 newdict_cor[cor_exp[val]]=[i]
                             else: 
                                 newdict_cor[cor_exp[val]].append(i)
-                print("Afteeeeeeeeeeeeeee11111111111111111111111111111111111111111111111111111111", newdict_cor)
 
                 newdict_non_cor = {}
                 for val in range(len(non_cor_exp)):
@@ -655,8 +653,6 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                             else: 
                                 newdict_non_cor[non_cor_exp[val]].append(i)
 
-                print("Afteeeeeeeeeeeeee22222222222222222222222222222222222222222222222222", newdict_non_cor)
-
                 newdict_empty_non_ord = {}
                 if len(empty_non_ord) >= 0:
                     for val in range(len(empty_non_ord)):
@@ -666,7 +662,6 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                                     newdict_empty_non_ord[empty_non_ord[val]]=[i]
                                 else: 
                                     newdict_empty_non_ord[empty_non_ord[val]].append(i)
-                print("Afteeeeeeeeeeeeeeeeeeeeeee333333333333333333333333333333333333333333333333333333333333333", newdict_empty_non_ord)
 
                 newdict_empty_ord = {}
                 if len(newdict_empty_ord) >= 0:
@@ -677,8 +672,6 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                                     newdict_empty_ord[empty_ord[val]]=[i]
                                 else: 
                                     newdict_empty_ord[empty_ord[val]].append(i)
-
-                print("Afteeeeeeeeeeeeee44444444444444444444444444444444444444444444444444444444444444444444444", newdict_empty_ord)
                 
                 newdict_sf_none = {}
                 if len(newdict_sf_none) >= 0:
@@ -690,115 +683,29 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                                 else: 
                                     newdict_sf_none[sf_none[val]].append(i)
 
-                print("Afteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee555555555555555555555555555555555555555", newdict_sf_none)
 
                 list_dirs = [newdict_cor, newdict_non_cor, newdict_empty_non_ord, newdict_empty_ord, newdict_sf_none]
 
-                print("total_no_of_pages&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&",total_no_of_pages)
-
-
 
                 for lis in list_dirs:
-                    print("----------------------------------------------------------------------------------------------------------------------------")
                     if lis == newdict_cor:
-                        print("11111111111111111111111111")
                         values = list(newdict_cor.values()) 
 
                     if lis == newdict_non_cor:
-                        print("2222222222222222222222222222")
                         values = list(newdict_non_cor.values()) 
 
                     if lis == newdict_empty_non_ord:
-                        print("3333333333333333333333333333333")
                         values = list(newdict_empty_non_ord.values()) 
 
                     if lis == newdict_empty_ord:
-                        print("4444444444444444444444444444444")
                         values = list(newdict_empty_ord.values()) 
 
                     if lis == newdict_sf_none:
-                        print("555555555555555555555555555555555555")
                         values = list(newdict_sf_none.values()) 
                     
                     for val in values:
-                        print("finaallllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll")
                         sf_crd_page_cnt, sf_crd_last_page_cnt = calculate_page_count(val)
                         total_no_of_pages = total_no_of_pages+sf_crd_page_cnt 
-                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!total_no_of_pages", total_no_of_pages)
-
-
-                # if sf_schedules_cnt > 0:
-                #     for lis in list_dirs:
-                #         if lis == newdict_cor:
-                #             values = list(newdict_cor.values()) 
-                #         if lis == newdict_non_cor:
-                #             values = list(newdict_non_cor.values()) 
-                #         if lis == newdict_empty_non_ord:
-                #             values = list(newdict_empty_non_ord.values()) 
-                #         if lis == newdict_empty_ord:
-                #             values = list(newdict_empty_ord.values())
-                #         if lis == newdict_sf_none:
-                #             values = list(newdict_sf_none.values()) 
-                  
-                #         count = 0
-                #         for rec in values:
-                #             sf_crd_page_cnt, sf_crd_last_page_cnt = calculate_page_count(rec)
-                #             if count == 0:
-                #                 count += 1
-                #                 sf_crd_start_page = sf_start_page
-                #                 process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_crd_start_page,
-                #                             sf_crd_last_page_cnt, total_no_of_pages)
-                #             elif count == 1:
-                #                 count += 1
-                #                 sf_non_crd_start_page = sf_crd_start_page + sf_crd_page_cnt
-                #                 process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_non_crd_start_page,
-                #                                 sf_crd_last_page_cnt, total_no_of_pages)
-                #             else:
-                #                 count += 1:
-                #                 sf_non_crd_start_page = sf_non_crd_start_page + sf_crd_page_cnt
-                #                 process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_non_crd_start_page,
-                #                                 sf_crd_last_page_cnt, total_no_of_pages)
-
-
-
-
-
-                    
-                
-                    # sf_crd_start_page = sf_start_page
-                    # process_sf_line(f3x_data, md5_directory, '25', sf_crd, sf_crd_page_cnt, sf_crd_start_page,
-                    #                 sf_crd_last_page_cnt, total_no_of_pages)
-
-                    # sf_non_crd_start_page = sf_crd_start_page + sf_crd_page_cnt
-                    # process_sf_line(f3x_data, md5_directory, '25', sf_non_crd, sf_non_crd_page_cnt, sf_non_crd_start_page,
-                    #                 sf_non_crd_last_page_cnt, total_no_of_pages)
-
-                    # sf_empty_ord_start_page = sf_non_crd_start_page + sf_non_crd_page_cnt
-                    # process_sf_line(f3x_data, md5_directory, '25', sf_empty_ord, sf_empty_ord_page_cnt, sf_empty_ord_start_page,
-                    #                 sf_empty_ord_last_page_cnt, total_no_of_pages)
-
-                    # sf_empty_non_ord_start_page = sf_empty_ord_start_page + sf_empty_ord_page_cnt
-                    # process_sf_line(f3x_data, md5_directory, '25', sf_empty_non_ord, sf_empty_non_ord_page_cnt, sf_empty_non_ord_start_page,
-                    #                 sf_empty_non_ord_last_page_cnt, total_no_of_pages)
-
-                    # sf_empty_none_start_page = sf_empty_non_ord_start_page + sf_empty_non_ord_page_cnt
-                    # process_sf_line(f3x_data, md5_directory, '25', sf_empty_none, sf_empty_none_page_cnt, sf_empty_none_start_page,
-                    #                 sf_empty_none_last_page_cnt, total_no_of_pages)
-    
-
-
-                            
-                            
-
-
-                # sf_crd_page_cnt, sf_crd_last_page_cnt = calculate_page_count(sf_crd)
-                # sf_non_crd_page_cnt, sf_non_crd_last_page_cnt = calculate_page_count(sf_non_crd)
-                # sf_empty_ord_page_cnt, sf_empty_ord_last_page_cnt  = calculate_page_count(sf_empty_ord)
-                # sf_empty_non_ord_page_cnt, sf_empty_non_ord_last_page_cnt  = calculate_page_count(sf_empty_non_ord)
-                # sf_empty_none_page_cnt, sf_empty_none_last_page_cnt  = calculate_page_count(sf_empty_none)
-
-                # total_no_of_pages = (total_no_of_pages + sf_crd_page_cnt + sf_non_crd_page_cnt + sf_empty_ord_page_cnt + sf_empty_non_ord_page_cnt  
-                #     + sf_empty_none_page_cnt)
 
 
         if 'SH' in schedules:
@@ -1144,7 +1051,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             count = 0
             for lis in list_dirs:
                 if lis == newdict_cor:
-                    values = list(newdict_cor.values()) 
+                    values = list(newdict_cor.values())
                 if lis == newdict_non_cor:
                     values = list(newdict_non_cor.values()) 
                 if lis == newdict_empty_non_ord:
@@ -1153,62 +1060,34 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                     values = list(newdict_empty_ord.values())
                 if lis == newdict_sf_none:
                     values = list(newdict_sf_none.values()) 
-                print(values)
-                print("******************************************************************************************")
+
 
                 for rec in values:
+                    if rec[0].get('designatingCommitteeName'):
+                        cord_name = 'designatingCommittee'
+                    elif rec[0].get('subordinateCommitteeName'):
+                        cord_name = 'subordinateCommittee'
+                    else:
+                        cord_name = 'payee'
+
                     sf_crd_page_cnt, sf_crd_last_page_cnt = calculate_page_count(rec)
                     if count == 0:
                         count += 1
                         sf_crd_start_page = sf_start_page
-                        print("sf_non_crd_start_page!!!!!!!!!!",sf_crd_start_page)
-                        print("sf_crd_page_cnt!!!!!!!!!!!!!!!!!!!!",sf_crd_page_cnt)
-                        print("sf_crd_start_page!!!!!!!!!!!!!!!!!",sf_crd_last_page_cnt)
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_crd_start_page,
-                                    sf_crd_last_page_cnt, total_no_of_pages)
-                        print("enddddddddddddddddd of if")
+                                    sf_crd_last_page_cnt, total_no_of_pages,cord_name)
                     elif count == 1:
                         count += 1
                         sf_non_crd_start_page = sf_crd_start_page + sf_crd_page_cnt
-                        print("sf_non_crd_start_page!!!!!!!!!!",sf_non_crd_start_page)
-                        print("sf_crd_page_cnt!!!!!!!!!!!!!!!!!!!!",sf_crd_page_cnt)
-                        print("sf_non_crd_start_page!!!!!!!!!!",sf_non_crd_start_page)
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_non_crd_start_page,
-                                        sf_crd_last_page_cnt, total_no_of_pages)
-                        print("enddddddddddddddddd of elif")
+                                        sf_crd_last_page_cnt, total_no_of_pages, cord_name)
                     else:
-                        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!222222222222222222222222222222233333333333333333333333")
                         count += 1
-                        print("sf_non_crd_start_page!!!!!!!!!!",sf_non_crd_start_page)
-                        print("sf_crd_page_cnt!!!!!!!!!!!!!!!!!!!!",sf_crd_page_cnt)
                         sf_non_crd_start_page = sf_non_crd_start_page + sf_crd_page_cnt
-                        print("sf_non_crd_start_page_!!!!!!!!!!!!!!!!!!!!",sf_non_crd_start_page)
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_non_crd_start_page,
-                                        sf_crd_last_page_cnt, total_no_of_pages)
-                        print("enddddddddddddddddd of elseeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+                                        sf_crd_last_page_cnt, total_no_of_pages, cord_name)
 
-        # if sf_schedules_cnt > 0:
-        #     sf_crd_start_page = sf_start_page
-        #     process_sf_line(f3x_data, md5_directory, '25', sf_crd, sf_crd_page_cnt, sf_crd_start_page,
-        #                     sf_crd_last_page_cnt, total_no_of_pages)
 
-        #     sf_non_crd_start_page = sf_crd_start_page + sf_crd_page_cnt
-        #     process_sf_line(f3x_data, md5_directory, '25', sf_non_crd, sf_non_crd_page_cnt, sf_non_crd_start_page,
-        #                     sf_non_crd_last_page_cnt, total_no_of_pages)
-
-        #     sf_empty_ord_start_page = sf_non_crd_start_page + sf_non_crd_page_cnt
-        #     process_sf_line(f3x_data, md5_directory, '25', sf_empty_ord, sf_empty_ord_page_cnt, sf_empty_ord_start_page,
-        #                     sf_empty_ord_last_page_cnt, total_no_of_pages)
-
-        #     sf_empty_non_ord_start_page = sf_empty_ord_start_page + sf_empty_ord_page_cnt
-        #     process_sf_line(f3x_data, md5_directory, '25', sf_empty_non_ord, sf_empty_non_ord_page_cnt, sf_empty_non_ord_start_page,
-        #                     sf_empty_non_ord_last_page_cnt, total_no_of_pages)
-
-        #     sf_empty_none_start_page = sf_empty_non_ord_start_page + sf_empty_non_ord_page_cnt
-        #     process_sf_line(f3x_data, md5_directory, '25', sf_empty_none, sf_empty_none_page_cnt, sf_empty_none_start_page,
-        #                     sf_empty_none_last_page_cnt, total_no_of_pages)
-    
-        
 
        
         if slb_schedules_cnt > 0:
@@ -1644,11 +1523,11 @@ def process_sb_line(f3x_data, md5_directory, line_number, sb_line, sb_line_page_
     return has_sb_schedules
 
 def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_cnt, sf_line_start_page,
-                    sf_line_last_page_cnt, total_no_of_pages):
+                    sf_line_last_page_cnt, total_no_of_pages,cord_name=None):
     has_sf_schedules = False
     if len(sf_line) > 0:
         schedule_total = 0.00
-        os.makedirs(md5_directory + 'SF/' + line_number, exist_ok=True)
+        os.makedirs(md5_directory + 'SF/' + cord_name, exist_ok=True)
         sf_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SF')
         if sf_line_page_cnt > 0:
             sf_line_start_page += 1
@@ -1674,16 +1553,16 @@ def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_
                 if sf_line_page_cnt == (sf_page_no + 1):
                     sf_schedule_page_dict['pageTotal'] = '{0:.2f}'.format(schedule_total)
                 sf_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-                sf_outfile = md5_directory + 'SF/' + line_number + '/page_' + str(sf_page_no) + '.pdf'
+                sf_outfile = md5_directory + 'SF/' + cord_name + '/page_' + str(sf_page_no) + '.pdf'
                 pypdftk.fill_form(sf_infile, sf_schedule_page_dict, sf_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SF/' + line_number + '/'), md5_directory + 'SF/' + line_number
+        pypdftk.concat(directory_files(md5_directory + 'SF/' + cord_name + '/'), md5_directory + 'SF/' + cord_name
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SF/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SF/all_pages.pdf', md5_directory + 'SF/' + line_number + '/all_pages.pdf'],
+            pypdftk.concat([md5_directory + 'SF/all_pages.pdf', md5_directory + 'SF/' + cord_name + '/all_pages.pdf'],
                            md5_directory + 'SF/temp_all_pages.pdf')
             os.rename(md5_directory + 'SF/temp_all_pages.pdf', md5_directory + 'SF/all_pages.pdf')
         else:
-            os.rename(md5_directory + 'SF/' + line_number + '/all_pages.pdf', md5_directory + 'SF/all_pages.pdf')
+            os.rename(md5_directory + 'SF/' + cord_name + '/all_pages.pdf', md5_directory + 'SF/all_pages.pdf')
     return has_sf_schedules
 
 
@@ -3085,7 +2964,7 @@ def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page
         if 'designatingCommitteeName' in sf_schedule_dict:
             sf_schedule_page_dict['designatingCommitteeName'] = sf_schedule_dict['designatingCommitteeName']
 
-        elif 'subordinateCommitteeName' in sf_schedule_dict:
+        if 'subordinateCommitteeName' in sf_schedule_dict:
             sf_schedule_page_dict['subordinateCommitteeName'] = sf_schedule_dict['subordinateCommitteeName']
             sf_schedule_page_dict['subordinateCommitteeStreet1'] = sf_schedule_dict['subordinateCommitteeStreet1']
             sf_schedule_page_dict['subordinateCommitteeStreet2'] = sf_schedule_dict['subordinateCommitteeStreet2']
