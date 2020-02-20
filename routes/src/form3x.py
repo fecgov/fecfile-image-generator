@@ -3123,8 +3123,7 @@ def build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
                                                                       + se_schedule_dict['completingPrefix'] + ','
                                                                       + se_schedule_dict['completingSuffix'])
 
-
-        if key == 'disbursementDate':
+        if (key == 'disbursementDate' and len(se_schedule_dict[key])) > 0:
             date_array = se_schedule_dict[key].split("/")
             se_schedule_page_dict['disbursementDateMonth_' + str(index)] = date_array[0]
             se_schedule_page_dict['disbursementDateDay_' + str(index)] = date_array[1]
@@ -3139,11 +3138,11 @@ def build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
         if key == 'electionCode':
             if se_schedule_dict[key][0] in ['P','G']:
                 se_schedule_page_dict['electionType_' + str(index)] = se_schedule_dict[key][0:1]
-                se_schedule_page_dict['electionYear_' + str(index)] = se_schedule_dict[key][1::]
             else:
-                se_schedule_page_dict['electionCode_' + str(index)] = 'O'
+                se_schedule_page_dict['electionType_' + str(index)] = 'O'
+            se_schedule_page_dict['electionYear_' + str(index)] = se_schedule_dict[key][1::]
 
-        if key == 'disseminationDate':
+        if (key == 'disseminationDate' and len(se_schedule_dict[key])) > 0:
             date_array = se_schedule_dict[key].split("/")
             se_schedule_page_dict['disseminationDateMonth_' + str(index)] = date_array[0]
             se_schedule_page_dict['disseminationDateDay_' + str(index)] = date_array[1]
