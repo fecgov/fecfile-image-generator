@@ -49,7 +49,7 @@ def print_pdftk(stamp_print):
             page_no = 1
             has_sa_schedules = has_sb_schedules = has_la_schedules = has_slb_schedules = has_sl_summary = False
 
-            has_sh6_schedules = has_sh4_schedules = has_sh5_schedules = has_sh3_schedules =has_sh1_schedules=has_sh2_schedules =has_sf_schedules = False
+            has_sh6_schedules = has_sh4_schedules = has_sh5_schedules = has_sh3_schedules =has_sh1_schedules=has_sh2_schedules =has_sf_schedules = has_se_schedules =False
 
             json_file = request.files.get('json_file')
 
@@ -142,6 +142,7 @@ def print_pdftk(stamp_print):
             has_sh1_schedules = process_output.get('has_sh1_schedules')
             has_slb_schedules= process_output.get('has_slb_schedules')
             has_sf_schedules = process_output.get('has_sf_schedules')
+            has_se_schedules = process_output.get('has_se_schedules')
             has_sl_summary= process_output.get('has_sl_summary')
 
             if len(f3x_summary) > 0:
@@ -178,6 +179,12 @@ def print_pdftk(stamp_print):
                     shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
                     os.remove(md5_directory + 'SD/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SD')
+
+                if has_se_schedules:
+                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SE/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    os.remove(md5_directory + 'SE/all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SE')
 
                 if has_sf_schedules:
                     pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SF/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
@@ -271,6 +278,14 @@ def print_pdftk(stamp_print):
                     os.remove(md5_directory + 'SD/all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SD')
 
+                if has_se_schedules:
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SE/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SE/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    shutil.rmtree(md5_directory + 'SE')
+
                 if has_sf_schedules:
                     if path.exists(md5_directory + 'all_pages.pdf'):
                         pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SF/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
@@ -328,9 +343,11 @@ def print_pdftk(stamp_print):
                     shutil.rmtree(md5_directory + 'SH6')                
 
                 if has_sl_summary:
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
-                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
-                    os.remove(md5_directory + 'SL/all_pages.pdf')
+                    if path.exists(md5_directory + 'all_pages.pdf'):
+                        pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SL/all_pages.pdf'], md5_directory + 'temp_all_pages.pdf')
+                        shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                    else:
+                        shutil.move(md5_directory + 'SL/all_pages.pdf', md5_directory + 'all_pages.pdf')
                     shutil.rmtree(md5_directory + 'SL')
 
                 if has_la_schedules:
@@ -397,10 +414,12 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     sl_summary = []
     sh_schedules = []
     sf_schedules = []
-    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_sl_summary= has_la_schedules = has_slb_schedules = has_sf_schedules= False
+    se_schedules = []
+    se_line_numbers=['24']
+    has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_sl_summary= has_la_schedules = has_slb_schedules = has_sf_schedules= has_se_schedules = False
 
     has_sh6_schedules = has_sh4_schedules = has_sh5_schedules =  has_sh3_schedules= has_sh1_schedules = has_sh2_schedules = False
-    sa_schedules_cnt = sb_schedules_cnt = sh_schedules_cnt = sh4_schedules_cnt = sh6_schedules_cnt = sh5_schedules_cnt=sh3_schedules_cnt= sh1_schedules_cnt = sh2_schedules_cnt = sf_schedules_cnt= 0
+    sa_schedules_cnt = sb_schedules_cnt = sh_schedules_cnt = sh4_schedules_cnt = sh6_schedules_cnt = sh5_schedules_cnt=sh3_schedules_cnt= sh1_schedules_cnt = sh2_schedules_cnt = sf_schedules_cnt= se_schedules_cnt= 0
 
     la_schedules_cnt = slb_schedules_cnt = sl_summary_cnt = 0
     total_sc_pages = 0
@@ -594,6 +613,36 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 total_no_of_pages = (total_no_of_pages + sb_21b_page_cnt + sb_22_page_cnt + sb_23_page_cnt
                                      + sb_26_page_cnt + sb_27_page_cnt + sb_28a_page_cnt + sb_28b_page_cnt
                                      + sb_28c_page_cnt + sb_29_page_cnt + sb_30b_page_cnt)
+
+        if 'SE' in schedules or len(se_schedules) > 0:
+            se_start_page = total_no_of_pages
+            if 'SE' in schedules:
+                se_schedules.extend(schedules['SE'])
+            se_schedules_cnt = len(se_schedules)
+            if se_schedules_cnt > 0:
+                has_se_schedules = True
+                os.makedirs(md5_directory + 'SE', exist_ok=True)
+
+                se_24 = []
+                se_24_last_page_cnt= 2
+                se_24_page_cnt= 0
+
+       
+                for se_count in range(se_schedules_cnt):
+                    process_se_line_numbers(se_24, se_schedules[se_count])
+
+                    if 'child' in se_schedules[se_count]:
+                        se_child_schedules = se_schedules[se_count]['child']
+
+                        se_child_schedules_count = len(se_child_schedules)
+                        for se_child_count in range(se_child_schedules_count):
+                            if se_schedules[se_count]['child'][se_child_count]['lineNumber'] in se_line_numbers:
+                                process_se_line_numbers(se_24, se_schedules[se_count]['child'][se_child_count])
+
+                se_24_page_cnt, se_24_last_page_cnt = calculate_se_page_count(se_24)
+                
+                total_no_of_pages = (total_no_of_pages + se_24_page_cnt)
+
 
         if 'SF' in schedules:
             sf_start_page = total_no_of_pages
@@ -1034,6 +1083,11 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
        
         if 'SD' in schedules and sd_schedules_cnt > 0:
                 sd_total_balance = process_sd_line(f3x_data, md5_directory, sd_dict, sd_start_page, total_no_of_pages, total_sd_pages, totalOutstandingLoans)
+        
+        if se_schedules_cnt > 0:
+            se_24_start_page = se_start_page
+            process_se_line(f3x_data, md5_directory, '24', se_24, se_24_page_cnt, se_24_start_page,
+                            se_24_last_page_cnt, total_no_of_pages)
 
         if la_schedules_cnt > 0:
             la_1a_start_page = la_start_page
@@ -1170,7 +1224,8 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         'has_sh1_schedules': has_sh1_schedules,
                         'has_sh2_schedules': has_sh2_schedules,
                         'has_sl_summary' : has_sl_summary,
-                        'has_sf_schedules': has_sf_schedules
+                        'has_sf_schedules': has_sf_schedules,
+                        'has_se_schedules': has_se_schedules
                         }
                      
         return output_data, total_no_of_pages
@@ -1522,6 +1577,48 @@ def process_sb_line(f3x_data, md5_directory, line_number, sb_line, sb_line_page_
             os.rename(md5_directory + 'SB/' + line_number + '/all_pages.pdf', md5_directory + 'SB/all_pages.pdf')
     return has_sb_schedules
 
+def process_se_line(f3x_data, md5_directory, line_number, se_line, se_line_page_cnt, se_line_start_page,
+                    se_line_last_page_cnt, total_no_of_pages):
+    has_se_schedules = False
+    if len(se_line) > 0:
+        schedule_total = 0.00
+        os.makedirs(md5_directory + 'SE/' + line_number, exist_ok=True)
+        se_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SE')
+        if se_line_page_cnt > 0:
+            se_line_start_page += 1
+            for se_page_no in range(se_line_page_cnt):
+                page_subtotal = 0.00
+                last_page = False
+                se_schedule_page_dict = {}
+                se_schedule_page_dict['lineNumber'] = line_number
+                se_schedule_page_dict['pageNo'] = se_line_start_page + se_page_no
+                se_schedule_page_dict['totalPages'] = total_no_of_pages
+                page_start_index = se_page_no * 2
+                if ((se_page_no + 1) == se_line_page_cnt):
+                    last_page = True
+                # This call prepares data to render on PDF
+                se_schedule_dict = build_se_per_page_schedule_dict(last_page, se_line_last_page_cnt,
+                                                                   page_start_index, se_schedule_page_dict,
+                                                                   se_line)
+
+                page_subtotal = float(se_schedule_page_dict['pageSubtotal'])
+                schedule_total += page_subtotal
+                if se_line_page_cnt == (se_page_no + 1):
+                    se_schedule_page_dict['pageTotal'] = '{0:.2f}'.format(schedule_total)
+                se_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                se_schedule_page_dict['committeeId'] = f3x_data['committeeId']
+                se_outfile = md5_directory + 'SE/' + line_number + '/page_' + str(se_page_no) + '.pdf'
+                pypdftk.fill_form(se_infile, se_schedule_page_dict, se_outfile)
+        pypdftk.concat(directory_files(md5_directory + 'SE/' + line_number + '/'), md5_directory + 'SE/' + line_number
+                       + '/all_pages.pdf')
+        if path.isfile(md5_directory + 'SE/all_pages.pdf'):
+            pypdftk.concat([md5_directory + 'SE/all_pages.pdf', md5_directory + 'SE/' + line_number + '/all_pages.pdf'],
+                           md5_directory + 'SE/temp_all_pages.pdf')
+            os.rename(md5_directory + 'SE/temp_all_pages.pdf', md5_directory + 'SE/all_pages.pdf')
+        else:
+            os.rename(md5_directory + 'SE/' + line_number + '/all_pages.pdf', md5_directory + 'SE/all_pages.pdf')
+    return has_se_schedules
+
 def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_cnt, sf_line_start_page,
                     sf_line_last_page_cnt, total_no_of_pages,cord_name=None):
     has_sf_schedules = False
@@ -1663,6 +1760,7 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
 
 def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_cnt, sl_line_start_page,
                     sl_line_last_page_cnt, total_no_of_pages):
+    
     has_sl_summary = False
     try:
         if len(sl_line) > 0:
@@ -2099,6 +2197,15 @@ def calculate_sh5page_count(schedules):
         schedules_in_last_page = int(schedules_cnt % 2)
     return pages_cnt, schedules_in_last_page
 
+def calculate_se_page_count(schedules):
+    schedules_cnt = len(schedules)
+    if int(schedules_cnt % 2) == 0:
+        pages_cnt = int(schedules_cnt / 2)
+        schedules_in_last_page = 2
+    else:
+        pages_cnt = int(schedules_cnt / 2) + 1
+        schedules_in_last_page = int(schedules_cnt % 2)
+    return pages_cnt, schedules_in_last_page
 
 def calculate_page_count(schedules):
     schedules_cnt = len(schedules)
@@ -2191,6 +2298,11 @@ def process_sb_line_numbers(sb_21b, sb_22, sb_23, sb_26, sb_27, sb_28a, sb_28b, 
         sb_29.append(sb_obj)
     elif sb_obj['lineNumber'] == '30B':
         sb_30b.append(sb_obj)
+
+def process_se_line_numbers(se_24, se_obj):
+    if se_obj['lineNumber'] == '24' :
+        se_24.append(se_obj)
+
 
 def process_sf_line_numbers(sf_crd, sf_non_crd, sf_empty_ord, sf_empty_non_ord, sf_empty_none, sf_obj):
     if sf_obj["coordinateExpenditure"] ==  "Y":
@@ -2620,6 +2732,34 @@ def build_sb_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     sb_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
     return sb_schedule_dict
 
+def build_se_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, se_schedule_page_dict,
+                                    se_schedules):
+    page_subtotal = 0.00
+    if not last_page:
+        transactions_in_page = 2
+    if transactions_in_page == 1:
+        index = 1
+        se_schedule_dict = se_schedules[page_start_index + 0]
+        if se_schedule_dict['memoCode'] != 'X':
+            page_subtotal += se_schedule_dict['expenditureAmount']
+        for key in se_schedules[page_start_index]:
+            build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
+    elif transactions_in_page == 2:
+        index = 1
+        se_schedule_dict = se_schedules[page_start_index + 0]
+        if se_schedule_dict['memoCode'] != 'X':
+            page_subtotal += se_schedule_dict['expenditureAmount']
+        for key in se_schedules[page_start_index]:
+            build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
+        index = 2
+        se_schedule_dict = se_schedules[page_start_index + 1]
+        if se_schedule_dict['memoCode'] != 'X':
+            page_subtotal += se_schedule_dict['expenditureAmount']
+        for key in se_schedules[page_start_index]:
+            build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
+    se_schedule_page_dict['pageSubtotal'] = '{0:.2f}'.format(page_subtotal)
+    return se_schedule_dict
+
 def build_sf_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sf_schedule_page_dict,
                                     sf_schedules):
     page_subtotal = 0.00
@@ -2956,6 +3096,70 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
         print('Error at key: ' + key + ' in Schedule B transaction: ' + str(sb_schedule_dict))
         raise e
 
+def build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict):
+    try:
+        if not se_schedule_dict.get(key):
+            se_schedule_dict[key] = ""
+
+        if 'payeeLastName' in se_schedule_dict:
+            se_schedule_page_dict['payeeName_' + str(index)] = (se_schedule_dict['payeeLastName'] + ','
+                                                                      + se_schedule_dict['payeeFirstName'] + ','
+                                                                      + se_schedule_dict['payeeMiddleName'] + ','
+                                                                      + se_schedule_dict['payeePrefix'] + ','
+                                                                      + se_schedule_dict['payeeSuffix'])
+        elif 'payeeOrganizationName' in se_schedule_dict:
+            se_schedule_page_dict["payeeName_" + str(index)] = se_schedule_dict['payeeOrganizationName']
+
+        if 'candidateLastName' in se_schedule_dict:
+            se_schedule_page_dict['candidateName_' + str(index)] = (se_schedule_dict['candidateLastName'] + ','
+                                                                      + se_schedule_dict['candidateFirstName'] + ','
+                                                                      + se_schedule_dict['candidateMiddleName'] + ','
+                                                                      + se_schedule_dict['candidatePrefix'] + ','
+                                                                      + se_schedule_dict['candidateSuffix'])
+        if 'completingLastName' in se_schedule_dict:
+            se_schedule_page_dict['completingName_' + str(index)] = (se_schedule_dict['completingLastName'] + ','
+                                                                      + se_schedule_dict['completingFirstName'] + ','
+                                                                      + se_schedule_dict['completingMiddleName'] + ','
+                                                                      + se_schedule_dict['completingPrefix'] + ','
+                                                                      + se_schedule_dict['completingSuffix'])
+
+
+        if key == 'disbursementDate':
+            date_array = se_schedule_dict[key].split("/")
+            se_schedule_page_dict['disbursementDateMonth_' + str(index)] = date_array[0]
+            se_schedule_page_dict['disbursementDateDay_' + str(index)] = date_array[1]
+            se_schedule_page_dict['disbursementDateYear_' + str(index)] = date_array[2]
+
+        if key == 'dateSigned':
+            date_array = se_schedule_dict[key].split("/")
+            se_schedule_page_dict['dateSignedMonth_' + str(index)] = date_array[0]
+            se_schedule_page_dict['dateSignedDay_' + str(index)] = date_array[1]
+            se_schedule_page_dict['dateSignedYear_' + str(index)] = date_array[2]
+
+        if key == 'electionCode':
+            if se_schedule_dict[key][0] in ['P','G']:
+                se_schedule_page_dict['electionType_' + str(index)] = se_schedule_dict[key][0:1]
+                se_schedule_page_dict['electionYear_' + str(index)] = se_schedule_dict[key][1::]
+            else:
+                se_schedule_page_dict['electionCode_' + str(index)] = 'O'
+
+        if key == 'disseminationDate':
+            date_array = se_schedule_dict[key].split("/")
+            se_schedule_page_dict['disseminationDateMonth_' + str(index)] = date_array[0]
+            se_schedule_page_dict['disseminationDateDay_' + str(index)] = date_array[1]
+            se_schedule_page_dict['disseminationDateYear_' + str(index)] = date_array[2]
+        else:
+            if key == 'expenditureAmount' or key == 'calendarYTDPerElectionForOffice_':
+                se_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(se_schedule_dict[key])
+            else:
+                se_schedule_page_dict[key + '_' + str(index)] = se_schedule_dict[key]
+
+
+
+    except Exception as e:
+        print('Error at key: ' + key + ' in Schedule E transaction: ' + str(se_schedule_dict))
+        raise e
+
 def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page_dict):
     try:
         if not sf_schedule_dict.get(key):
@@ -2994,7 +3198,7 @@ def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page
             sf_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
             sf_schedule_page_dict['expenditureDateYear_' + str(index)] = date_array[2]
         else:
-            if key == 'aggregateGeneralElectionExpended' or key == 'aggregateGeneralElectionExpended':
+            if key == 'expenditureAmount' or key == 'aggregateGeneralElectionExpended':
                 sf_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sf_schedule_dict[key])
             else:
                 sf_schedule_page_dict[key + '_' + str(index)] = sf_schedule_dict[key]
