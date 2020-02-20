@@ -3088,6 +3088,12 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
                                                                       + sb_schedule_dict['beneficiaryCandidateMiddleName'] + ','
                                                                       + sb_schedule_dict['beneficiaryCandidatePrefix'] + ','
                                                                       + sb_schedule_dict['beneficiaryCandidateSuffix'])
+        if key == 'electionCode':
+            if sb_schedule_dict[key][0] in ['P','G']:
+                sb_schedule_page_dict['electionType_' + str(index)] = sb_schedule_dict[key][0:1]
+            else:
+                sb_schedule_page_dict['electionType_' + str(index)] = 'O'
+            sb_schedule_page_dict['electionYear_' + str(index)] = sb_schedule_dict[key][1::]
 
         if key == 'expenditureDate':
             date_array = sb_schedule_dict[key].split("/")
