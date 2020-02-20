@@ -3082,6 +3082,13 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
         elif 'payeeOrganizationName' in sb_schedule_dict:
             sb_schedule_page_dict["payeeName_" + str(index)] = sb_schedule_dict['payeeOrganizationName']
 
+        if 'beneficiaryCandidateLastName' in sb_schedule_dict:
+            sb_schedule_page_dict['beneficiaryName_' + str(index)] = (sb_schedule_dict['beneficiaryCandidateLastName'] + ','
+                                                                      + sb_schedule_dict['beneficiaryCandidateFirstName'] + ','
+                                                                      + sb_schedule_dict['beneficiaryCandidateMiddleName'] + ','
+                                                                      + sb_schedule_dict['beneficiaryCandidatePrefix'] + ','
+                                                                      + sb_schedule_dict['beneficiaryCandidateSuffix'])
+
         if key == 'expenditureDate':
             date_array = sb_schedule_dict[key].split("/")
             sb_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
