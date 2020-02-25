@@ -1646,6 +1646,7 @@ def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_
                                                                    sf_line)
 
                 page_subtotal = float(sf_schedule_page_dict['pageSubtotal'])
+                sf_schedule_page_dict['pageSubTotal'] = '{0:.2f}'.format(page_subtotal)
                 schedule_total += page_subtotal
                 if sf_line_page_cnt == (sf_page_no + 1):
                     sf_schedule_page_dict['pageTotal'] = '{0:.2f}'.format(schedule_total)
