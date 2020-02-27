@@ -658,16 +658,16 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 sf_empty_ord = []
                 sf_empty_non_ord = []
                 sf_empty_none = []
+                sf_empty_sub = []
 
-                sf_crd_last_page_cnt = sf_non_crd_last_page_cnt = sf_empty_ord_last_page_cnt = sf_empty_non_ord_last_page_cnt = sf_empty_none_last_page_cnt = 3
 
-                sf_crd_page_cnt = sf_non_crd_page_cnt = sf_empty_ord_page_cnt = sf_empty_non_ord_page_cnt = sf_empty_none_page_cnt = 0
+                sf_crd_last_page_cnt = sf_non_crd_last_page_cnt = sf_empty_ord_last_page_cnt = sf_empty_non_ord_last_page_cnt = sf_empty_none_last_page_cnt  = sf_non_sub_last_page_cnt = 3
+
+                sf_crd_page_cnt = sf_non_crd_page_cnt = sf_empty_ord_page_cnt = sf_empty_non_ord_page_cnt = sf_empty_none_page_cnt = sf_non_sub_page_cnt= 0
 
                 for sf_count in range(sf_schedules_cnt):
                  
-                    process_sf_line_numbers(sf_crd, sf_non_crd, sf_empty_ord, sf_empty_non_ord, sf_empty_none, sf_schedules[sf_count])
-
-
+                    process_sf_line_numbers(sf_crd, sf_non_crd, sf_empty_ord, sf_empty_non_ord, sf_empty_none,sf_empty_sub, sf_schedules[sf_count])
 
                 if 'child' in sf_schedules[sf_count]:
                     sf_child_schedules = sf_schedules[sf_count]['child']
@@ -677,11 +677,13 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         sf_schedules.append(sf_schedules[sf_count]['child'][sf_child_count])
 
                 
-                cor_exp = list(set([sub['designatingCommitteeName'] for sub in sf_crd if sub['coordinateExpenditure'] == 'Y']))
-                non_cor_exp = list(set([sub['subordinateCommitteeName'] for sub in sf_non_crd if sub['coordinateExpenditure'] == 'N']))
-                empty_non_ord = list(set([sub['subordinateCommitteeName'] for sub in sf_empty_non_ord if sub['coordinateExpenditure'] == ''] and sub['designatingCommitteeName'] == '' ))
-                empty_ord  = list(set([sub['designatingCommitteeName'] for sub in sf_empty_ord if sub['coordinateExpenditure'] == ''] and sub['subordinateCommitteeName'] == '' ))
-                sf_none =list(set([sub['payeeFirstName'] for sub in sf_empty_none if sub['coordinateExpenditure']  == '' and sub['subordinateCommitteeName'] == '' and sub['designatingCommitteeName'] == '']))
+                
+                cor_exp = list(set([sub['designatingCommitteeName'] for sub in sf_crd ]))
+                non_cor_exp = list(set([sub['subordinateCommitteeName'] for sub in sf_non_crd ]))
+                empty_non_ord = list(set([sub['subordinateCommitteeName'] for sub in sf_empty_non_ord ]))
+                empty_ord  = list(set([sub['designatingCommitteeName'] for sub in sf_empty_ord]))
+                sf_none =list(set([sub['lineNumber'] for sub in sf_empty_none ]))
+                sf_sub_none =list(set([sub['lineNumber'] for sub in sf_empty_sub]))
 
 
                 newdict_cor = {}
@@ -702,15 +704,6 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                             else: 
                                 newdict_non_cor[non_cor_exp[val]].append(i)
 
-                newdict_empty_non_ord = {}
-                if len(empty_non_ord) >= 0:
-                    for val in range(len(empty_non_ord)):
-                        for i in sf_empty_non_ord:
-                            if i['coordinateExpenditure'] == '' and i['designatingCommitteeName'] == '':
-                                if empty_non_ord[val] not in newdict_empty_non_ord:
-                                    newdict_empty_non_ord[empty_non_ord[val]]=[i]
-                                else: 
-                                    newdict_empty_non_ord[empty_non_ord[val]].append(i)
 
                 newdict_empty_ord = {}
                 if len(newdict_empty_ord) >= 0:
@@ -721,6 +714,17 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                                     newdict_empty_ord[empty_ord[val]]=[i]
                                 else: 
                                     newdict_empty_ord[empty_ord[val]].append(i)
+
+
+                newdict_empty_non_ord = {}
+                if len(empty_non_ord) >= 0:
+                    for val in range(len(empty_non_ord)):
+                        for i in sf_empty_non_ord:
+                            if i['coordinateExpenditure'] == '' and i['designatingCommitteeName'] == '':
+                                if empty_non_ord[val] not in newdict_empty_non_ord:
+                                    newdict_empty_non_ord[empty_non_ord[val]]=[i]
+                                else: 
+                                    newdict_empty_non_ord[empty_non_ord[val]].append(i)
                 
                 newdict_sf_none = {}
                 if len(newdict_sf_none) >= 0:
@@ -731,9 +735,18 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                                     newdict_sf_none[sf_none[val]]=[i]
                                 else: 
                                     newdict_sf_none[sf_none[val]].append(i)
+           
+                newdict_sf_sub_none = {}     
+                for val in range(len(sf_sub_none)):
+                    for i in sf_empty_sub:
+                        if i['coordinateExpenditure'] == 'N' and i['subordinateCommitteeName'] == '':
+                            if sf_sub_none[val] not in newdict_sf_sub_none:
+                                newdict_sf_sub_none[sf_sub_none[val]]=[i]
+                            else: 
+                                newdict_sf_sub_none[sf_sub_none[val]].append(i)
 
 
-                list_dirs = [newdict_cor, newdict_non_cor, newdict_empty_non_ord, newdict_empty_ord, newdict_sf_none]
+                list_dirs = [newdict_cor, newdict_non_cor, newdict_empty_non_ord, newdict_empty_ord, newdict_sf_none,newdict_sf_sub_none]
 
 
                 for lis in list_dirs:
@@ -750,11 +763,15 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         values = list(newdict_empty_ord.values()) 
 
                     if lis == newdict_sf_none:
-                        values = list(newdict_sf_none.values()) 
+                        values = list(newdict_sf_none.values())
+
+                    if lis == newdict_sf_sub_none:
+                        values = list(newdict_sf_sub_none.values()) 
                     
                     for val in values:
                         sf_crd_page_cnt, sf_crd_last_page_cnt = calculate_page_count(val)
                         total_no_of_pages = total_no_of_pages+sf_crd_page_cnt 
+
 
 
         if 'SH' in schedules:
@@ -1114,13 +1131,22 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                     values = list(newdict_empty_ord.values())
                 if lis == newdict_sf_none:
                     values = list(newdict_sf_none.values()) 
-
+                if lis == newdict_sf_sub_none:
+                    values = list(newdict_sf_sub_none.values()) 
 
                 for rec in values:
-                    if rec[0].get('designatingCommitteeName'):
+                    if rec[0].get('designatingCommitteeName') and rec[0].get('coordinateExpenditure') is 'Y':
                         cord_name = 'designatingCommittee'
-                    elif rec[0].get('subordinateCommitteeName'):
-                        cord_name = 'subordinateCommittee'
+                    elif rec[0].get('designatingCommitteeName') and rec[0].get('coordinateExpenditure') == '':
+                        cord_name = 'designatingNamewithoutEXP'
+                    elif rec[0].get('subordinateCommitteeName') and rec[0].get('coordinateExpenditure') is 'N':
+                        cord_name = 'subCommittee'
+                    elif rec[0].get('subordinateCommitteeName') and rec[0].get('coordinateExpenditure') == '':
+                        cord_name = 'subordinateCommitteewithoutEXP'
+                
+                    elif rec[0].get('subordinateCommitteeName') == '' and rec[0].get('coordinateExpenditure') is 'N':
+                        cord_name = 'withsubCommittee'
+                  
                     else:
                         cord_name = 'payee'
 
@@ -1624,6 +1650,7 @@ def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_
     has_sf_schedules = False
     if len(sf_line) > 0:
         schedule_total = 0.00
+        # import ipdb;ipdb.set_trace()
         os.makedirs(md5_directory + 'SF/' + cord_name, exist_ok=True)
         sf_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SF')
         if sf_line_page_cnt > 0:
@@ -2305,17 +2332,19 @@ def process_se_line_numbers(se_24, se_obj):
         se_24.append(se_obj)
 
 
-def process_sf_line_numbers(sf_crd, sf_non_crd, sf_empty_ord, sf_empty_non_ord, sf_empty_none, sf_obj):
+def process_sf_line_numbers(sf_crd, sf_non_crd, sf_empty_ord, sf_empty_non_ord, sf_empty_none, sf_empty_sub, sf_obj):
     if sf_obj["coordinateExpenditure"] ==  "Y":
         sf_crd.append(sf_obj)
-    elif sf_obj["coordinateExpenditure"] ==  "N":
+    elif sf_obj["coordinateExpenditure"] ==  "N" and sf_obj['subordinateCommitteeName']:
         sf_non_crd.append(sf_obj)
     elif sf_obj["coordinateExpenditure"] == '' and sf_obj['designatingCommitteeName']:
         sf_empty_ord.append(sf_obj)
-    elif sf_obj["coordinateExpenditure"] == '' and sf_obj['subordinateCommitteeName']:
+    elif sf_obj["coordinateExpenditure"] == '' and sf_obj['subordinateCommitteeName']: 
         sf_empty_non_ord.append(sf_obj)
     elif sf_obj["coordinateExpenditure"] == '' and sf_obj['subordinateCommitteeName'] == '' and sf_obj['designatingCommitteeName'] == '':
         sf_empty_none.append(sf_obj)
+    elif sf_obj["coordinateExpenditure"] == 'N' and sf_obj['subordinateCommitteeName'] == '':
+        sf_empty_sub.append(sf_obj)
 
 
 def process_la_line_numbers(la_1a, la_2, la_obj):
@@ -3162,8 +3191,8 @@ def build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
             se_schedule_page_dict['disseminationDateDay_' + str(index)] = date_array[1]
             se_schedule_page_dict['disseminationDateYear_' + str(index)] = date_array[2]
         else:
-            if key == 'expenditureAmount' or key == 'calendarYTDPerElectionForOffice_':
-                se_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(se_schedule_dict[key])
+            if key == 'expenditureAmount' or key == 'calendarYTDPerElectionForOffice':
+                se_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(se_schedule_dict[key]) if se_schedule_dict[key] else 0.0
             else:
                 se_schedule_page_dict[key + '_' + str(index)] = se_schedule_dict[key]
 
@@ -3212,7 +3241,7 @@ def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page
             sf_schedule_page_dict['expenditureDateYear_' + str(index)] = date_array[2]
         else:
             if key == 'expenditureAmount' or key == 'aggregateGeneralElectionExpended':
-                sf_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sf_schedule_dict[key])
+                sf_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sf_schedule_dict[key]) if sf_schedule_dict[key] else 0.0
             else:
                 sf_schedule_page_dict[key + '_' + str(index)] = sf_schedule_dict[key]
     except Exception as e:
