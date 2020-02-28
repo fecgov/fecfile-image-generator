@@ -419,7 +419,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
     sf_schedules = []
     se_schedules = []
     se_line_numbers=['24']
-    sf_line_numbers=[]
+    # sf_line_numbers=[]
     has_sc_schedules = has_sa_schedules = has_sb_schedules = has_sd_schedules = has_sl_summary= has_la_schedules = has_slb_schedules = has_sf_schedules= has_se_schedules = False
 
     has_sh6_schedules = has_sh4_schedules = has_sh5_schedules =  has_sh3_schedules= has_sh1_schedules = has_sh2_schedules = False
@@ -676,10 +676,8 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         sf_child_schedules = sf_schedules[sf_count]['child']
                         sf_child_schedules_count = len(sf_child_schedules)
                         for sf_child_count in range(sf_child_schedules_count):
-                            if sf_schedules[sf_count]['child'][sf_child_count]['coordinateExpenditure'] in sf_line_numbers:
-                                process_sf_line_numbers(sf_crd, sf_non_crd, sf_empty_ord, sf_empty_non_ord, sf_empty_none,sf_empty_sub, sf_schedules[sf_count]['child'][se_child_count])
-
-                    
+                            process_sf_line_numbers(sf_crd, sf_non_crd, sf_empty_ord, sf_empty_non_ord, sf_empty_none,sf_empty_sub, sf_schedules[sf_count]['child'][sf_child_count])
+                
                 
                 cor_exp = list(set([sub['designatingCommitteeName'] for sub in sf_crd ]))
                 non_cor_exp = list(set([sub['subordinateCommitteeName'] for sub in sf_non_crd ]))
