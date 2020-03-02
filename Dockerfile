@@ -3,7 +3,8 @@ FROM weboaks/node-karma-protractor-chrome
 
 ENV PATH /usr/local/bin:$PATH
 
-RUN DEBIAN_FRONTEND=nointeractive apt-get update && apt-get install -y apt-utils && \ 
+RUN wget -qO - https://raw.githubusercontent.com/yarnpkg/releases/gh-pages/debian/pubkey.gpg | apt-key add - && \
+DEBIAN_FRONTEND=nointeractive apt-get update && apt-get install -y apt-utils && \ 
     apt-get install -y --no-install-recommends libffi-dev \
     build-essential libreadline-gplv2-dev \
     libncursesw5-dev libssl-dev libsqlite3-dev tk-dev \
