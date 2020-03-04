@@ -1218,12 +1218,9 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
         if sh1_schedules_cnt > 0:
             tran_type_ident = sh_h1[0]['transactionTypeIdentifier']
-            print(tran_type_ident)
-
             if tran_type_ident:
-               
                 sh1_page_cnt = 1 
-                sh1_start_page, sh1_last_page_cnt = 1,1
+                sh1_start_page, sh1_last_page_cnt = 1, 3
                 total_no_of_pages = (total_no_of_pages + sh1_page_cnt)
                 
                 process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_cnt, sh1_start_page,
@@ -1850,7 +1847,7 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
         has_sh1_schedules = True
         os.makedirs(md5_directory + 'SH1/' + tran_type_ident, exist_ok=True)
         sh1_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH1')
-
+        sh1_page_no = 1
         if sh1_page_cnt > 0:
             sh1_schedule_page_dict = {}
             sh1_schedule_page_dict['pageNo'] = sh1_start_page + 1
@@ -1871,11 +1868,10 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
                     sh1_schedule_page_dict['administrative'] = str(sh1_line['administrative'])
                     sh1_schedule_page_dict['genericVoterDrive'] = str(sh1_line['genericVoterDrive'])
                     sh1_schedule_page_dict['publicCommunications'] = str(sh1_line['publicCommunications'])
-
-
-            sh1_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-            sh1_outfile = md5_directory + 'SH1/' + tran_type_ident + '/page.pdf'
-            pypdftk.fill_form(sh1_infile, sh1_schedule_page_dict, sh1_outfile)
+                sh1_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                sh1_outfile = md5_directory + 'SH1/' + tran_type_ident + '/page_' + str(sh1_page_no) + '.pdf'
+                pypdftk.fill_form(sh1_infile, sh1_schedule_page_dict, sh1_outfile)
+                sh1_page_no += 1
 
         pypdftk.concat(directory_files(md5_directory + 'SH1/' + tran_type_ident + '/'), md5_directory + 'SH1/' + tran_type_ident
                        + '/all_pages.pdf')
@@ -3120,7 +3116,7 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
                                                                       + sb_schedule_dict['beneficiaryCandidatePrefix'] + ','
                                                                       + sb_schedule_dict['beneficiaryCandidateSuffix'])
         if key == 'electionCode':
-            if sb_schedule_dict[key][0] in ['P','G']:
+            if sb_schedule_dict[key] and sb_schedule_dict[key][0] in ['P','G']:
                 sb_schedule_page_dict['electionType_' + str(index)] = sb_schedule_dict[key][0:1]
             else:
                 sb_schedule_page_dict['electionType_' + str(index)] = 'O'
