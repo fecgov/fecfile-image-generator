@@ -1928,7 +1928,7 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
     has_sh3_schedules = False
     if len(sh3_line) > 0:
         has_sh3_schedules = True
-        import ipdb;ipdb.set_trace()
+        # import ipdb;ipdb.set_trace()
         os.makedirs(md5_directory + 'SH3/' + line_number, exist_ok=True)
         sh3_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH3')
         sh3_line_dict = []
@@ -1963,7 +1963,6 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                     sh3_line_dict[ind]['subs'].append(sh3)
                 else:
                     sh3_line_dict[ind]['subs'] = [sh3]
-            import ipdb;ipdb.set_trace()
             if ind in total_dict and sh3['activityEventType'] in total_dict[ind]:
                 total_dict[ind][sh3['activityEventType']] += sh3['transferredAmount']
             elif ind in total_dict:
@@ -2024,7 +2023,6 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
 
                 sh3_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 #if last_page:
-                import pdb;pdb.set_trace()
                 sh3_schedule_page_dict['totalAmountPeriod'] = sum(total_dict[sh3_page_no].values())
                 for total_key in total_dict[sh3_page_no]:
                     sh3_schedule_page_dict[total_key.lower()+'total'] = total_dict[sh3_page_no][total_key]
