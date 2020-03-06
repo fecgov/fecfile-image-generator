@@ -1928,7 +1928,6 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
     has_sh3_schedules = False
     if len(sh3_line) > 0:
         has_sh3_schedules = True
-        # import ipdb;ipdb.set_trace()
         os.makedirs(md5_directory + 'SH3/' + line_number, exist_ok=True)
         sh3_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH3')
         sh3_line_dict = []
@@ -1937,11 +1936,13 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
         dc_subtotal = 0.00
         df_subtotal = 0.00
         for sh3 in sh3_line:
-            if sh3['activityEventType'] == 'AD':
-                sh3_line_dict.append(sh3)
+            if sh3['accountName'] not in sh3_line_transaction:
                 sh3_line_transaction.append(sh3['accountName'])
-                ind = sh3_line_transaction.index(sh3['accountName'])
-            elif sh3['activityEventType'] == 'DF':
+            ind = sh3_line_transaction.index(sh3['accountName'])
+            if len(sh3_line_dict) <= ind:
+                sh3_line_dict.insert(ind, sh3)
+
+            if sh3['activityEventType'] == 'DF':
                 ind = sh3_line_transaction.index(sh3['accountName'])
                 if sh3_line_dict[ind].get('dfsubs'):
                     sh3_line_dict[ind]['dfsubs'].append(sh3)
@@ -1983,10 +1984,10 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 if ((sh3_page_no + 1) == sh3_line_page_cnt):
                     last_page = True
                 # This call prepares data to render on PDF
-                sh3_schedule_page_dict['adtransactionId'] = sh3_page['transactionId']
-                sh3_schedule_page_dict['adtransferredAmount'] = sh3_page['transferredAmount']
-                sh3_schedule_page_dict['accountName'] = sh3_page['accountName']
-                sh3_schedule_page_dict['totalAmountTransferred'] = sh3_page['totalAmountTransferred']
+                # sh3_schedule_page_dict['adtransactionId'] = sh3_page['transactionId']
+                # sh3_schedule_page_dict['adtransferredAmount'] = sh3_page['transferredAmount']
+                sh3_schedule_page_dict['accountName'] = sh3_page.get('accountName')
+                #sh3_schedule_page_dict['totalAmountTransferred'] = sh3_page['totalAmountTransferred']
 
                 if 'receiptDate' in sh3_page:
                     
