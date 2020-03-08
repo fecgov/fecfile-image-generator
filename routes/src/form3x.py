@@ -1936,14 +1936,15 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
         dc_subtotal = 0.00
         df_subtotal = 0.00
         for sh3 in sh3_line:
-            if sh3['accountName'] not in sh3_line_transaction:
-                sh3_line_transaction.append(sh3['accountName'])
-            ind = sh3_line_transaction.index(sh3['accountName'])
+            hash_check = "%s-%s"%(sh3['accountName'], sh3['receiptDate'])
+            if hash_check not in sh3_line_transaction:
+                sh3_line_transaction.append(hash_check)
+            ind = sh3_line_transaction.index(hash_check)
             if len(sh3_line_dict) <= ind:
                 sh3_line_dict.insert(ind, sh3)
 
             if sh3['activityEventType'] == 'DF':
-                ind = sh3_line_transaction.index(sh3['accountName'])
+                ind = sh3_line_transaction.index(hash_check)
                 if sh3_line_dict[ind].get('dfsubs'):
                     sh3_line_dict[ind]['dfsubs'].append(sh3)
                     sh3_line_dict[ind]['dftotal'] += sh3['transferredAmount']
@@ -1951,7 +1952,7 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                     sh3_line_dict[ind]['dfsubs'] = [sh3]
                     sh3_line_dict[ind]['dftotal'] = sh3['transferredAmount']
             elif sh3['activityEventType'] == 'DC':
-                ind = sh3_line_transaction.index(sh3['accountName'])
+                ind = sh3_line_transaction.index(hash_check)
                 if sh3_line_dict[ind].get('dcsubs'):
                     sh3_line_dict[ind]['dcsubs'].append(sh3)
                     sh3_line_dict[ind]['dctotal'] += sh3['transferredAmount']
@@ -1959,7 +1960,7 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                     sh3_line_dict[ind]['dcsubs'] = [sh3]
                     sh3_line_dict[ind]['dctotal'] = sh3['transferredAmount']
             else:
-                ind = sh3_line_transaction.index(sh3['accountName'])
+                ind = sh3_line_transaction.index(hash_check)
                 if sh3_line_dict[ind].get('subs'):
                     sh3_line_dict[ind]['subs'].append(sh3)
                 else:
