@@ -3068,7 +3068,7 @@ def build_sl_levin_per_page_schedule_dict(last_page, tranlactions_in_page, page_
 # This method filters data and message data to render PDF
 def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict):
     try:
-        if 'contributorLastName' in sa_schedule_dict:
+        if 'contributorLastName' in sa_schedule_dict and sa_schedule_dict['contributorLastName']:
             sa_schedule_page_dict['contributorName_' + str(index)] = (sa_schedule_dict['contributorLastName'] + ','
                                                                       + sa_schedule_dict['contributorFirstName'] + ','
                                                                       + sa_schedule_dict['contributorMiddleName'] + ','
@@ -3118,7 +3118,7 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
         if not sb_schedule_dict.get(key):
             sb_schedule_dict[key] = ""
 
-        if 'payeeLastName' in sb_schedule_dict:
+        if 'payeeLastName' in sb_schedule_dict and sb_schedule_dict['payeeLastName']:
             sb_schedule_page_dict['payeeName_' + str(index)] = (sb_schedule_dict['payeeLastName'] + ','
                                                                       + sb_schedule_dict['payeeFirstName'] + ','
                                                                       + sb_schedule_dict['payeeMiddleName'] + ','
@@ -3159,7 +3159,7 @@ def build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
         if not se_schedule_dict.get(key):
             se_schedule_dict[key] = ""
 
-        if 'payeeLastName' in se_schedule_dict:
+        if 'payeeLastName' in se_schedule_dict and se_schedule_dict['payeeLastName']:
             se_schedule_page_dict['payeeName_' + str(index)] = (se_schedule_dict['payeeLastName'] + ','
                                                                       + se_schedule_dict['payeeFirstName'] + ','
                                                                       + se_schedule_dict['payeeMiddleName'] + ','
@@ -3233,7 +3233,7 @@ def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page
             sf_schedule_page_dict['subordinateCommitteeState'] = sf_schedule_dict['subordinateCommitteeState']
             sf_schedule_page_dict['subordinateCommitteeZipCode'] = sf_schedule_dict['subordinateCommitteeZipCode']
 
-        if 'payeeLastName' in sf_schedule_dict:
+        if 'payeeLastName' in sf_schedule_dict and sf_schedule_dict['payeeLastName']:
             sf_schedule_page_dict['payeeName_' + str(index)] = (sf_schedule_dict['payeeLastName'] + ','
                                                                       + sf_schedule_dict['payeeFirstName'] + ','
                                                                       + sf_schedule_dict['payeeMiddleName'] + ','
@@ -3268,7 +3268,7 @@ def build_contributor_la_name_date_dict(index, key, la_schedule_dict, la_schedul
 
     try:
         #print("la", la_schedule_dict, la_schedule_page_dict, index, key)
-        if 'contributorLastName' in la_schedule_dict:
+        if 'contributorLastName' in la_schedule_dict and la_schedule_dict['contributorLastName']:
             la_schedule_page_dict['contributorName_' + str(index)] = (la_schedule_dict['contributorLastName'] + ','
                                                                       + la_schedule_dict['contributorFirstName'] + ','
                                                                       + la_schedule_dict['contributorMiddleName'] + ','
@@ -3319,7 +3319,7 @@ def build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_di
         if not slb_schedule_dict.get(key):
             slb_schedule_dict[key] = ""
 
-        if 'payeeLastName' in slb_schedule_dict:
+        if 'payeeLastName' in slb_schedule_dict and slb_schedule_dict['payeeLastName']:
             slb_schedule_page_dict['payeeName_' + str(index)] = (slb_schedule_dict['payeeLastName'] + ','
                                                                       + slb_schedule_dict['payeeFirstName'] + ','
                                                                       + slb_schedule_dict['payeeMiddleName'] + ','
@@ -3365,7 +3365,7 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
         if 'activityEventType' in sh_schedule_dict:
             sh_schedule_page_dict["activityEventType_" + str(index)] = sh_schedule_dict['activityEventType']
 
-        if 'payeeLastName' in sh_schedule_dict:
+        if 'payeeLastName' in sh_schedule_dict and sh_schedule_dict['payeeLastName']:
             sh_schedule_page_dict['payeeName_' + str(index)] = (sh_schedule_dict['payeeLastName'] + ','
                                                                       + sh_schedule_dict['payeeFirstName'] + ','
                                                                       + sh_schedule_dict['payeeMiddleName'] + ','
