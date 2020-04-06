@@ -1863,8 +1863,8 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
                     sh1_schedule_page_dict['senateOnly'] = str(sh1_line['senateOnly'])
                     sh1_schedule_page_dict['nonPresidentialAndNonSenate'] = str(sh1_line['nonPresidentialAndNonSenate'])
                 else:
-                    sh1_schedule_page_dict['federalPercent'] = sh1_line['federalPercent']
-                    sh1_schedule_page_dict['nonFederalPercent'] = sh1_line['nonFederalPercent']
+                    sh1_schedule_page_dict['federalPercent'] = (float(sh1_line['federalPercent']) * 100)
+                    sh1_schedule_page_dict['nonFederalPercent'] = (float(sh1_line['nonFederalPercent']) * 100)
                     sh1_schedule_page_dict['administrative'] = str(sh1_line['administrative'])
                     sh1_schedule_page_dict['genericVoterDrive'] = str(sh1_line['genericVoterDrive'])
                     sh1_schedule_page_dict['publicCommunications'] = str(sh1_line['publicCommunications'])
