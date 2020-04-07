@@ -3366,7 +3366,7 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
     try:
         float_val = ('federalShare','levinShare','totalFedLevinAmount','nonfederalShare', 'totalFedNonfedAmount', 
                      'totalAmountTransferred','voterRegistrationAmount','voterIdAmount', 'gotvAmount', 
-                     'genericCampaignAmount')
+                     'genericCampaignAmount','activityEventTotalYTD')
 
         if 'activityEventType' in sh_schedule_dict:
             sh_schedule_page_dict["activityEventType_" + str(index)] = sh_schedule_dict['activityEventType']
@@ -3396,7 +3396,8 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
                 sh_schedule_page_dict['receiptDateYear_' + str(index)] = date_array[2]
 
             if key in float_val:
-                sh_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sh_schedule_dict[key])
+                sh_schedule_page_dict[key + '_' + str(index)] = '{:.2f}'.format(float(sh_schedule_dict[key]))
+                continue
             else:
                 if key != 0:
                     sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
