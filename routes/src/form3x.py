@@ -2139,7 +2139,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
 
                 page_fed_subtotal = float(sh4_schedule_page_dict['subFedShare'])
                 page_nonfed_subtotal = float(sh4_schedule_page_dict['subNonFedShare'])
-                sh4_schedule_page_dict['subTotalFedNonFedShare'] = page_fed_subtotal+page_nonfed_subtotal
+                sh4_schedule_page_dict['subTotalFedNonFedShare'] = '{0:.2f}'.format(page_fed_subtotal+page_nonfed_subtotal)
 
 
                 total_fedshare += page_fed_subtotal
@@ -2147,7 +2147,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 if sh4_line_page_cnt == (sh4_page_no + 1):
                     sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
                     sh4_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
-                    sh4_schedule_page_dict['TotalFedNonFedShare'] = total_fedshare+total_nonfedshare
+                    sh4_schedule_page_dict['TotalFedNonFedShare'] = '{0:.2f}'.format(total_fedshare+total_nonfedshare)
                 sh4_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh4_outfile = md5_directory + 'SH4/' + line_number + '/page_' + str(sh4_page_no) + '.pdf'
                 pypdftk.fill_form(sh4_infile, sh4_schedule_page_dict, sh4_outfile)
