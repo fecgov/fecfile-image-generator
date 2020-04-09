@@ -3089,7 +3089,7 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
                 sa_schedule_dict['electionType'] = sa_schedule_dict[key][0:1]
             else:
                 sa_schedule_dict['electionType'] = 'O'
-        sa_schedule_dict['electionYear'] = sa_schedule_dict[key][1::]
+            sa_schedule_dict['electionYear'] = sa_schedule_dict[key][1::]
 
         if 'contributionDate' in sa_schedule_dict:
             date_array = sa_schedule_dict['contributionDate'].split("/")
