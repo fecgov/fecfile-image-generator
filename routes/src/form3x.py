@@ -1863,8 +1863,8 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
                     sh1_schedule_page_dict['senateOnly'] = str(sh1_line['senateOnly'])
                     sh1_schedule_page_dict['nonPresidentialAndNonSenate'] = str(sh1_line['nonPresidentialAndNonSenate'])
                 else:
-                    sh1_schedule_page_dict['federalPercent'] = sh1_line['federalPercent']
-                    sh1_schedule_page_dict['nonFederalPercent'] = sh1_line['nonFederalPercent']
+                    sh1_schedule_page_dict['federalPercent'] = (float(sh1_line['federalPercent']) * 100)
+                    sh1_schedule_page_dict['nonFederalPercent'] = (float(sh1_line['nonFederalPercent']) * 100)
                     sh1_schedule_page_dict['administrative'] = str(sh1_line['administrative'])
                     sh1_schedule_page_dict['genericVoterDrive'] = str(sh1_line['genericVoterDrive'])
                     sh1_schedule_page_dict['publicCommunications'] = str(sh1_line['publicCommunications'])
@@ -2139,7 +2139,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
 
                 page_fed_subtotal = float(sh4_schedule_page_dict['subFedShare'])
                 page_nonfed_subtotal = float(sh4_schedule_page_dict['subNonFedShare'])
-                sh4_schedule_page_dict['subTotalFedNonFedShare'] = page_fed_subtotal+page_nonfed_subtotal
+                sh4_schedule_page_dict['subTotalFedNonFedShare'] = '{0:.2f}'.format(page_fed_subtotal+page_nonfed_subtotal)
 
 
                 total_fedshare += page_fed_subtotal
@@ -2147,7 +2147,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 if sh4_line_page_cnt == (sh4_page_no + 1):
                     sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
                     sh4_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
-                    sh4_schedule_page_dict['TotalFedNonFedShare'] = total_fedshare+total_nonfedshare
+                    sh4_schedule_page_dict['TotalFedNonFedShare'] = '{0:.2f}'.format(total_fedshare+total_nonfedshare)
                 sh4_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh4_outfile = md5_directory + 'SH4/' + line_number + '/page_' + str(sh4_page_no) + '.pdf'
                 pypdftk.fill_form(sh4_infile, sh4_schedule_page_dict, sh4_outfile)
@@ -3083,6 +3083,13 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
             sa_schedule_page_dict["contributorName_" + str(index)] = sa_schedule_dict['contributorOrgName']
             del sa_schedule_dict['contributorOrgName']
 
+        if 'electionCode' in sa_schedule_dict:
+            key = 'electionCode'
+            if sa_schedule_dict[key][0] in ['P', 'G']:
+                sa_schedule_dict['electionType'] = sa_schedule_dict[key][0:1]
+            else:
+                sa_schedule_dict['electionType'] = 'O'
+            sa_schedule_dict['electionYear'] = sa_schedule_dict[key][1::]
 
         if 'contributionDate' in sa_schedule_dict:
             date_array = sa_schedule_dict['contributionDate'].split("/")
@@ -3360,7 +3367,7 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
     try:
         float_val = ('federalShare','levinShare','totalFedLevinAmount','nonfederalShare', 'totalFedNonfedAmount', 
                      'totalAmountTransferred','voterRegistrationAmount','voterIdAmount', 'gotvAmount', 
-                     'genericCampaignAmount')
+                     'genericCampaignAmount','activityEventTotalYTD')
 
         if 'activityEventType' in sh_schedule_dict:
             sh_schedule_page_dict["activityEventType_" + str(index)] = sh_schedule_dict['activityEventType']
@@ -3390,7 +3397,8 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
                 sh_schedule_page_dict['receiptDateYear_' + str(index)] = date_array[2]
 
             if key in float_val:
-                sh_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sh_schedule_dict[key])
+                sh_schedule_page_dict[key + '_' + str(index)] = '{:.2f}'.format(float(sh_schedule_dict[key]))
+                continue
             else:
                 if key != 0:
                     sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
