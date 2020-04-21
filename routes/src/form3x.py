@@ -1218,12 +1218,9 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
         if sh1_schedules_cnt > 0:
             tran_type_ident = sh_h1[0]['transactionTypeIdentifier']
-            print(tran_type_ident)
-
             if tran_type_ident:
-               
                 sh1_page_cnt = 1 
-                sh1_start_page, sh1_last_page_cnt = 1,1
+                sh1_start_page, sh1_last_page_cnt = 1, 3
                 total_no_of_pages = (total_no_of_pages + sh1_page_cnt)
                 
                 process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_cnt, sh1_start_page,
@@ -1850,7 +1847,7 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
         has_sh1_schedules = True
         os.makedirs(md5_directory + 'SH1/' + tran_type_ident, exist_ok=True)
         sh1_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SH1')
-
+        sh1_page_no = 1
         if sh1_page_cnt > 0:
             sh1_schedule_page_dict = {}
             sh1_schedule_page_dict['pageNo'] = sh1_start_page + 1
@@ -1866,16 +1863,15 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
                     sh1_schedule_page_dict['senateOnly'] = str(sh1_line['senateOnly'])
                     sh1_schedule_page_dict['nonPresidentialAndNonSenate'] = str(sh1_line['nonPresidentialAndNonSenate'])
                 else:
-                    sh1_schedule_page_dict['federalPercent'] = sh1_line['federalPercent']
-                    sh1_schedule_page_dict['nonFederalPercent'] = sh1_line['nonFederalPercent']
+                    sh1_schedule_page_dict['federalPercent'] = (float(sh1_line['federalPercent']) * 100)
+                    sh1_schedule_page_dict['nonFederalPercent'] = (float(sh1_line['nonFederalPercent']) * 100)
                     sh1_schedule_page_dict['administrative'] = str(sh1_line['administrative'])
                     sh1_schedule_page_dict['genericVoterDrive'] = str(sh1_line['genericVoterDrive'])
                     sh1_schedule_page_dict['publicCommunications'] = str(sh1_line['publicCommunications'])
-
-
-            sh1_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-            sh1_outfile = md5_directory + 'SH1/' + tran_type_ident + '/page.pdf'
-            pypdftk.fill_form(sh1_infile, sh1_schedule_page_dict, sh1_outfile)
+                sh1_schedule_page_dict['committeeName'] = f3x_data['committeeName']
+                sh1_outfile = md5_directory + 'SH1/' + tran_type_ident + '/page_' + str(sh1_page_no) + '.pdf'
+                pypdftk.fill_form(sh1_infile, sh1_schedule_page_dict, sh1_outfile)
+                sh1_page_no += 1
 
         pypdftk.concat(directory_files(md5_directory + 'SH1/' + tran_type_ident + '/'), md5_directory + 'SH1/' + tran_type_ident
                        + '/all_pages.pdf')
@@ -1937,14 +1933,20 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
         sh3_line_dict = []
         sh3_line_transaction = []
         total_dict ={}
+        t_transfered = {}
         dc_subtotal = 0.00
         df_subtotal = 0.00
         for sh3 in sh3_line:
-            if sh3['activityEventType'] == 'AD':
-                sh3_line_dict.append(sh3)
-                sh3_line_transaction.append(sh3['transactionId'])
-            elif sh3['activityEventType'] == 'DF':
-                ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
+            a_n = sh3['accountName']
+            hash_check = "%s-%s"%(sh3['accountName'], sh3['receiptDate'])
+            if hash_check not in sh3_line_transaction:
+                sh3_line_transaction.append(hash_check)
+            ind = sh3_line_transaction.index(hash_check)
+            if len(sh3_line_dict) <= ind:
+                sh3_line_dict.insert(ind, sh3)
+
+            if sh3['activityEventType'] == 'DF':
+                ind = sh3_line_transaction.index(hash_check)
                 if sh3_line_dict[ind].get('dfsubs'):
                     sh3_line_dict[ind]['dfsubs'].append(sh3)
                     sh3_line_dict[ind]['dftotal'] += sh3['transferredAmount']
@@ -1952,7 +1954,7 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                     sh3_line_dict[ind]['dfsubs'] = [sh3]
                     sh3_line_dict[ind]['dftotal'] = sh3['transferredAmount']
             elif sh3['activityEventType'] == 'DC':
-                ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
+                ind = sh3_line_transaction.index(hash_check)
                 if sh3_line_dict[ind].get('dcsubs'):
                     sh3_line_dict[ind]['dcsubs'].append(sh3)
                     sh3_line_dict[ind]['dctotal'] += sh3['transferredAmount']
@@ -1960,15 +1962,24 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                     sh3_line_dict[ind]['dcsubs'] = [sh3]
                     sh3_line_dict[ind]['dctotal'] = sh3['transferredAmount']
             else:
-                ind = sh3_line_transaction.index(sh3['backReferenceTransactionIdNumber'])
+                ind = sh3_line_transaction.index(hash_check)
                 if sh3_line_dict[ind].get('subs'):
                     sh3_line_dict[ind]['subs'].append(sh3)
                 else:
                     sh3_line_dict[ind]['subs'] = [sh3]
-            if sh3['activityEventType'] in total_dict:
-                total_dict[sh3['activityEventType']] += sh3['transferredAmount']
+            if ind in t_transfered:
+                t_transfered[ind] += sh3['transferredAmount']
             else:
-                total_dict[sh3['activityEventType']] = sh3['transferredAmount']
+                t_transfered[ind] = sh3['transferredAmount']
+
+            if a_n in total_dict and sh3['activityEventType'] in total_dict[a_n]:
+                total_dict[a_n][sh3['activityEventType']] += sh3['transferredAmount']
+                total_dict[a_n]['lastpage'] = ind
+            elif a_n in total_dict:
+                total_dict[a_n][sh3['activityEventType']] = sh3['transferredAmount']
+                total_dict[a_n]['lastpage'] = ind
+            else:
+                total_dict[a_n] = {sh3['activityEventType']: sh3['transferredAmount'], 'lastpage': ind}
         
         if sh3_line_page_cnt > 0:
             sh3_line_start_page += 1
@@ -1979,14 +1990,16 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 sh3_schedule_page_dict['lineNumber'] = line_number
                 sh3_schedule_page_dict['pageNo'] = sh3_line_start_page + sh3_page_no
                 sh3_schedule_page_dict['totalPages'] = total_no_of_pages
+                acc_name = sh3_page.get('accountName')
+                lastpage_c = total_dict[acc_name]['lastpage']
                 page_start_index = sh3_page_no * 1
-                if ((sh3_page_no + 1) == sh3_line_page_cnt):
+                if (sh3_page_no  == lastpage_c):
                     last_page = True
                 # This call prepares data to render on PDF
-                sh3_schedule_page_dict['adtransactionId'] = sh3_page['transactionId']
-                sh3_schedule_page_dict['adtransferredAmount'] = sh3_page['transferredAmount']
-                sh3_schedule_page_dict['accountName'] = sh3_page['accountName']
-                sh3_schedule_page_dict['totalAmountTransferred'] = sh3_page['totalAmountTransferred']
+                # sh3_schedule_page_dict['adtransactionId'] = sh3_page['transactionId']
+                #sh3_schedule_page_dict['adtransferredAmount'] = t_transfered[sh3_page_no]
+                sh3_schedule_page_dict['accountName'] = acc_name
+                sh3_schedule_page_dict['totalAmountTransferred'] = t_transfered[sh3_page_no]
 
                 if 'receiptDate' in sh3_page:
                     
@@ -2022,10 +2035,11 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                     dc_inc = '_1'
 
                 sh3_schedule_page_dict['committeeName'] = f3x_data['committeeName']
-                if last_page:
-                    sh3_schedule_page_dict['totalAmountPeriod'] = sum(total_dict.values())
-                    for total_key in total_dict:
-                        sh3_schedule_page_dict[total_key.lower()+'total'] = total_dict[total_key]
+                if last_page: 
+                    total_dict[acc_name]['lastpage'] = 0
+                    sh3_schedule_page_dict['totalAmountPeriod'] = sum(total_dict[acc_name].values())
+                    for total_key in total_dict[acc_name]:
+                        sh3_schedule_page_dict[total_key.lower()+'total'] = total_dict[acc_name][total_key]
                 
                 sh3_outfile = md5_directory + 'SH3/' + line_number + '/page_' + str(sh3_page_no) + '.pdf'
                 pypdftk.fill_form(sh3_infile, sh3_schedule_page_dict, sh3_outfile)
@@ -2125,7 +2139,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
 
                 page_fed_subtotal = float(sh4_schedule_page_dict['subFedShare'])
                 page_nonfed_subtotal = float(sh4_schedule_page_dict['subNonFedShare'])
-                sh4_schedule_page_dict['subTotalFedNonFedShare'] = page_fed_subtotal+page_nonfed_subtotal
+                sh4_schedule_page_dict['subTotalFedNonFedShare'] = '{0:.2f}'.format(page_fed_subtotal+page_nonfed_subtotal)
 
 
                 total_fedshare += page_fed_subtotal
@@ -2133,7 +2147,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 if sh4_line_page_cnt == (sh4_page_no + 1):
                     sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
                     sh4_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
-                    sh4_schedule_page_dict['TotalFedNonFedShare'] = total_fedshare+total_nonfedshare
+                    sh4_schedule_page_dict['TotalFedNonFedShare'] = '{0:.2f}'.format(total_fedshare+total_nonfedshare)
                 sh4_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh4_outfile = md5_directory + 'SH4/' + line_number + '/page_' + str(sh4_page_no) + '.pdf'
                 pypdftk.fill_form(sh4_infile, sh4_schedule_page_dict, sh4_outfile)
@@ -3054,7 +3068,7 @@ def build_sl_levin_per_page_schedule_dict(last_page, tranlactions_in_page, page_
 # This method filters data and message data to render PDF
 def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_page_dict):
     try:
-        if 'contributorLastName' in sa_schedule_dict:
+        if 'contributorLastName' in sa_schedule_dict and sa_schedule_dict['contributorLastName']:
             sa_schedule_page_dict['contributorName_' + str(index)] = (sa_schedule_dict['contributorLastName'] + ','
                                                                       + sa_schedule_dict['contributorFirstName'] + ','
                                                                       + sa_schedule_dict['contributorMiddleName'] + ','
@@ -3069,6 +3083,13 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
             sa_schedule_page_dict["contributorName_" + str(index)] = sa_schedule_dict['contributorOrgName']
             del sa_schedule_dict['contributorOrgName']
 
+        if 'electionCode' in sa_schedule_dict:
+            key = 'electionCode'
+            if sa_schedule_dict[key][0] in ['P', 'G']:
+                sa_schedule_dict['electionType'] = sa_schedule_dict[key][0:1]
+            else:
+                sa_schedule_dict['electionType'] = 'O'
+            sa_schedule_dict['electionYear'] = sa_schedule_dict[key][1::]
 
         if 'contributionDate' in sa_schedule_dict:
             date_array = sa_schedule_dict['contributionDate'].split("/")
@@ -3104,7 +3125,7 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
         if not sb_schedule_dict.get(key):
             sb_schedule_dict[key] = ""
 
-        if 'payeeLastName' in sb_schedule_dict:
+        if 'payeeLastName' in sb_schedule_dict and sb_schedule_dict['payeeLastName']:
             sb_schedule_page_dict['payeeName_' + str(index)] = (sb_schedule_dict['payeeLastName'] + ','
                                                                       + sb_schedule_dict['payeeFirstName'] + ','
                                                                       + sb_schedule_dict['payeeMiddleName'] + ','
@@ -3120,7 +3141,7 @@ def build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_di
                                                                       + sb_schedule_dict['beneficiaryCandidatePrefix'] + ','
                                                                       + sb_schedule_dict['beneficiaryCandidateSuffix'])
         if key == 'electionCode':
-            if sb_schedule_dict[key][0] in ['P','G']:
+            if sb_schedule_dict[key] and sb_schedule_dict[key][0] in ['P','G']:
                 sb_schedule_page_dict['electionType_' + str(index)] = sb_schedule_dict[key][0:1]
             else:
                 sb_schedule_page_dict['electionType_' + str(index)] = 'O'
@@ -3145,7 +3166,7 @@ def build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
         if not se_schedule_dict.get(key):
             se_schedule_dict[key] = ""
 
-        if 'payeeLastName' in se_schedule_dict:
+        if 'payeeLastName' in se_schedule_dict and se_schedule_dict['payeeLastName']:
             se_schedule_page_dict['payeeName_' + str(index)] = (se_schedule_dict['payeeLastName'] + ','
                                                                       + se_schedule_dict['payeeFirstName'] + ','
                                                                       + se_schedule_dict['payeeMiddleName'] + ','
@@ -3219,7 +3240,7 @@ def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page
             sf_schedule_page_dict['subordinateCommitteeState'] = sf_schedule_dict['subordinateCommitteeState']
             sf_schedule_page_dict['subordinateCommitteeZipCode'] = sf_schedule_dict['subordinateCommitteeZipCode']
 
-        if 'payeeLastName' in sf_schedule_dict:
+        if 'payeeLastName' in sf_schedule_dict and sf_schedule_dict['payeeLastName']:
             sf_schedule_page_dict['payeeName_' + str(index)] = (sf_schedule_dict['payeeLastName'] + ','
                                                                       + sf_schedule_dict['payeeFirstName'] + ','
                                                                       + sf_schedule_dict['payeeMiddleName'] + ','
@@ -3254,7 +3275,7 @@ def build_contributor_la_name_date_dict(index, key, la_schedule_dict, la_schedul
 
     try:
         #print("la", la_schedule_dict, la_schedule_page_dict, index, key)
-        if 'contributorLastName' in la_schedule_dict:
+        if 'contributorLastName' in la_schedule_dict and la_schedule_dict['contributorLastName']:
             la_schedule_page_dict['contributorName_' + str(index)] = (la_schedule_dict['contributorLastName'] + ','
                                                                       + la_schedule_dict['contributorFirstName'] + ','
                                                                       + la_schedule_dict['contributorMiddleName'] + ','
@@ -3305,7 +3326,7 @@ def build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_di
         if not slb_schedule_dict.get(key):
             slb_schedule_dict[key] = ""
 
-        if 'payeeLastName' in slb_schedule_dict:
+        if 'payeeLastName' in slb_schedule_dict and slb_schedule_dict['payeeLastName']:
             slb_schedule_page_dict['payeeName_' + str(index)] = (slb_schedule_dict['payeeLastName'] + ','
                                                                       + slb_schedule_dict['payeeFirstName'] + ','
                                                                       + slb_schedule_dict['payeeMiddleName'] + ','
@@ -3346,12 +3367,12 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
     try:
         float_val = ('federalShare','levinShare','totalFedLevinAmount','nonfederalShare', 'totalFedNonfedAmount', 
                      'totalAmountTransferred','voterRegistrationAmount','voterIdAmount', 'gotvAmount', 
-                     'genericCampaignAmount')
+                     'genericCampaignAmount','activityEventTotalYTD')
 
         if 'activityEventType' in sh_schedule_dict:
             sh_schedule_page_dict["activityEventType_" + str(index)] = sh_schedule_dict['activityEventType']
 
-        if 'payeeLastName' in sh_schedule_dict:
+        if 'payeeLastName' in sh_schedule_dict and sh_schedule_dict['payeeLastName']:
             sh_schedule_page_dict['payeeName_' + str(index)] = (sh_schedule_dict['payeeLastName'] + ','
                                                                       + sh_schedule_dict['payeeFirstName'] + ','
                                                                       + sh_schedule_dict['payeeMiddleName'] + ','
@@ -3376,7 +3397,8 @@ def build_sh_name_date_dict(index, key, sh_schedule_dict, sh_schedule_page_dict)
                 sh_schedule_page_dict['receiptDateYear_' + str(index)] = date_array[2]
 
             if key in float_val:
-                sh_schedule_page_dict[key + '_' + str(index)] = '{0:.2f}'.format(sh_schedule_dict[key])
+                sh_schedule_page_dict[key + '_' + str(index)] = '{:.2f}'.format(float(sh_schedule_dict[key]))
+                continue
             else:
                 if key != 0:
                     sh_schedule_page_dict[key + '_' + str(index)] = sh_schedule_dict[key]
