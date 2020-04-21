@@ -15,9 +15,9 @@ DEBIAN_FRONTEND=nointeractive apt-get update && apt-get install -y apt-utils && 
 RUN rm -rf /var/lib/apt/lists/* \
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
-RUN wget --quiet -O wkhtmltopdf.tar.xz "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz" && \
-    tar -xvf wkhtmltopdf.tar.xz && \
-    mv wkhtmltox/bin/wkhtmlto* /usr/bin/ 
+RUN wget --quiet -O wkhtmltopdf.tar.xz "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz"
+RUN tar -xvf wkhtmltopdf.tar.xz
+RUN mv wkhtmltox/bin/wkhtmlto* /usr/bin/
 
 ENV LANG en_US.utf8
 
