@@ -71,29 +71,30 @@ def print_pdftk(stamp_print):
 
             # build treasurer name to map it to PDF template
             treasurer_full_name = []
-            treasurer_full_name.append(f1m_data['treasurerLastName'])
-            treasurer_full_name.append(f1m_data['treasurerFirstName'])
-            treasurer_full_name.append(f1m_data['treasurerMiddleName'])
-            treasurer_full_name.append(f1m_data['treasurerPrefix'])
-            treasurer_full_name.append(f1m_data['treasurerSuffix'])
-            f1m_data['treasurerFullName'] = ",".join(map(str, treasurer_full_name))
-            f1m_data['treasurerName'] = f1m_data['treasurerLastName'] + "," + f1m_data['treasurerFirstName']
+            treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
+            for item in treasurer_list:
+                if f1m_data[item] not in [None, '', "", " "]:
+                    treasurer_full_name.append(f1m_data[item])
+            f1m_data['treasurerFullName'] = ", ".join(map(str, treasurer_full_name))
+            f1m_data['treasurerName'] = f1m_data['treasurerLastName'] + ", " + f1m_data['treasurerFirstName']
             f1m_data['efStamp'] = '[Electronically Filed]'
             if 'candidates' in f1m_data:
                 for candidate in f1m_data['candidates']:
                     candidate_full_name = []
-                    candidate_full_name.append(candidate['candidateLastName'])
-                    candidate_full_name.append(candidate['candidateFirstName'])
-                    candidate_full_name.append(candidate['candidateMiddleName'])
-                    candidate_full_name.append(candidate['candidatePrefix'])
-                    candidate_full_name.append(candidate['candidateSuffix'])
-                    f1m_data['candidateName' + str(candidate['candidateNumber'])] = ",".join(map(str, candidate_full_name))
+                    list_check = ['candidateLastName', 'candidateFirstName', 'candidateMiddleName', 'candidatePrefix', 'candidateSuffix']
+                    for item in list_check:
+                        if candidate[item]:
+                            candidate_full_name.append(candidate[item])
+                    f1m_data['candidateName' + str(candidate['candidateNumber'])] = ", ".join(map(str, candidate_full_name))
                     f1m_data['candidateOffice' + str(candidate['candidateNumber'])] =  candidate['candidateOffice']
                     f1m_data['candidateStateDist' + str(candidate['candidateNumber'])] = "/ ".join(map(str, [candidate['candidateState'], candidate['candidateDistrict']]))
                     f1m_data['contributionDate' + str(candidate['candidateNumber'])] = candidate['contributionDate']
 
             os.makedirs(md5_directory + str(f1m_data['reportId']) + '/', exist_ok=True)
             infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('F1M')
+            print(infile)
+            print(f1m_data)
+            print(outfile)
             pypdftk.fill_form(infile, f1m_data, outfile)
             shutil.copy(outfile, md5_directory + str(f1m_data['reportId']) + '/F1M.pdf')
             os.remove(outfile)
