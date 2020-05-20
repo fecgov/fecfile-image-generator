@@ -59,6 +59,25 @@ def print_pdftk(stamp_print):
             json_file.stream.seek(0)
 
             md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
+            if os.path.isdir(md5_directory):
+                # push output file to AWS
+                s3 = boto3.client('s3')
+                s3.upload_file(md5_directory + 'all_pages.pdf',
+                               current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+                               md5_directory + 'all_pages.pdf',
+                               ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
+                response = {
+                    'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5) + 'all_pages.pdf'
+                }
+
+                # return response
+                if flask.request.method == "POST":
+                    envelope = common.get_return_envelope(
+                        data=response
+                    )
+                    status_code = status.HTTP_201_CREATED
+                    return flask.jsonify(**envelope), status_code
+
             os.makedirs(md5_directory, exist_ok=True)
             infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('F3X')
             # save json file as md5 file name
