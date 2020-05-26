@@ -1338,30 +1338,31 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         cord_name = 'payee'
 
                     sf_crd_page_cnt, sf_crd_last_page_cnt = calculate_page_count(rec)
+                    sf_crd_memo_page_cnt, sf_crd_memo_last_page_cnt = calculate_memo_page_count()
                     if count == 0:
                         count += 1
                         sf_crd_start_page = sf_start_page
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_crd_start_page,
                                     sf_crd_last_page_cnt, total_no_of_pages, cord_name)
                         sf_crd_memo_start_page = sf_crd_start_page + sf_crd_page_cnt
-                        process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_crd_memo_start_page,
-                                        sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
+                        # process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_crd_memo_start_page,
+                        #                 sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
                     elif count == 1:
                         count += 1
                         sf_non_crd_start_page = sf_crd_start_page + sf_crd_page_cnt
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_non_crd_start_page,
                                         sf_crd_last_page_cnt, total_no_of_pages, cord_name)
                         sf_non_crd_memo_start_page = sf_non_crd_start_page + sf_crd_page_cnt
-                        process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_non_crd_memo_start_page,
-                                        sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
+                        # process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_non_crd_memo_start_page,
+                        #                 sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
                     else:
                         count += 1
                         sf_non_crd_start_page = sf_non_crd_start_page + sf_crd_page_cnt
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_non_crd_start_page,
                                         sf_crd_last_page_cnt, total_no_of_pages, cord_name)
                         sf_non_crd_memo_start_page = sf_non_crd_start_page + sf_crd_page_cnt
-                        process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_non_crd_memo_start_page,
-                                        sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
+                        # process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_non_crd_memo_start_page,
+                        #                 sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
 
 
        
