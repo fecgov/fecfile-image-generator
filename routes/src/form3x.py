@@ -59,24 +59,24 @@ def print_pdftk(stamp_print):
             json_file.stream.seek(0)
 
             md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
-            # if os.path.isdir(md5_directory):
-            #     # push output file to AWS
-            #     s3 = boto3.client('s3')
-            #     s3.upload_file(md5_directory + 'all_pages.pdf',
-            #                    current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-            #                    md5_directory + 'all_pages.pdf',
-            #                    ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
-            #     response = {
-            #         'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5) + 'all_pages.pdf'
-            #     }
-            #
-            #     # return response
-            #     if flask.request.method == "POST":
-            #         envelope = common.get_return_envelope(
-            #             data=response
-            #         )
-            #         status_code = status.HTTP_201_CREATED
-            #         return flask.jsonify(**envelope), status_code
+            if os.path.isdir(md5_directory):
+                # push output file to AWS
+                s3 = boto3.client('s3')
+                s3.upload_file(md5_directory + 'all_pages.pdf',
+                               current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+                               md5_directory + 'all_pages.pdf',
+                               ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
+                response = {
+                    'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5) + 'all_pages.pdf'
+                }
+
+                # return response
+                if flask.request.method == "POST":
+                    envelope = common.get_return_envelope(
+                        data=response
+                    )
+                    status_code = status.HTTP_201_CREATED
+                    return flask.jsonify(**envelope), status_code
 
             os.makedirs(md5_directory, exist_ok=True)
             infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('F3X')
@@ -1307,6 +1307,7 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
         if sf_schedules_cnt > 0:
             count = 0
+            sf_memo = []
             for lis in list_dirs:
                 if lis == newdict_cor:
                     values = list(newdict_cor.values())
@@ -1338,32 +1339,50 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         cord_name = 'payee'
 
                     sf_crd_page_cnt, sf_crd_last_page_cnt = calculate_page_count(rec)
-                    #sf_crd_memo_page_cnt, sf_crd_memo_last_page_cnt = calculate_memo_page_count()
                     if count == 0:
                         count += 1
                         sf_crd_start_page = sf_start_page
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_crd_start_page,
                                     sf_crd_last_page_cnt, total_no_of_pages, cord_name)
-                        sf_crd_memo_start_page = sf_crd_start_page + sf_crd_page_cnt
-                        # process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_crd_memo_start_page,
+                        # sf_crd_memo_start_page = sf_crd_start_page + sf_crd_page_cnt
+                        # process_sf_memo(f3x_data, md5_directory, '25', sf_crd_memo, sf_crd_memo_page_cnt, sf_crd_memo_start_page,
                         #                 sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
                     elif count == 1:
                         count += 1
                         sf_non_crd_start_page = sf_crd_start_page + sf_crd_page_cnt
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_non_crd_start_page,
                                         sf_crd_last_page_cnt, total_no_of_pages, cord_name)
-                        sf_non_crd_memo_start_page = sf_non_crd_start_page + sf_crd_page_cnt
-                        # process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_non_crd_memo_start_page,
+                        # sf_non_crd_memo_start_page = sf_non_crd_start_page + sf_crd_page_cnt
+                        # process_sf_memo(f3x_data, md5_directory, '25', sf_non_crd_memo, sf_non_crd_memo_page_cnt, sf_non_crd_memo_start_page,
                         #                 sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
                     else:
                         count += 1
                         sf_non_crd_start_page = sf_non_crd_start_page + sf_crd_page_cnt
                         process_sf_line(f3x_data, md5_directory, '25', rec, sf_crd_page_cnt, sf_non_crd_start_page,
                                         sf_crd_last_page_cnt, total_no_of_pages, cord_name)
-                        sf_non_crd_memo_start_page = sf_non_crd_start_page + sf_crd_page_cnt
-                        # process_sf_memo(f3x_data, md5_directory, '25', rec, sf_crd_memo_page_cnt, sf_non_crd_memo_start_page,
+                        # sf_non_crd_memo_start_page = sf_non_crd_start_page + sf_crd_page_cnt
+                        # process_sf_memo(f3x_data, md5_directory, '25', sf_non_crd_memo, sf_crd_memo_page_cnt, sf_non_crd_memo_start_page,
                         #                 sf_crd_memo_last_page_cnt, total_no_of_pages, cord_name)
 
+
+                    if lis == newdict_cor:
+                        sf_memo = sf_crd_memo
+                    if lis == newdict_non_cor:
+                        sf_memo = sf_non_crd_memo
+                    if lis == newdict_empty_non_ord:
+                        sf_memo = sf_empty_non_ord_memo
+                    if lis == newdict_empty_ord:
+                        sf_memo = sf_empty_ord_memo
+                    if lis == newdict_sf_none:
+                        sf_memo = sf_empty_none_memo
+                    if lis == newdict_sf_sub_none:
+                        sf_memo = sf_empty_sub_memo
+                    sf_memo_page_cnt, sf_memo_last_page_cnt = calculate_memo_page_count(sf_memo)
+
+                    sf_memo_start_page = sf_crd_start_page + sf_crd_page_cnt
+
+                    process_sf_memo(f3x_data, md5_directory, '25', sf_memo, sf_memo_page_cnt,
+                                    sf_memo_start_page, sf_memo_last_page_cnt, total_no_of_pages, cord_name)
 
        
         if slb_schedules_cnt > 0:
