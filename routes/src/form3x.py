@@ -3342,28 +3342,27 @@ def process_slb_line_numbers(slb_4a, slb_4b, slb_4c, slb_4d, slb_5,
 
 def process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_18a, sh_h1, sh_h2,
                             sh_30a_memo, sh_21a_memo,sh_18b_memo, sh_18a_memo, sh_obj):
-
     if sh_obj['lineNumber'] == '30A':
         sh_30a.append(sh_obj)
-        if sh_obj['memoDescription']:
+        if 'memoDescription' in sh_obj and sh_obj['memoDescription']:
             sh_30a_memo.append(
                 {'scheduleName': 'SH' + sh_obj['lineNumber'], 'memoDescription': sh_obj['memoDescription'],
                  'transactionId': sh_obj['transactionId']})
     if sh_obj['lineNumber'] == '21A':
         sh_21a.append(sh_obj)
-        if sh_obj['memoDescription']:
+        if 'memoDescription' in sh_obj and sh_obj['memoDescription']:
             sh_21a_memo.append(
                 {'scheduleName': 'SH' + sh_obj['lineNumber'], 'memoDescription': sh_obj['memoDescription'],
                  'transactionId': sh_obj['transactionId']})
     if sh_obj['lineNumber'] == '18B':
         sh_18b.append(sh_obj)
-        if sh_obj['memoDescription']:
+        if 'memoDescription' in sh_obj and sh_obj['memoDescription']:
             sh_18b_memo.append(
                 {'scheduleName': 'SH' + sh_obj['lineNumber'], 'memoDescription': sh_obj['memoDescription'],
                  'transactionId': sh_obj['transactionId']})
     if sh_obj['lineNumber'] == '18A':
         sh_18a.append(sh_obj)
-        if sh_obj['memoDescription']:
+        if 'memoDescription' in sh_obj and sh_obj['memoDescription']:
             sh_18a_memo.append(
                 {'scheduleName': 'SH' + sh_obj['lineNumber'], 'memoDescription': sh_obj['memoDescription'],
                  'transactionId': sh_obj['transactionId']})
