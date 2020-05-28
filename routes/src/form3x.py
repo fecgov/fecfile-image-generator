@@ -1642,7 +1642,7 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
             sc_schedule_page_dict['loanIncurredDateMonth'] = date_array[0]
             sc_schedule_page_dict['loanIncurredDateDay'] = date_array[1]
             sc_schedule_page_dict['loanIncurredDateYear'] = date_array[2]
-        if 'loanDueDate' in sc:
+        if 'loanDueDate' in sc and sc.get('loanDueDate'):
             if "-" in sc.get('loanDueDate'):
                 date_array = sc.get('loanDueDate').split("-")
                 sc_schedule_page_dict['loanDueDateMonth'] = date_array[1]
@@ -1861,10 +1861,16 @@ def process_sc1_line(f3x_data, md5_directory, sc1, sc1_start_page, total_no_of_p
         sc1_schedule_page_dict['loanIncurredDateDay'] = date_array[1]
         sc1_schedule_page_dict['loanIncurredDateYear'] = date_array[2]
     if sc1.get('loanDueDate') != "":
-        date_array = sc1.get('loanDueDate').split("/")
-        sc1_schedule_page_dict['loanDueDateMonth'] = date_array[0]
-        sc1_schedule_page_dict['loanDueDateDay'] = date_array[1]
-        sc1_schedule_page_dict['loanDueDateYear'] = date_array[2]
+        if "-" in sc1.get('loanDueDate'):
+            date_array = sc1.get('loanDueDate').split("-")
+            sc1_schedule_page_dict['loanDueDateMonth'] = date_array[1]
+            sc1_schedule_page_dict['loanDueDateDay'] = date_array[2]
+            sc1_schedule_page_dict['loanDueDateYear'] = date_array[0]
+        else:
+            date_array = sc1.get('loanDueDate').split("/")
+            sc1_schedule_page_dict['loanDueDateMonth'] = date_array[0]
+            sc1_schedule_page_dict['loanDueDateDay'] = date_array[1]
+            sc1_schedule_page_dict['loanDueDateYear'] = date_array[2]
     if sc1.get('originalLoanDate') != "":
         date_array = sc1.get('originalLoanDate').split("/")
         sc1_schedule_page_dict['originalLoanDateMonth'] = date_array[0]
