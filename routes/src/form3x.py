@@ -1041,6 +1041,8 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                         la_child_schedules_count = len(la_child_schedules)
                         for la_child_count in range(la_child_schedules_count):
                             la_schedules.append(la_schedules[la_count]['child'][la_child_count])
+                            process_la_line_numbers(la_1a, la_2, la_1a_memo, la_2_memo,
+                                                    la_schedules[la_count]['child'][la_child_count])
                 la_1a_page_cnt, la_1a_last_page_cnt = calculate_la_page_count(la_1a)
                 la_2_page_cnt, la_2_last_page_cnt = calculate_la_page_count(la_2)
                 la_1a_memo_page_cnt, la_1a_memo_last_page_cnt = calculate_la_page_count(la_1a_memo)
