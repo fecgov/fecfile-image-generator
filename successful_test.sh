@@ -5,7 +5,7 @@ xml_file="reports/$1-$2-flake8_junit.xml"
 
 project_dir="."
 
-virtualenv -p python3.7 .venv
+virtualenv -p $( which python3.7 ) .venv
 source .venv/bin/activate
 pip3 install flake8 flake8-junit-report pep8 pep8-naming
 mkdir -p reports
