@@ -4074,7 +4074,7 @@ def build_contributor_name_date_dict(index, key, sa_schedule_dict, sa_schedule_p
             sa_schedule_page_dict["contributorName_" + str(index)] = sa_schedule_dict['contributorOrgName']
             del sa_schedule_dict['contributorOrgName']
 
-        if 'electionCode' in sa_schedule_dict:
+        if 'electionCode' in sa_schedule_dict and sa_schedule_dict['electionCode']:
             key = 'electionCode'
             if sa_schedule_dict[key][0] in ['P', 'G']:
                 sa_schedule_dict['electionType'] = sa_schedule_dict[key][0:1]
