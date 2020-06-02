@@ -1116,40 +1116,30 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             process_sa_line(f3x_data, md5_directory, '11AI', sa_11a, sa_11a_page_cnt, sa_11a_start_page,
                             sa_11a_last_page_cnt, total_no_of_pages)
             sa_11a_memo_start_page = sa_11a_start_page + sa_11a_page_cnt
-            # process_sa_memo(f3x_data, md5_directory, '11AI', sa_11a_memo, sa_11a_memo_page_cnt, sa_11a_memo_start_page,
-            #                 sa_11a_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 11B
-            sa_11b_start_page = sa_11a_memo_start_page + sa_11a_memo_page_cnt
+            sa_11b_start_page = sa_11a_start_page + sa_11a_memo_page_cnt
             process_sa_line(f3x_data, md5_directory, '11B', sa_11b, sa_11b_page_cnt, sa_11b_start_page,
                             sa_11b_last_page_cnt, total_no_of_pages)
             sa_11b_memo_start_page = sa_11b_start_page + sa_11b_page_cnt
-            # process_sa_memo(f3x_data, md5_directory, '11B', sa_11b_memo, sa_11b_memo_page_cnt, sa_11b_memo_start_page,
-            #                 sa_11b_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 11C
             sa_11c_start_page = sa_11b_memo_start_page + sa_11b_memo_page_cnt
             process_sa_line(f3x_data, md5_directory, '11C', sa_11c, sa_11c_page_cnt, sa_11c_start_page,
                             sa_11c_last_page_cnt, total_no_of_pages)
             sa_11c_memo_start_page = sa_11c_start_page + sa_11c_page_cnt
-            # process_sa_memo(f3x_data, md5_directory, '11C', sa_11c_memo, sa_11c_memo_page_cnt, sa_11c_memo_start_page,
-            #                 sa_11c_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 12
-            sa_12_start_page = sa_11c_start_page + sa_11c_page_cnt
+            sa_12_start_page = sa_11c_memo_start_page + sa_11c_page_cnt
             process_sa_line(f3x_data, md5_directory, '12', sa_12, sa_12_page_cnt, sa_12_start_page,
                             sa_12_last_page_cnt, total_no_of_pages)
             sa_12_memo_start_page = sa_12_start_page + sa_12_page_cnt
-            # process_sa_memo(f3x_data, md5_directory, '12', sa_12_memo, sa_12_memo_page_cnt, sa_12_memo_start_page,
-            #                 sa_12_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 13
-            sa_13_start_page = sa_12_start_page + sa_12_page_cnt
+            sa_13_start_page = sa_12_memo_start_page + sa_12_page_cnt
             process_sa_line(f3x_data, md5_directory, '13', sa_13, sa_13_page_cnt, sa_13_start_page,
                             sa_13_last_page_cnt, total_no_of_pages)
             sa_13_memo_start_page = sa_13_start_page + sa_13_page_cnt
-            # process_sa_memo(f3x_data, md5_directory, '13', sa_13_memo, sa_13_memo_page_cnt, sa_13_memo_start_page,
-            #                 sa_13_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 14
             sa_14_start_page = sa_13_start_page + sa_13_page_cnt
@@ -1970,7 +1960,7 @@ def process_sa_line(f3x_data, md5_directory, line_number, sa_line, sa_line_page_
                 pypdftk.fill_form(sa_infile, sa_schedule_page_dict, sa_outfile)
                 # Memo text changes
                 memo_dict = {}
-                if len(memo_array) > 1:
+                if len(memo_array) >= 1:
                     sa_temp_memo_outfile = md5_directory + 'SA/' + line_number + '/page_memo_temp.pdf'
                     memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
                     sa_memo_outfile = md5_directory + 'SA/' + line_number + '/page_memo_' + str(sa_page_no) + '.pdf'
