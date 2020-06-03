@@ -59,7 +59,8 @@ def print_pdftk(stamp_print):
             json_file.stream.seek(0)
 
             md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
-            if os.path.isdir(md5_directory):
+            # checking if server has already generated pdf for same json file
+            if os.path.isdir(md5_directory) and path.isfile(md5_directory + 'all_pages.pdf'):
                 # push output file to AWS
                 s3 = boto3.client('s3')
                 s3.upload_file(md5_directory + 'all_pages.pdf',
@@ -1116,72 +1117,62 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             process_sa_line(f3x_data, md5_directory, '11AI', sa_11a, sa_11a_page_cnt, sa_11a_start_page,
                             sa_11a_last_page_cnt, total_no_of_pages)
             sa_11a_memo_start_page = sa_11a_start_page + sa_11a_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '11AI', sa_11a_memo, sa_11a_memo_page_cnt, sa_11a_memo_start_page,
-                            sa_11a_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 11B
-            sa_11b_start_page = sa_11a_memo_start_page + sa_11a_memo_page_cnt
+            sa_11b_start_page = sa_11a_start_page + sa_11a_memo_page_cnt
             process_sa_line(f3x_data, md5_directory, '11B', sa_11b, sa_11b_page_cnt, sa_11b_start_page,
                             sa_11b_last_page_cnt, total_no_of_pages)
             sa_11b_memo_start_page = sa_11b_start_page + sa_11b_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '11B', sa_11b_memo, sa_11b_memo_page_cnt, sa_11b_memo_start_page,
-                            sa_11b_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 11C
             sa_11c_start_page = sa_11b_memo_start_page + sa_11b_memo_page_cnt
             process_sa_line(f3x_data, md5_directory, '11C', sa_11c, sa_11c_page_cnt, sa_11c_start_page,
                             sa_11c_last_page_cnt, total_no_of_pages)
             sa_11c_memo_start_page = sa_11c_start_page + sa_11c_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '11C', sa_11c_memo, sa_11c_memo_page_cnt, sa_11c_memo_start_page,
-                            sa_11c_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 12
-            sa_12_start_page = sa_11c_start_page + sa_11c_page_cnt
+            sa_12_start_page = sa_11c_memo_start_page + sa_11c_page_cnt
             process_sa_line(f3x_data, md5_directory, '12', sa_12, sa_12_page_cnt, sa_12_start_page,
                             sa_12_last_page_cnt, total_no_of_pages)
             sa_12_memo_start_page = sa_12_start_page + sa_12_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '12', sa_12_memo, sa_12_memo_page_cnt, sa_12_memo_start_page,
-                            sa_12_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 13
-            sa_13_start_page = sa_12_start_page + sa_12_page_cnt
+            sa_13_start_page = sa_12_memo_start_page + sa_12_page_cnt
             process_sa_line(f3x_data, md5_directory, '13', sa_13, sa_13_page_cnt, sa_13_start_page,
                             sa_13_last_page_cnt, total_no_of_pages)
             sa_13_memo_start_page = sa_13_start_page + sa_13_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '13', sa_13_memo, sa_13_memo_page_cnt, sa_13_memo_start_page,
-                            sa_13_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 14
             sa_14_start_page = sa_13_start_page + sa_13_page_cnt
             process_sa_line(f3x_data, md5_directory, '14', sa_14, sa_14_page_cnt, sa_14_start_page,
                             sa_14_last_page_cnt, total_no_of_pages)
             sa_14_memo_start_page = sa_14_start_page + sa_14_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '14', sa_14_memo, sa_14_memo_page_cnt, sa_14_memo_start_page,
-                            sa_14_memo_last_page_cnt, total_no_of_pages)
+            # process_sa_memo(f3x_data, md5_directory, '14', sa_14_memo, sa_14_memo_page_cnt, sa_14_memo_start_page,
+            #                 sa_14_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 15
             sa_15_start_page = sa_14_start_page + sa_14_page_cnt
             process_sa_line(f3x_data, md5_directory, '15', sa_15, sa_15_page_cnt, sa_15_start_page,
                             sa_15_last_page_cnt, total_no_of_pages)
             sa_15_memo_start_page = sa_15_start_page + sa_15_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '15', sa_15_memo, sa_15_memo_page_cnt, sa_15_memo_start_page,
-                            sa_15_memo_last_page_cnt, total_no_of_pages)
+            # process_sa_memo(f3x_data, md5_directory, '15', sa_15_memo, sa_15_memo_page_cnt, sa_15_memo_start_page,
+            #                 sa_15_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 16
             sa_16_start_page = sa_15_start_page + sa_15_page_cnt
             process_sa_line(f3x_data, md5_directory, '16', sa_16, sa_16_page_cnt, sa_16_start_page,
                             sa_16_last_page_cnt, total_no_of_pages)
             sa_16_memo_start_page = sa_16_start_page + sa_16_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '16', sa_16_memo, sa_16_memo_page_cnt, sa_16_memo_start_page,
-                            sa_16_memo_last_page_cnt, total_no_of_pages)
+            # process_sa_memo(f3x_data, md5_directory, '16', sa_16_memo, sa_16_memo_page_cnt, sa_16_memo_start_page,
+            #                 sa_16_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 17
             sa_17_start_page = sa_16_start_page + sa_16_page_cnt
             process_sa_line(f3x_data, md5_directory, '17', sa_17, sa_17_page_cnt, sa_17_start_page,
                             sa_17_last_page_cnt, total_no_of_pages)
             sa_17_memo_start_page = sa_17_start_page + sa_17_page_cnt
-            process_sa_memo(f3x_data, md5_directory, '17', sa_17_memo, sa_17_memo_page_cnt, sa_17_memo_start_page,
-                            sa_17_memo_last_page_cnt, total_no_of_pages)
+            # process_sa_memo(f3x_data, md5_directory, '17', sa_17_memo, sa_17_memo_page_cnt, sa_17_memo_start_page,
+            #                 sa_17_memo_last_page_cnt, total_no_of_pages)
 
 
 
@@ -1191,86 +1182,84 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             sb_21b_start_page = sb_start_page
             process_sb_line(f3x_data, md5_directory, '21B', sb_21b, sb_21b_page_cnt, sb_21b_start_page,
                             sb_21b_last_page_cnt, total_no_of_pages)
-            sb_21b_memo_start_page = sb_21b_start_page + sb_21b_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '21B', sb_21b_memo, sb_21b_memo_page_cnt, sb_21b_memo_start_page,
-                            sb_21b_memo_last_page_cnt, total_no_of_pages)
+            # sb_21b_memo_start_page = sb_21b_start_page + sb_21b_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '21B', sb_21b_memo, sb_21b_memo_page_cnt, sb_21b_memo_start_page,
+            #                 sb_21b_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 22
             sb_22_start_page = sb_21b_start_page + sb_21b_page_cnt
             process_sb_line(f3x_data, md5_directory, '22', sb_22, sb_22_page_cnt, sb_22_start_page,
                             sb_22_last_page_cnt, total_no_of_pages)
-            sb_22_memo_start_page = sb_22_start_page + sb_22_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '22', sb_22_memo, sb_22_memo_page_cnt, sb_22_memo_start_page,
-                            sb_22_memo_last_page_cnt, total_no_of_pages)
+            # sb_22_memo_start_page = sb_22_start_page + sb_22_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '22', sb_22_memo, sb_22_memo_page_cnt, sb_22_memo_start_page,
+            #                 sb_22_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 23
             sb_23_start_page = sb_22_start_page + sb_22_page_cnt
             process_sb_line(f3x_data, md5_directory, '23', sb_23, sb_23_page_cnt, sb_23_start_page,
                             sb_23_last_page_cnt, total_no_of_pages)
-            sb_23_memo_start_page = sb_23_start_page + sb_23_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '23', sb_23_memo, sb_23_memo_page_cnt, sb_23_memo_start_page,
-                            sb_23_memo_last_page_cnt, total_no_of_pages)
+            # sb_23_memo_start_page = sb_23_start_page + sb_23_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '23', sb_23_memo, sb_23_memo_page_cnt, sb_23_memo_start_page,
+            #                 sb_23_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 26
             sb_26_start_page = sb_23_start_page + sb_23_page_cnt
             process_sb_line(f3x_data, md5_directory, '26', sb_26, sb_26_page_cnt, sb_26_start_page,
                             sb_26_last_page_cnt, total_no_of_pages)
-            sb_26_memo_start_page = sb_26_start_page + sb_26_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '26', sb_26_memo, sb_26_memo_page_cnt, sb_26_memo_start_page,
-                            sb_26_memo_last_page_cnt, total_no_of_pages)
+            # sb_26_memo_start_page = sb_26_start_page + sb_26_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '26', sb_26_memo, sb_26_memo_page_cnt, sb_26_memo_start_page,
+            #                 sb_26_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 27
             sb_27_start_page = sb_26_start_page + sb_26_page_cnt
             process_sb_line(f3x_data, md5_directory, '27', sb_27, sb_27_page_cnt, sb_27_start_page,
                             sb_27_last_page_cnt, total_no_of_pages)
-            sb_27_memo_start_page = sb_27_start_page + sb_27_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '27', sb_27_memo, sb_27_memo_page_cnt, sb_27_memo_start_page,
-                            sb_27_memo_last_page_cnt, total_no_of_pages)
+            # sb_27_memo_start_page = sb_27_start_page + sb_27_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '27', sb_27_memo, sb_27_memo_page_cnt, sb_27_memo_start_page,
+            #                 sb_27_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 28A
             sb_28a_start_page = sb_27_start_page + sb_27_page_cnt
             process_sb_line(f3x_data, md5_directory, '28A', sb_28a, sb_28a_page_cnt, sb_28a_start_page,
                             sb_28a_last_page_cnt, total_no_of_pages)
-            sb_28a_memo_start_page = sb_28a_start_page + sb_28a_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '28A', sb_28a_memo, sb_28a_memo_page_cnt, sb_28a_memo_start_page,
-                            sb_28a_memo_last_page_cnt, total_no_of_pages)
+            # sb_28a_memo_start_page = sb_28a_start_page + sb_28a_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '28A', sb_28a_memo, sb_28a_memo_page_cnt, sb_28a_memo_start_page,
+            #                 sb_28a_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 28B
             sb_28b_start_page = sb_28a_start_page + sb_28a_page_cnt
             process_sb_line(f3x_data, md5_directory, '28B', sb_28b, sb_28b_page_cnt, sb_28b_start_page,
                             sb_28b_last_page_cnt, total_no_of_pages)
-            sb_28b_memo_start_page = sb_28b_start_page + sb_28b_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '28B', sb_28b_memo, sb_28b_memo_page_cnt, sb_28b_memo_start_page,
-                            sb_28b_memo_last_page_cnt, total_no_of_pages)
+            # sb_28b_memo_start_page = sb_28b_start_page + sb_28b_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '28B', sb_28b_memo, sb_28b_memo_page_cnt, sb_28b_memo_start_page,
+            #                 sb_28b_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 28C
             sb_28c_start_page = sb_28b_start_page + sb_28b_page_cnt
             process_sb_line(f3x_data, md5_directory, '28C', sb_28c, sb_28c_page_cnt, sb_28c_start_page,
                             sb_28c_last_page_cnt, total_no_of_pages)
-            sb_28c_memo_start_page = sb_28c_start_page + sb_28c_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '28C', sb_28c_memo, sb_28c_memo_page_cnt, sb_28c_memo_start_page,
-                            sb_28c_memo_last_page_cnt, total_no_of_pages)
+            # sb_28c_memo_start_page = sb_28c_start_page + sb_28c_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '28C', sb_28c_memo, sb_28c_memo_page_cnt, sb_28c_memo_start_page,
+            #                 sb_28c_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 29
             sb_29_start_page = sb_28c_start_page + sb_28c_page_cnt
             process_sb_line(f3x_data, md5_directory, '29', sb_29, sb_29_page_cnt, sb_29_start_page,
                             sb_29_last_page_cnt, total_no_of_pages)
-            sb_29_memo_start_page = sb_29_start_page + sb_29_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '29', sb_29_memo, sb_29_memo_page_cnt, sb_29_memo_start_page,
-                            sb_29_memo_last_page_cnt, total_no_of_pages)
+            # sb_29_memo_start_page = sb_29_start_page + sb_29_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '29', sb_29_memo, sb_29_memo_page_cnt, sb_29_memo_start_page,
+            #                 sb_29_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 30B
             sb_30b_start_page = sb_29_start_page + sb_29_page_cnt
             process_sb_line(f3x_data, md5_directory, '30B', sb_30b, sb_30b_page_cnt, sb_30b_start_page,
                             sb_30b_last_page_cnt, total_no_of_pages)
-            sb_30b_memo_start_page = sb_30b_start_page + sb_30b_page_cnt
-            process_sb_memo(f3x_data, md5_directory, '30B', sb_30b_memo, sb_30b_memo_page_cnt, sb_30b_memo_start_page,
-                            sb_30b_memo_last_page_cnt, total_no_of_pages)
+            # sb_30b_memo_start_page = sb_30b_start_page + sb_30b_page_cnt
+            # process_sb_memo(f3x_data, md5_directory, '30B', sb_30b_memo, sb_30b_memo_page_cnt, sb_30b_memo_start_page,
+            #                 sb_30b_memo_last_page_cnt, total_no_of_pages)
 
         if 'SC' in schedules and sc_schedules_cnt > 0:
             sc1_list, sc1_start_page, totalOutstandingLoans = process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_no_of_pages)
-            # sc_memo_start_page = sc_start_page + 1
-            # process_sc_memo(f3x_data, md5_directory, sc_schedules, sc_memo_start_page, total_no_of_pages)
         else:
             sc1_list = []
 
@@ -1286,17 +1275,17 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             se_24_start_page = se_start_page
             process_se_line(f3x_data, md5_directory, '24', se_24, se_24_page_cnt, se_24_start_page,
                             se_24_last_page_cnt, total_no_of_pages)
-            se_24_memo_start_page = se_24_start_page + se_24_page_cnt
-            process_se_memo(f3x_data, md5_directory, '24', se_24_memo, se_24_memo_page_cnt, se_24_memo_start_page,
-                            se_24_memo_last_page_cnt, total_no_of_pages)
+            # se_24_memo_start_page = se_24_start_page + se_24_page_cnt
+            # process_se_memo(f3x_data, md5_directory, '24', se_24_memo, se_24_memo_page_cnt, se_24_memo_start_page,
+            #                 se_24_memo_last_page_cnt, total_no_of_pages)
 
         if la_schedules_cnt > 0:
             la_1a_start_page = la_start_page
             process_la_line(f3x_data, md5_directory, '1A', la_1a, la_1a_page_cnt, la_1a_start_page,
                             la_1a_last_page_cnt, total_no_of_pages)
             la_1a_memo_start_page = la_1a_start_page + la_1a_page_cnt
-            process_la_memo(f3x_data, md5_directory, '1A', la_1a_memo, la_1a_memo_page_cnt, la_1a_memo_start_page,
-                            la_1a_memo_last_page_cnt, total_no_of_pages)
+            # process_la_memo(f3x_data, md5_directory, '1A', la_1a_memo, la_1a_memo_page_cnt, la_1a_memo_start_page,
+            #                 la_1a_memo_last_page_cnt, total_no_of_pages)
           
 
             # process Schedule 11B
@@ -1304,8 +1293,8 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             process_la_line(f3x_data, md5_directory, '2', la_2, la_2_page_cnt, la_2_start_page,
                             la_2_last_page_cnt, total_no_of_pages)
             la_2_memo_start_page = la_2_start_page + la_2_page_cnt
-            process_la_memo(f3x_data, md5_directory, '2', la_2_memo, la_2_memo_page_cnt, la_2_memo_start_page,
-                            la_2_memo_last_page_cnt, total_no_of_pages)
+            # process_la_memo(f3x_data, md5_directory, '2', la_2_memo, la_2_memo_page_cnt, la_2_memo_start_page,
+            #                 la_2_memo_last_page_cnt, total_no_of_pages)
 
         if sf_schedules_cnt > 0:
             count = 0
@@ -1383,8 +1372,8 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
 
                     sf_memo_start_page = sf_crd_start_page + sf_crd_page_cnt
 
-                    process_sf_memo(f3x_data, md5_directory, '25', sf_memo, sf_memo_page_cnt,
-                                    sf_memo_start_page, sf_memo_last_page_cnt, total_no_of_pages, cord_name)
+                    # process_sf_memo(f3x_data, md5_directory, '25', sf_memo, sf_memo_page_cnt,
+                    #                 sf_memo_start_page, sf_memo_last_page_cnt, total_no_of_pages, cord_name)
 
        
         if slb_schedules_cnt > 0:
@@ -1392,72 +1381,72 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             process_slb_line(f3x_data, md5_directory, '4A', slb_4a, slb_4a_page_cnt, slb_4a_start_page,
                             slb_4a_last_page_cnt, total_no_of_pages)
             slb_4a_memo_start_page = slb_4a_start_page + slb_4a_memo_page_cnt
-            process_slb_memo(f3x_data, md5_directory, '4A', slb_4a_memo, slb_4a_memo_page_cnt, slb_4a_memo_start_page,
-                             slb_4a_memo_last_page_cnt, total_no_of_pages)
+            # process_slb_memo(f3x_data, md5_directory, '4A', slb_4a_memo, slb_4a_memo_page_cnt, slb_4a_memo_start_page,
+            #                  slb_4a_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 4b
             slb_4b_start_page = slb_4a_start_page + slb_4a_page_cnt
             process_slb_line(f3x_data, md5_directory, '4B', slb_4b, slb_4b_page_cnt, slb_4b_start_page,
                             slb_4b_last_page_cnt, total_no_of_pages)
             slb_4b_memo_start_page = slb_4b_start_page + slb_4b_page_cnt
-            process_slb_memo(f3x_data, md5_directory, '4B', slb_4b_memo, slb_4b_memo_page_cnt, slb_4b_memo_start_page,
-                             slb_4b_memo_last_page_cnt, total_no_of_pages)
+            # process_slb_memo(f3x_data, md5_directory, '4B', slb_4b_memo, slb_4b_memo_page_cnt, slb_4b_memo_start_page,
+            #                  slb_4b_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 4c
             slb_4c_start_page = slb_4b_start_page + slb_4b_page_cnt
             process_slb_line(f3x_data, md5_directory, '4C', slb_4c, slb_4c_page_cnt, slb_4c_start_page,
                             slb_4c_last_page_cnt, total_no_of_pages)
             slb_4c_memo_start_page = slb_4c_start_page + slb_4c_page_cnt
-            process_slb_memo(f3x_data, md5_directory, '4C', slb_4c_memo, slb_4c_memo_page_cnt, slb_4c_memo_start_page,
-                             slb_4c_memo_last_page_cnt, total_no_of_pages)
+            # process_slb_memo(f3x_data, md5_directory, '4C', slb_4c_memo, slb_4c_memo_page_cnt, slb_4c_memo_start_page,
+            #                  slb_4c_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 4d
             slb_4d_start_page = slb_4c_start_page + slb_4c_page_cnt
             process_slb_line(f3x_data, md5_directory, '4D', slb_4d, slb_4d_page_cnt, slb_4d_start_page,
                             slb_4d_last_page_cnt, total_no_of_pages)
             slb_4d_memo_start_page = slb_4d_start_page + slb_4d_page_cnt
-            process_slb_memo(f3x_data, md5_directory, '4D', slb_4d_memo, slb_4d_memo_page_cnt, slb_4d_memo_start_page,
-                             slb_4d_memo_last_page_cnt, total_no_of_pages)
+            # process_slb_memo(f3x_data, md5_directory, '4D', slb_4d_memo, slb_4d_memo_page_cnt, slb_4d_memo_start_page,
+            #                  slb_4d_memo_last_page_cnt, total_no_of_pages)
 
             # process Schedule 5
             slb_5_start_page = slb_4d_start_page + slb_4d_page_cnt
             process_slb_line(f3x_data, md5_directory, '5', slb_5, slb_5_page_cnt, slb_5_start_page,
                             slb_5_last_page_cnt, total_no_of_pages)
             slb_5_memo_start_page = slb_5_start_page + slb_5_page_cnt
-            process_slb_memo(f3x_data, md5_directory, '5', slb_5_memo, slb_5_memo_page_cnt, slb_5_memo_start_page,
-                             slb_5_memo_last_page_cnt, total_no_of_pages)
+            # process_slb_memo(f3x_data, md5_directory, '5', slb_5_memo, slb_5_memo_page_cnt, slb_5_memo_start_page,
+            #                  slb_5_memo_last_page_cnt, total_no_of_pages)
 
         if sh6_schedules_cnt > 0:
             sh_30a_start_page = total_no_of_pages
             process_sh6_line(f3x_data, md5_directory, '30A', sh_30a, sh_30a_page_cnt, sh_30a_start_page,
                             sh_30a_last_page_cnt, total_no_of_pages)
             sh_30a_memo_start_page = sh_30a_start_page + sh_30a_page_cnt
-            process_sh_memo(f3x_data, md5_directory, 'SH6/', '30A', sh_30a_memo, sh_30a_memo_page_cnt, sh_30a_memo_start_page,
-                              sh_30a_memo_last_page_cnt, total_no_of_pages)
+            # process_sh_memo(f3x_data, md5_directory, 'SH6/', '30A', sh_30a_memo, sh_30a_memo_page_cnt, sh_30a_memo_start_page,
+            #                   sh_30a_memo_last_page_cnt, total_no_of_pages)
 
         if sh4_schedules_cnt > 0:
             sh_21a_start_page = total_no_of_pages
             process_sh4_line(f3x_data, md5_directory, '21A', sh_21a, sh_21a_page_cnt, sh_21a_start_page,
                                     sh_21a_last_page_cnt, total_no_of_pages)
             sh_21a_memo_start_page = sh_21a_start_page + sh_21a_page_cnt
-            process_sh_memo(f3x_data, md5_directory, 'SH4/', '21A', sh_21a_memo, sh_21a_memo_page_cnt, sh_21a_memo_start_page,
-                              sh_21a_memo_last_page_cnt, total_no_of_pages)
+            # process_sh_memo(f3x_data, md5_directory, 'SH4/', '21A', sh_21a_memo, sh_21a_memo_page_cnt, sh_21a_memo_start_page,
+            #                   sh_21a_memo_last_page_cnt, total_no_of_pages)
 
         if sh5_schedules_cnt > 0:
             sh_18b_start_page = total_no_of_pages
             process_sh5_line(f3x_data, md5_directory, '18B', sh_18b, sh_18b_page_cnt, sh_18b_start_page,
                                     sh_18b_last_page_cnt, total_no_of_pages)
             sh_18b_memo_start_page = sh_18b_start_page + sh_18b_page_cnt
-            process_sh_memo(f3x_data, md5_directory, 'SH5/', '18B', sh_18b_memo, sh_18b_memo_page_cnt, sh_18b_memo_start_page,
-                              sh_18b_memo_last_page_cnt, total_no_of_pages)
+            # process_sh_memo(f3x_data, md5_directory, 'SH5/', '18B', sh_18b_memo, sh_18b_memo_page_cnt, sh_18b_memo_start_page,
+            #                   sh_18b_memo_last_page_cnt, total_no_of_pages)
 
         if sh3_schedules_cnt > 0:
             sh_18a_start_page = total_no_of_pages
             process_sh3_line(f3x_data, md5_directory, '18A', sh_18a, sh_18a_page_cnt, sh_18a_start_page,
                                     sh_18a_last_page_cnt, total_no_of_pages)
             sh_18a_memo_start_page = sh_18a_start_page + sh_18a_page_cnt
-            process_sh_memo(f3x_data, md5_directory, 'SH3/', '18A', sh_18a_memo, sh_18a_memo_page_cnt, sh_18a_memo_start_page,
-                              sh_18a_memo_last_page_cnt, total_no_of_pages)
+            # process_sh_memo(f3x_data, md5_directory, 'SH3/', '18A', sh_18a_memo, sh_18a_memo_page_cnt, sh_18a_memo_start_page,
+            #                   sh_18a_memo_last_page_cnt, total_no_of_pages)
 
         if sh1_schedules_cnt > 0:
             tran_type_ident = sh_h1[0]['transactionTypeIdentifier']
@@ -1618,6 +1607,7 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
     totalOutstandingLoans = '0.00'
     for sc in sc_schedules:
         page_subtotal = '{0:.2f}'.format(float(sc.get('loanBalance')))
+        memo_array = []
         sc_schedule_total += float(page_subtotal)
         sc_schedule_page_dict = {}
         sc_schedule_page_dict['TRANSACTION_ID'] = sc.get('transactionId')
@@ -1647,14 +1637,16 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
         if 'loanDueDate' in sc and sc.get('loanDueDate'):
             if "-" in sc.get('loanDueDate'):
                 date_array = sc.get('loanDueDate').split("-")
-                sc_schedule_page_dict['loanDueDateMonth'] = date_array[1]
-                sc_schedule_page_dict['loanDueDateDay'] = date_array[2]
-                sc_schedule_page_dict['loanDueDateYear'] = date_array[0]
-            else:
+                if len(date_array) == 3:
+                    sc_schedule_page_dict['loanDueDateMonth'] = date_array[1]
+                    sc_schedule_page_dict['loanDueDateDay'] = date_array[2]
+                    sc_schedule_page_dict['loanDueDateYear'] = date_array[0]
+            elif "/" in sc.get('loanDueDate'):
                 date_array = sc.get('loanDueDate').split("/")
-                sc_schedule_page_dict['loanDueDateMonth'] = date_array[0]
-                sc_schedule_page_dict['loanDueDateDay'] = date_array[1]
-                sc_schedule_page_dict['loanDueDateYear'] = date_array[2]
+                if len(date_array) == 3:
+                    sc_schedule_page_dict['loanDueDateMonth'] = date_array[0]
+                    sc_schedule_page_dict['loanDueDateDay'] = date_array[1]
+                    sc_schedule_page_dict['loanDueDateYear'] = date_array[2]
         if 'child' in sc and sc.get('child'):
             sc2 = []
             for sc_child in sc.get('child'):
@@ -1693,6 +1685,21 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
                         totalOutstandingLoans = sc_schedule_single_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
                     sc_outfile = md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf'
                     pypdftk.fill_form(sc_infile, sc_schedule_single_page_dict, sc_outfile)
+                    # Memo text changes
+                    if 'memoDescription' in sc_schedule_page_dict and sc_schedule_page_dict['memoDescription']:
+                        memo_dict = {}
+                        temp_memo_outfile = md5_directory + 'SC/page_memo_temp.pdf'
+                        memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                        memo_outfile = md5_directory + 'SC/page_memo_' + str(sc_start_page) + '.pdf'
+                        memo_dict['scheduleName_1'] = 'SC13'
+                        memo_dict['memoDescription_1'] = sc_schedule_page_dict['memoDescription']
+                        if 'TRANSACTION_ID' in sc_schedule_page_dict and sc_schedule_page_dict['TRANSACTION_ID']:
+                            memo_dict['transactionId_1'] = sc_schedule_page_dict['TRANSACTION_ID']
+                        # build page
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([sc_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, sc_outfile)
                     for j in range(len(sc2_list_list[i])):
                         del sc_schedule_single_page_dict['name{}'.format(j+1)]
                         del sc_schedule_single_page_dict['street1_{}'.format(j+1)]
@@ -1716,6 +1723,21 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
                     totalOutstandingLoans = sc_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
                 sc_outfile = md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf'
                 pypdftk.fill_form(sc_infile, sc_schedule_page_dict, sc_outfile)
+                # Memo text changes
+                if 'memoDescription' in sc_schedule_page_dict and sc_schedule_page_dict['memoDescription']:
+                    memo_dict = {}
+                    temp_memo_outfile = md5_directory + 'SC/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SC/page_memo_' + str(sc_start_page) + '.pdf'
+                    memo_dict['scheduleName_1'] = 'SC13'
+                    memo_dict['memoDescription_1'] = sc_schedule_page_dict['memoDescription']
+                    if 'TRANSACTION_ID' in sc_schedule_page_dict and sc_schedule_page_dict['TRANSACTION_ID']:
+                        memo_dict['transactionId_1'] = sc_schedule_page_dict['TRANSACTION_ID']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([sc_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, sc_outfile)
                 if path.isfile(md5_directory + 'SC/all_pages.pdf'):
                     pypdftk.concat([md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf'],
                                    md5_directory + 'SC/temp_all_pages.pdf')
@@ -1729,6 +1751,22 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
                 totalOutstandingLoans = sc_schedule_page_dict['scheduleTotal'] = '{0:.2f}'.format(sc_schedule_total)
             sc_outfile = md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf'
             pypdftk.fill_form(sc_infile, sc_schedule_page_dict, sc_outfile)
+            # Memo text changes
+            if 'memoDescription' in sc_schedule_page_dict and sc_schedule_page_dict['memoDescription']:
+                memo_dict = {}
+                temp_memo_outfile = md5_directory + 'SC/page_memo_temp.pdf'
+                memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                memo_outfile = md5_directory + 'SC/page_memo_' + str(sc_start_page) + '.pdf'
+                memo_dict['scheduleName_1'] = 'SC13'
+                memo_dict['memoDescription_1'] = sc_schedule_page_dict['memoDescription']
+                if 'TRANSACTION_ID' in sc_schedule_page_dict and sc_schedule_page_dict['TRANSACTION_ID']:
+                    memo_dict['transactionId_1'] = sc_schedule_page_dict['TRANSACTION_ID']
+                # build page
+                pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                pypdftk.concat([sc_outfile, memo_outfile], temp_memo_outfile)
+                os.remove(memo_outfile)
+                os.rename(temp_memo_outfile, sc_outfile)
+
             if path.isfile(md5_directory + 'SC/all_pages.pdf'):
                 pypdftk.concat([md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC' + '/page_' + str(sc_start_page) + '.pdf'],
                                md5_directory + 'SC/temp_all_pages.pdf')
@@ -1739,111 +1777,111 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
     return sc1_list, sc_start_page, totalOutstandingLoans
 
 
-def process_sc_memo(f3x_data, md5_directory, sc_schedules, sc_memo_start_page, total_no_of_pages):
-    os.makedirs(md5_directory + 'SC/memo/', exist_ok=True)
-    sc_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-    # sc1_list = []
-    sc_memo = []
-    sc1_memo = []
-    sc2_memo = []
-    for sc in sc_schedules:
-        # sc_memo_schedule_page_dict = {}
-        # sc_schedule_page_dict['TRANSACTION_ID'] = sc.get('transactionId')
-        # sc_schedule_page_dict['totalPages'] = total_no_of_pages
-        # sc_schedule_page_dict['committeeName'] = f3x_data.get('committeeName')
-        if 'child' in sc and sc.get('child'):
-            # sc2 = []
-            # sc2_memo = []
-            for sc_child in sc.get('child'):
-                if sc_child.get('transactionTypeIdentifier') == 'SC2':
-                    # sc2.append(sc_child)
-                    if sc_child['memoDescription']:
-                        sc2_memo.append(
-                            {'scheduleName': 'SC2' + sc_child['lineNumber'], 'memoDescription': sc_child['memoDescription'],
-                             'transactionId': sc_child['transactionId']})
-                elif sc_child.get('transactionTypeIdentifier') == 'SC1':
-                    # sc_child['SCPageNo'] = sc_start_page
-                    # sc1_list.append(sc_child)
-                    if sc_child['memoDescription']:
-                        sc1_memo.append(
-                            {'scheduleName': 'SC1' + sc_child['lineNumber'], 'memoDescription': sc_child['memoDescription'],
-                             'transactionId': sc_child['transactionId']})
-        else:
-            if sc['memoDescription']:
-                sc_memo.append(
-                    {'scheduleName': 'SC2' + sc_child['lineNumber'], 'memoDescription': sc_child['memoDescription'],
-                     'transactionId': sc_child['transactionId']})
-
-    if len(sc_memo) > 0:
-        sc_memo_page_cnt, sc_memo_last_page_cnt = calculate_memo_page_count(sc_memo)
-        for sc_memo_page_no in range(sc_memo_page_cnt):
-            last_page = False
-            sc_memo_schedule_page_dict = {}
-            sc_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sc_memo_page_no + 1) + " / " + str(total_no_of_pages)
-            page_start_index = sc_memo_page_no * 2
-            if ((sc_memo_page_no + 1) == sc_memo_page_cnt):
-                last_page = True
-            # This call prepares data to render on PDF
-            sc_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sc_memo_last_page_cnt,
-                                                                           page_start_index, sc_memo_schedule_page_dict,
-                                                                           sc_memo)
-
-            sc_memo_outfile = md5_directory + 'SC/memo/page_' + str(sc_memo_page_no) + '.pdf'
-            pypdftk.fill_form(sc_memo_infile, sc_memo_schedule_page_dict, sc_memo_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SC/memo/'),
-                       md5_directory + 'SC/memo/all_pages.pdf')
-        if path.isfile(md5_directory + 'SC/all_pages.pdf'):
-            pypdftk.concat(
-                [md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC/memo/all_pages.pdf'],
-                md5_directory + 'SC/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SC/temp_all_pages.pdf', md5_directory + 'SC/all_pages.pdf')
-    if len(sc1_memo) > 0:
-        sc1_memo_page_cnt, sc1_memo_last_page_cnt = calculate_memo_page_count(sc1_memo)
-        for sc1_memo_page_no in range(sc1_memo_page_cnt):
-            last_page = False
-            sc1_memo_schedule_page_dict = {}
-            sc1_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sc1_memo_page_no + 1) + " / " + str(total_no_of_pages)
-            page_start_index = sc1_memo_page_no * 2
-            if ((sc1_memo_page_no + 1) == sc1_memo_page_cnt):
-                last_page = True
-            # This call prepares data to render on PDF
-            sc1_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sc1_memo_last_page_cnt,
-                                                                           page_start_index, sc1_memo_schedule_page_dict,
-                                                                           sc1_memo)
-
-            sc1_memo_outfile = md5_directory + 'SC/memo/page_' + str(sc1_memo_page_no) + '.pdf'
-            pypdftk.fill_form(sc_memo_infile, sc1_memo_schedule_page_dict, sc1_memo_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SC/memo/'),
-                       md5_directory + 'SC/memo/all_pages.pdf')
-        if path.isfile(md5_directory + 'SC/all_pages.pdf'):
-            pypdftk.concat(
-                [md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC/memo/all_pages.pdf'],
-                md5_directory + 'SC/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SC/temp_all_pages.pdf', md5_directory + 'SC/all_pages.pdf')
-    if len(sc2_memo) > 0:
-        sc2_memo_page_cnt, sc2_memo_last_page_cnt = calculate_memo_page_count(sc2_memo)
-        for sc2_memo_page_no in range(sc2_memo_page_cnt):
-            last_page = False
-            sc2_memo_schedule_page_dict = {}
-            sc2_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sc2_memo_page_no + 1) + " / " + str(total_no_of_pages)
-            page_start_index = sc2_memo_page_no * 2
-            if ((sc2_memo_page_no + 1) == sc2_memo_page_cnt):
-                last_page = True
-            # This call prepares data to render on PDF
-            sc2_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sc2_memo_last_page_cnt,
-                                                                           page_start_index, sc2_memo_schedule_page_dict,
-                                                                           sc2_memo)
-
-            sc2_memo_outfile = md5_directory + 'SC/memo/page_' + str(sc2_memo_page_no) + '.pdf'
-            pypdftk.fill_form(sc_memo_infile, sc2_memo_schedule_page_dict, sc2_memo_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SC/memo/'),
-                       md5_directory + 'SC/memo/all_pages.pdf')
-        if path.isfile(md5_directory + 'SC/all_pages.pdf'):
-            pypdftk.concat(
-                [md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC/memo/all_pages.pdf'],
-                md5_directory + 'SC/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SC/temp_all_pages.pdf', md5_directory + 'SC/all_pages.pdf')
-    return sc_memo, sc_memo_start_page
+# def process_sc_memo(f3x_data, md5_directory, sc_schedules, sc_memo_start_page, total_no_of_pages):
+#     os.makedirs(md5_directory + 'SC/memo/', exist_ok=True)
+#     sc_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+#     # sc1_list = []
+#     sc_memo = []
+#     sc1_memo = []
+#     sc2_memo = []
+#     for sc in sc_schedules:
+#         # sc_memo_schedule_page_dict = {}
+#         # sc_schedule_page_dict['TRANSACTION_ID'] = sc.get('transactionId')
+#         # sc_schedule_page_dict['totalPages'] = total_no_of_pages
+#         # sc_schedule_page_dict['committeeName'] = f3x_data.get('committeeName')
+#         if 'child' in sc and sc.get('child'):
+#             # sc2 = []
+#             # sc2_memo = []
+#             for sc_child in sc.get('child'):
+#                 if sc_child.get('transactionTypeIdentifier') == 'SC2':
+#                     # sc2.append(sc_child)
+#                     if sc_child['memoDescription']:
+#                         sc2_memo.append(
+#                             {'scheduleName': 'SC2' + sc_child['lineNumber'], 'memoDescription': sc_child['memoDescription'],
+#                              'transactionId': sc_child['transactionId']})
+#                 elif sc_child.get('transactionTypeIdentifier') == 'SC1':
+#                     # sc_child['SCPageNo'] = sc_start_page
+#                     # sc1_list.append(sc_child)
+#                     if sc_child['memoDescription']:
+#                         sc1_memo.append(
+#                             {'scheduleName': 'SC1' + sc_child['lineNumber'], 'memoDescription': sc_child['memoDescription'],
+#                              'transactionId': sc_child['transactionId']})
+#         else:
+#             if sc['memoDescription']:
+#                 sc_memo.append(
+#                     {'scheduleName': 'SC2' + sc_child['lineNumber'], 'memoDescription': sc_child['memoDescription'],
+#                      'transactionId': sc_child['transactionId']})
+#
+#     if len(sc_memo) > 0:
+#         sc_memo_page_cnt, sc_memo_last_page_cnt = calculate_memo_page_count(sc_memo)
+#         for sc_memo_page_no in range(sc_memo_page_cnt):
+#             last_page = False
+#             sc_memo_schedule_page_dict = {}
+#             sc_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sc_memo_page_no + 1) + " / " + str(total_no_of_pages)
+#             page_start_index = sc_memo_page_no * 2
+#             if ((sc_memo_page_no + 1) == sc_memo_page_cnt):
+#                 last_page = True
+#             # This call prepares data to render on PDF
+#             sc_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sc_memo_last_page_cnt,
+#                                                                            page_start_index, sc_memo_schedule_page_dict,
+#                                                                            sc_memo)
+#
+#             sc_memo_outfile = md5_directory + 'SC/memo/page_' + str(sc_memo_page_no) + '.pdf'
+#             pypdftk.fill_form(sc_memo_infile, sc_memo_schedule_page_dict, sc_memo_outfile)
+#         pypdftk.concat(directory_files(md5_directory + 'SC/memo/'),
+#                        md5_directory + 'SC/memo/all_pages.pdf')
+#         if path.isfile(md5_directory + 'SC/all_pages.pdf'):
+#             pypdftk.concat(
+#                 [md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC/memo/all_pages.pdf'],
+#                 md5_directory + 'SC/temp_all_pages.pdf')
+#             os.rename(md5_directory + 'SC/temp_all_pages.pdf', md5_directory + 'SC/all_pages.pdf')
+#     if len(sc1_memo) > 0:
+#         sc1_memo_page_cnt, sc1_memo_last_page_cnt = calculate_memo_page_count(sc1_memo)
+#         for sc1_memo_page_no in range(sc1_memo_page_cnt):
+#             last_page = False
+#             sc1_memo_schedule_page_dict = {}
+#             sc1_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sc1_memo_page_no + 1) + " / " + str(total_no_of_pages)
+#             page_start_index = sc1_memo_page_no * 2
+#             if ((sc1_memo_page_no + 1) == sc1_memo_page_cnt):
+#                 last_page = True
+#             # This call prepares data to render on PDF
+#             sc1_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sc1_memo_last_page_cnt,
+#                                                                            page_start_index, sc1_memo_schedule_page_dict,
+#                                                                            sc1_memo)
+#
+#             sc1_memo_outfile = md5_directory + 'SC/memo/page_' + str(sc1_memo_page_no) + '.pdf'
+#             pypdftk.fill_form(sc_memo_infile, sc1_memo_schedule_page_dict, sc1_memo_outfile)
+#         pypdftk.concat(directory_files(md5_directory + 'SC/memo/'),
+#                        md5_directory + 'SC/memo/all_pages.pdf')
+#         if path.isfile(md5_directory + 'SC/all_pages.pdf'):
+#             pypdftk.concat(
+#                 [md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC/memo/all_pages.pdf'],
+#                 md5_directory + 'SC/temp_all_pages.pdf')
+#             os.rename(md5_directory + 'SC/temp_all_pages.pdf', md5_directory + 'SC/all_pages.pdf')
+#     if len(sc2_memo) > 0:
+#         sc2_memo_page_cnt, sc2_memo_last_page_cnt = calculate_memo_page_count(sc2_memo)
+#         for sc2_memo_page_no in range(sc2_memo_page_cnt):
+#             last_page = False
+#             sc2_memo_schedule_page_dict = {}
+#             sc2_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sc2_memo_page_no + 1) + " / " + str(total_no_of_pages)
+#             page_start_index = sc2_memo_page_no * 2
+#             if ((sc2_memo_page_no + 1) == sc2_memo_page_cnt):
+#                 last_page = True
+#             # This call prepares data to render on PDF
+#             sc2_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sc2_memo_last_page_cnt,
+#                                                                            page_start_index, sc2_memo_schedule_page_dict,
+#                                                                            sc2_memo)
+#
+#             sc2_memo_outfile = md5_directory + 'SC/memo/page_' + str(sc2_memo_page_no) + '.pdf'
+#             pypdftk.fill_form(sc_memo_infile, sc2_memo_schedule_page_dict, sc2_memo_outfile)
+#         pypdftk.concat(directory_files(md5_directory + 'SC/memo/'),
+#                        md5_directory + 'SC/memo/all_pages.pdf')
+#         if path.isfile(md5_directory + 'SC/all_pages.pdf'):
+#             pypdftk.concat(
+#                 [md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC/memo/all_pages.pdf'],
+#                 md5_directory + 'SC/temp_all_pages.pdf')
+#             os.rename(md5_directory + 'SC/temp_all_pages.pdf', md5_directory + 'SC/all_pages.pdf')
+#     return sc_memo, sc_memo_start_page
 
 
 def process_sc1_line(f3x_data, md5_directory, sc1, sc1_start_page, total_no_of_pages):
@@ -1862,17 +1900,20 @@ def process_sc1_line(f3x_data, md5_directory, sc1, sc1_start_page, total_no_of_p
         sc1_schedule_page_dict['loanIncurredDateMonth'] = date_array[0]
         sc1_schedule_page_dict['loanIncurredDateDay'] = date_array[1]
         sc1_schedule_page_dict['loanIncurredDateYear'] = date_array[2]
+
     if sc1.get('loanDueDate') != "":
         if "-" in sc1.get('loanDueDate'):
             date_array = sc1.get('loanDueDate').split("-")
-            sc1_schedule_page_dict['loanDueDateMonth'] = date_array[1]
-            sc1_schedule_page_dict['loanDueDateDay'] = date_array[2]
-            sc1_schedule_page_dict['loanDueDateYear'] = date_array[0]
-        else:
+            if len(date_array) == 3:
+                sc1_schedule_page_dict['loanDueDateMonth'] = date_array[1]
+                sc1_schedule_page_dict['loanDueDateDay'] = date_array[2]
+                sc1_schedule_page_dict['loanDueDateYear'] = date_array[0]
+        elif "/" in sc1.get('loanDueDate'):
             date_array = sc1.get('loanDueDate').split("/")
-            sc1_schedule_page_dict['loanDueDateMonth'] = date_array[0]
-            sc1_schedule_page_dict['loanDueDateDay'] = date_array[1]
-            sc1_schedule_page_dict['loanDueDateYear'] = date_array[2]
+            if len(date_array) == 3:
+                sc1_schedule_page_dict['loanDueDateMonth'] = date_array[0]
+                sc1_schedule_page_dict['loanDueDateDay'] = date_array[1]
+                sc1_schedule_page_dict['loanDueDateYear'] = date_array[2]
     if sc1.get('originalLoanDate') != "":
         date_array = sc1.get('originalLoanDate').split("/")
         sc1_schedule_page_dict['originalLoanDateMonth'] = date_array[0]
@@ -1921,6 +1962,21 @@ def process_sc1_line(f3x_data, md5_directory, sc1, sc1_start_page, total_no_of_p
     sc1_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SC1')
     sc1_outfile = md5_directory + 'SC' + '/page_' + str(sc1_start_page) + '.pdf'
     pypdftk.fill_form(sc1_infile, sc1_schedule_page_dict, sc1_outfile)
+    # Memo text changes
+    if 'memoDescription' in sc1_schedule_page_dict and sc1_schedule_page_dict['memoDescription']:
+        memo_dict = {}
+        temp_memo_outfile = md5_directory + 'SC/page_memo_temp.pdf'
+        memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+        memo_outfile = md5_directory + 'SC/page_memo_' + str(sc1_start_page) + '.pdf'
+        memo_dict['scheduleName_1'] = 'SC1'
+        memo_dict['memoDescription_1'] = sc1_schedule_page_dict['memoDescription']
+        if 'transactionId' in sc1_schedule_page_dict and sc1_schedule_page_dict['transactionId']:
+            memo_dict['transactionId_1'] = sc1_schedule_page_dict['transactionId']
+        # build page
+        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+        pypdftk.concat([sc1_outfile, memo_outfile], temp_memo_outfile)
+        os.remove(memo_outfile)
+        os.rename(temp_memo_outfile, sc1_outfile)
     if path.isfile(md5_directory + 'SC/all_pages.pdf'):
         pypdftk.concat([md5_directory + 'SC/all_pages.pdf', md5_directory + 'SC' + '/page_' + str(sc1_start_page) + '.pdf'],
                        md5_directory + 'SC/temp_all_pages.pdf')
@@ -1940,12 +1996,13 @@ def process_sa_line(f3x_data, md5_directory, line_number, sa_line, sa_line_page_
         os.makedirs(md5_directory + 'SA/' + line_number, exist_ok=True)
         sa_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('SA')
         if sa_line_page_cnt > 0:
-            sa_memo = []
             for sa_page_no in range(sa_line_page_cnt):
+
                 # if sa_schedule_page_dict['memoDescription']:
                 #     sa_memo_obj = {'memoDescripton':sa_schedule_page_dict['memoDescription'], 'transactionId': sa_schedule_page_dict['transactionId']}
                 #     sa_memo.append(sa_memo_obj)
                 page_subtotal = 0.00
+                memo_array = []
                 last_page = False
                 sa_schedule_page_dict = {}
                 sa_schedule_page_dict['lineNumber'] = line_number
@@ -1955,9 +2012,10 @@ def process_sa_line(f3x_data, md5_directory, line_number, sa_line, sa_line_page_
                 if ((sa_page_no + 1) == sa_line_page_cnt):
                     last_page = True
                 # This call prepares data to render on PDF
+
                 sa_schedule_dict = build_sa_per_page_schedule_dict(last_page, sa_line_last_page_cnt,
                                                                    page_start_index, sa_schedule_page_dict,
-                                                                   sa_line)
+                                                                   sa_line, memo_array)
 
                 page_subtotal = float(sa_schedule_page_dict['pageSubtotal'])
                 schedule_total += page_subtotal
@@ -1966,6 +2024,35 @@ def process_sa_line(f3x_data, md5_directory, line_number, sa_line, sa_line_page_
                 sa_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sa_outfile = md5_directory + 'SA/' + line_number + '/page_' + str(sa_page_no) + '.pdf'
                 pypdftk.fill_form(sa_infile, sa_schedule_page_dict, sa_outfile)
+                # Memo text changes
+                memo_dict = {}
+                if len(memo_array) >= 1:
+                    temp_memo_outfile = md5_directory + 'SA/' + line_number + '/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SA/' + line_number + '/page_memo_' + str(sa_page_no) + '.pdf'
+                    memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                    memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                    memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                    if len(memo_array) >= 2:
+                        memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                        memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                        memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([sa_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, sa_outfile)
+
+                    if len(memo_array) >= 3:
+                        memo_dict = {}
+                        memo_outfile = md5_directory + 'SA/' + line_number + '/page_memo_' + str(sa_page_no) + '.pdf'
+                        memo_dict['scheduleName_1'] = memo_array[2]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[2]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[2]['transactionId']
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([sa_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, sa_outfile)
         pypdftk.concat(directory_files(md5_directory + 'SA/' + line_number + '/'), md5_directory + 'SA/' + line_number
                        + '/all_pages.pdf')
         # if len(sa_memo) > 0:
@@ -1984,40 +2071,40 @@ def process_sa_line(f3x_data, md5_directory, line_number, sa_line, sa_line_page_
 
 
 # This method is invoked for each SA line number memo, it builds PDF for memo line numbers
-def process_sa_memo(f3x_data, md5_directory, line_number, sa_memo_line, sa_memo_line_page_cnt, sa_memo_line_start_page,
-                    sa_memo_line_last_page_cnt, total_no_of_pages):
-    has_sa_memo_schedules = False
-    if len(sa_memo_line) > 0:
-        sa_memo_line_start_page += 1
-        has_sa_memo_schedules = True
-        os.makedirs(md5_directory + 'SA/' + line_number + '/memo/', exist_ok=True)
-        sa_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-        if sa_memo_line_page_cnt > 0:
-            for sa_memo_page_no in range(sa_memo_line_page_cnt):
-                last_page = False
-                sa_memo_schedule_page_dict = {}
-                sa_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sa_memo_page_no + 1) + " / " + str(total_no_of_pages)
-                page_start_index = sa_memo_page_no * 2
-                if ((sa_memo_page_no + 1) == sa_memo_line_page_cnt):
-                    last_page = True
-                # This call prepares data to render on PDF
-                sa_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sa_memo_line_last_page_cnt,
-                                                                   page_start_index, sa_memo_schedule_page_dict,
-                                                                   sa_memo_line)
-
-                sa_memo_outfile = md5_directory + 'SA/' + line_number + '/memo/page_' + str(sa_memo_page_no) + '.pdf'
-                pypdftk.fill_form(sa_memo_infile, sa_memo_schedule_page_dict, sa_memo_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SA/' + line_number + '/memo/'), md5_directory + 'SA/' + line_number
-                       + '/memo/all_pages.pdf')
-
-        # if all_pages.pdf exists in SA folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + 'SA/'+line_number+'/memo/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SA/all_pages.pdf', md5_directory + 'SA/' + line_number + '/memo/all_pages.pdf'],
-                           md5_directory + 'SA/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SA/temp_all_pages.pdf', md5_directory + 'SA/all_pages.pdf')
-        # else:
-        #     os.rename(md5_directory + 'SA/' + line_number + '/all_pages.pdf', md5_directory + 'SA/all_pages.pdf')
-    return has_sa_memo_schedules
+# def process_sa_memo(f3x_data, md5_directory, line_number, sa_memo_line, sa_memo_line_page_cnt, sa_memo_line_start_page,
+#                     sa_memo_line_last_page_cnt, total_no_of_pages):
+#     has_sa_memo_schedules = False
+#     if len(sa_memo_line) > 0:
+#         sa_memo_line_start_page += 1
+#         has_sa_memo_schedules = True
+#         os.makedirs(md5_directory + 'SA/' + line_number + '/memo/', exist_ok=True)
+#         sa_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+#         if sa_memo_line_page_cnt > 0:
+#             for sa_memo_page_no in range(sa_memo_line_page_cnt):
+#                 last_page = False
+#                 sa_memo_schedule_page_dict = {}
+#                 sa_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sa_memo_page_no + 1) + " / " + str(total_no_of_pages)
+#                 page_start_index = sa_memo_page_no * 2
+#                 if ((sa_memo_page_no + 1) == sa_memo_line_page_cnt):
+#                     last_page = True
+#                 # This call prepares data to render on PDF
+#                 sa_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sa_memo_line_last_page_cnt,
+#                                                                    page_start_index, sa_memo_schedule_page_dict,
+#                                                                    sa_memo_line)
+#
+#                 sa_memo_outfile = md5_directory + 'SA/' + line_number + '/memo/page_' + str(sa_memo_page_no) + '.pdf'
+#                 pypdftk.fill_form(sa_memo_infile, sa_memo_schedule_page_dict, sa_memo_outfile)
+#         pypdftk.concat(directory_files(md5_directory + 'SA/' + line_number + '/memo/'), md5_directory + 'SA/' + line_number
+#                        + '/memo/all_pages.pdf')
+#
+#         # if all_pages.pdf exists in SA folder, concatenate line number pdf to all_pages.pdf
+#         if path.isfile(md5_directory + 'SA/'+line_number+'/memo/all_pages.pdf'):
+#             pypdftk.concat([md5_directory + 'SA/all_pages.pdf', md5_directory + 'SA/' + line_number + '/memo/all_pages.pdf'],
+#                            md5_directory + 'SA/temp_all_pages.pdf')
+#             os.rename(md5_directory + 'SA/temp_all_pages.pdf', md5_directory + 'SA/all_pages.pdf')
+#         # else:
+#         #     os.rename(md5_directory + 'SA/' + line_number + '/all_pages.pdf', md5_directory + 'SA/all_pages.pdf')
+#     return has_sa_memo_schedules
 
 
 
@@ -2033,6 +2120,7 @@ def process_sb_line(f3x_data, md5_directory, line_number, sb_line, sb_line_page_
             sb_line_start_page += 1
             for sb_page_no in range(sb_line_page_cnt):
                 page_subtotal = 0.00
+                memo_array = []
                 last_page = False
                 sb_schedule_page_dict = {}
                 sb_schedule_page_dict['lineNumber'] = line_number
@@ -2044,7 +2132,7 @@ def process_sb_line(f3x_data, md5_directory, line_number, sb_line, sb_line_page_
                 # This call prepares data to render on PDF
                 sb_schedule_dict = build_sb_per_page_schedule_dict(last_page, sb_line_last_page_cnt,
                                                                    page_start_index, sb_schedule_page_dict,
-                                                                   sb_line)
+                                                                   sb_line, memo_array)
 
                 page_subtotal = float(sb_schedule_page_dict['pageSubtotal'])
                 schedule_total += page_subtotal
@@ -2053,6 +2141,35 @@ def process_sb_line(f3x_data, md5_directory, line_number, sb_line, sb_line_page_
                 sb_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sb_outfile = md5_directory + 'SB/' + line_number + '/page_' + str(sb_page_no) + '.pdf'
                 pypdftk.fill_form(sb_infile, sb_schedule_page_dict, sb_outfile)
+                # Memo text changes
+                memo_dict = {}
+                if len(memo_array) >= 1:
+                    temp_memo_outfile = md5_directory + 'SB/' + line_number + '/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SB/' + line_number + '/page_memo_' + str(sb_page_no) + '.pdf'
+                    memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                    memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                    memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                    if len(memo_array) >= 2:
+                        memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                        memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                        memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([sb_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, sb_outfile)
+
+                    if len(memo_array) >= 3:
+                        memo_dict = {}
+                        memo_outfile = md5_directory + 'SB/' + line_number + '/page_memo_' + str(sb_page_no) + '.pdf'
+                        memo_dict['scheduleName_1'] = memo_array[2]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[2]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[2]['transactionId']
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([sb_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, sb_outfile)
         pypdftk.concat(directory_files(md5_directory + 'SB/' + line_number + '/'), md5_directory + 'SB/' + line_number
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SB/all_pages.pdf'):
@@ -2065,38 +2182,38 @@ def process_sb_line(f3x_data, md5_directory, line_number, sb_line, sb_line_page_
 
 
 # This method is invoked for each SB line number memo, it builds PDF for memo line numbers
-def process_sb_memo(f3x_data, md5_directory, line_number, sb_memo_line, sb_memo_line_page_cnt, sb_memo_line_start_page,
-                    sb_memo_line_last_page_cnt, total_no_of_pages):
-    has_sb_memo_schedules = False
-    if len(sb_memo_line) > 0:
-        sb_memo_line_start_page += 1
-        has_sb_memo_schedules = True
-        os.makedirs(md5_directory + 'SB/' + line_number + '/memo', exist_ok=True)
-        sb_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-        if sb_memo_line_page_cnt > 0:
-            for sb_memo_page_no in range(sb_memo_line_page_cnt):
-                last_page = False
-                sb_memo_schedule_page_dict = {}
-                sb_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sb_memo_page_no + 1) + " / " + str(total_no_of_pages)
-                page_start_index = sb_memo_page_no * 2
-                if ((sb_memo_page_no + 1) == sb_memo_line_page_cnt):
-                    last_page = True
-                # This call prepares data to render on PDF
-                sb_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sb_memo_line_last_page_cnt,
-                                                                   page_start_index, sb_memo_schedule_page_dict,
-                                                                   sb_memo_line)
-
-                sb_memo_outfile = md5_directory + 'SB/' + line_number + '/memo/page_' + str(sb_memo_page_no) + '.pdf'
-                pypdftk.fill_form(sb_memo_infile, sb_memo_schedule_page_dict, sb_memo_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SB/' + line_number + '/memo/'), md5_directory + 'SB/' + line_number
-                       + '/memo/all_pages.pdf')
-
-        # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + 'SB/'+line_number+'/memo/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SB/all_pages.pdf', md5_directory + 'SB/' + line_number + '/memo/all_pages.pdf'],
-                           md5_directory + 'SB/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SB/temp_all_pages.pdf', md5_directory + 'SB/all_pages.pdf')
-    return has_sb_memo_schedules
+# def process_sb_memo(f3x_data, md5_directory, line_number, sb_memo_line, sb_memo_line_page_cnt, sb_memo_line_start_page,
+#                     sb_memo_line_last_page_cnt, total_no_of_pages):
+#     has_sb_memo_schedules = False
+#     if len(sb_memo_line) > 0:
+#         sb_memo_line_start_page += 1
+#         has_sb_memo_schedules = True
+#         os.makedirs(md5_directory + 'SB/' + line_number + '/memo', exist_ok=True)
+#         sb_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+#         if sb_memo_line_page_cnt > 0:
+#             for sb_memo_page_no in range(sb_memo_line_page_cnt):
+#                 last_page = False
+#                 sb_memo_schedule_page_dict = {}
+#                 sb_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sb_memo_page_no + 1) + " / " + str(total_no_of_pages)
+#                 page_start_index = sb_memo_page_no * 2
+#                 if ((sb_memo_page_no + 1) == sb_memo_line_page_cnt):
+#                     last_page = True
+#                 # This call prepares data to render on PDF
+#                 sb_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sb_memo_line_last_page_cnt,
+#                                                                    page_start_index, sb_memo_schedule_page_dict,
+#                                                                    sb_memo_line)
+#
+#                 sb_memo_outfile = md5_directory + 'SB/' + line_number + '/memo/page_' + str(sb_memo_page_no) + '.pdf'
+#                 pypdftk.fill_form(sb_memo_infile, sb_memo_schedule_page_dict, sb_memo_outfile)
+#         pypdftk.concat(directory_files(md5_directory + 'SB/' + line_number + '/memo/'), md5_directory + 'SB/' + line_number
+#                        + '/memo/all_pages.pdf')
+#
+#         # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
+#         if path.isfile(md5_directory + 'SB/'+line_number+'/memo/all_pages.pdf'):
+#             pypdftk.concat([md5_directory + 'SB/all_pages.pdf', md5_directory + 'SB/' + line_number + '/memo/all_pages.pdf'],
+#                            md5_directory + 'SB/temp_all_pages.pdf')
+#             os.rename(md5_directory + 'SB/temp_all_pages.pdf', md5_directory + 'SB/all_pages.pdf')
+#     return has_sb_memo_schedules
 
 
 def process_se_line(f3x_data, md5_directory, line_number, se_line, se_line_page_cnt, se_line_start_page,
@@ -2110,6 +2227,7 @@ def process_se_line(f3x_data, md5_directory, line_number, se_line, se_line_page_
             se_line_start_page += 1
             for se_page_no in range(se_line_page_cnt):
                 page_subtotal = 0.00
+                memo_array = []
                 last_page = False
                 se_schedule_page_dict = {}
                 se_schedule_page_dict['lineNumber'] = line_number
@@ -2121,7 +2239,7 @@ def process_se_line(f3x_data, md5_directory, line_number, se_line, se_line_page_
                 # This call prepares data to render on PDF
                 se_schedule_dict = build_se_per_page_schedule_dict(last_page, se_line_last_page_cnt,
                                                                    page_start_index, se_schedule_page_dict,
-                                                                   se_line)
+                                                                   se_line, memo_array)
 
                 page_subtotal = float(se_schedule_page_dict['pageSubtotal'])
                 schedule_total += page_subtotal
@@ -2131,6 +2249,24 @@ def process_se_line(f3x_data, md5_directory, line_number, se_line, se_line_page_
                 se_schedule_page_dict['committeeId'] = f3x_data['committeeId']
                 se_outfile = md5_directory + 'SE/' + line_number + '/page_' + str(se_page_no) + '.pdf'
                 pypdftk.fill_form(se_infile, se_schedule_page_dict, se_outfile)
+                # Memo text changes
+                memo_dict = {}
+                if len(memo_array) >= 1:
+                    temp_memo_outfile = md5_directory + 'SE/' + line_number + '/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SE/' + line_number + '/page_memo_' + str(se_page_no) + '.pdf'
+                    memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                    memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                    memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                    if len(memo_array) >= 2:
+                        memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                        memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                        memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([se_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, se_outfile)
         pypdftk.concat(directory_files(md5_directory + 'SE/' + line_number + '/'), md5_directory + 'SE/' + line_number
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SE/all_pages.pdf'):
@@ -2143,38 +2279,38 @@ def process_se_line(f3x_data, md5_directory, line_number, se_line, se_line_page_
 
 
 # This method is invoked for each SE line number memo, it builds PDF for memo line numbers
-def process_se_memo(f3x_data, md5_directory, line_number, se_memo_line, se_memo_line_page_cnt, se_memo_line_start_page,
-                    se_memo_line_last_page_cnt, total_no_of_pages):
-    has_se_memo_schedules = False
-    if len(se_memo_line) > 0:
-        se_memo_line_start_page += 1
-        has_se_memo_schedules = True
-        os.makedirs(md5_directory + 'SE/' + line_number + '/memo', exist_ok=True)
-        se_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-        if se_memo_line_page_cnt > 0:
-            for se_memo_page_no in range(se_memo_line_page_cnt):
-                last_page = False
-                se_memo_schedule_page_dict = {}
-                se_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(se_memo_page_no + 1) + " / " + str(total_no_of_pages)
-                page_start_index = se_memo_page_no * 2
-                if ((se_memo_page_no + 1) == se_memo_line_page_cnt):
-                    last_page = True
-                # This call prepares data to render on PDF
-                se_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, se_memo_line_last_page_cnt,
-                                                                   page_start_index, se_memo_schedule_page_dict,
-                                                                   se_memo_line)
-
-                se_memo_outfile = md5_directory + 'SE/' + line_number + '/memo/page_' + str(se_memo_page_no) + '.pdf'
-                pypdftk.fill_form(se_memo_infile, se_memo_schedule_page_dict, se_memo_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SE/' + line_number + '/memo/'), md5_directory + 'SE/' + line_number
-                       + '/memo/all_pages.pdf')
-
-        # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + 'SE/'+line_number+'/memo/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SE/all_pages.pdf', md5_directory + 'SE/' + line_number + '/memo/all_pages.pdf'],
-                           md5_directory + 'SE/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SE/temp_all_pages.pdf', md5_directory + 'SE/all_pages.pdf')
-    return has_se_memo_schedules
+# def process_se_memo(f3x_data, md5_directory, line_number, se_memo_line, se_memo_line_page_cnt, se_memo_line_start_page,
+#                     se_memo_line_last_page_cnt, total_no_of_pages):
+#     has_se_memo_schedules = False
+#     if len(se_memo_line) > 0:
+#         se_memo_line_start_page += 1
+#         has_se_memo_schedules = True
+#         os.makedirs(md5_directory + 'SE/' + line_number + '/memo', exist_ok=True)
+#         se_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+#         if se_memo_line_page_cnt > 0:
+#             for se_memo_page_no in range(se_memo_line_page_cnt):
+#                 last_page = False
+#                 se_memo_schedule_page_dict = {}
+#                 se_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(se_memo_page_no + 1) + " / " + str(total_no_of_pages)
+#                 page_start_index = se_memo_page_no * 2
+#                 if ((se_memo_page_no + 1) == se_memo_line_page_cnt):
+#                     last_page = True
+#                 # This call prepares data to render on PDF
+#                 se_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, se_memo_line_last_page_cnt,
+#                                                                    page_start_index, se_memo_schedule_page_dict,
+#                                                                    se_memo_line)
+#
+#                 se_memo_outfile = md5_directory + 'SE/' + line_number + '/memo/page_' + str(se_memo_page_no) + '.pdf'
+#                 pypdftk.fill_form(se_memo_infile, se_memo_schedule_page_dict, se_memo_outfile)
+#         pypdftk.concat(directory_files(md5_directory + 'SE/' + line_number + '/memo/'), md5_directory + 'SE/' + line_number
+#                        + '/memo/all_pages.pdf')
+#
+#         # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
+#         if path.isfile(md5_directory + 'SE/'+line_number+'/memo/all_pages.pdf'):
+#             pypdftk.concat([md5_directory + 'SE/all_pages.pdf', md5_directory + 'SE/' + line_number + '/memo/all_pages.pdf'],
+#                            md5_directory + 'SE/temp_all_pages.pdf')
+#             os.rename(md5_directory + 'SE/temp_all_pages.pdf', md5_directory + 'SE/all_pages.pdf')
+#     return has_se_memo_schedules
 
 
 def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_cnt, sf_line_start_page,
@@ -2189,6 +2325,7 @@ def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_
             sf_line_start_page += 1
             for sf_page_no in range(sf_line_page_cnt):
                 page_subtotal = 0.00
+                memo_array = []
                 last_page = False
                 sf_schedule_page_dict = {}
                 sf_schedule_page_dict['lineNumber'] = line_number
@@ -2202,7 +2339,7 @@ def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_
                 # This call prepares data to render on PDF
                 sf_schedule_dict = build_sf_per_page_schedule_dict(last_page, sf_line_last_page_cnt,
                                                                    page_start_index, sf_schedule_page_dict,
-                                                                   sf_line)
+                                                                   sf_line, memo_array)
 
                 page_subtotal = float(sf_schedule_page_dict['pageSubtotal'])
                 sf_schedule_page_dict['pageSubTotal'] = '{0:.2f}'.format(page_subtotal)
@@ -2212,6 +2349,35 @@ def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_
                 sf_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sf_outfile = md5_directory + 'SF/' + cord_name + '/page_' + str(sf_page_no) + '.pdf'
                 pypdftk.fill_form(sf_infile, sf_schedule_page_dict, sf_outfile)
+                # Memo text changes
+                memo_dict = {}
+                if len(memo_array) >= 1:
+                    temp_memo_outfile = md5_directory + 'SF/' + cord_name + '/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SF/' + cord_name + '/page_memo_' + str(sf_page_no) + '.pdf'
+                    memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                    memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                    memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                    if len(memo_array) >= 2:
+                        memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                        memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                        memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([sf_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, sf_outfile)
+
+                    if len(memo_array) >= 3:
+                        memo_dict = {}
+                        memo_outfile = md5_directory + 'SF/' + cord_name + '/page_memo_' + str(sf_page_no) + '.pdf'
+                        memo_dict['scheduleName_1'] = memo_array[2]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[2]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[2]['transactionId']
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([sf_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, sf_outfile)
         pypdftk.concat(directory_files(md5_directory + 'SF/' + cord_name + '/'), md5_directory + 'SF/' + cord_name
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SF/all_pages.pdf'):
@@ -2224,38 +2390,38 @@ def process_sf_line(f3x_data, md5_directory, line_number, sf_line, sf_line_page_
 
 
 # This method is invoked for each SF line number memo, it builds PDF for memo line numbers
-def process_sf_memo(f3x_data, md5_directory, line_number, sf_memo_line, sf_memo_line_page_cnt, sf_memo_line_start_page,
-                    sf_memo_line_last_page_cnt, total_no_of_pages, cord_name=None):
-    has_sf_memo_schedules = False
-    if len(sf_memo_line) > 0:
-        sf_memo_line_start_page += 1
-        has_sf_memo_schedules = True
-        os.makedirs(md5_directory + 'SF/' + line_number + '/memo', exist_ok=True)
-        sf_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-        if sf_memo_line_page_cnt > 0:
-            for sf_memo_page_no in range(sf_memo_line_page_cnt):
-                last_page = False
-                sf_memo_schedule_page_dict = {}
-                sf_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sf_memo_page_no + 1) + " / " + str(total_no_of_pages)
-                page_start_index = sf_memo_page_no * 2
-                if ((sf_memo_page_no + 1) == sf_memo_line_page_cnt):
-                    last_page = True
-                # This call prepares data to render on PDF
-                sf_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sf_memo_line_last_page_cnt,
-                                                                   page_start_index, sf_memo_schedule_page_dict,
-                                                                   sf_memo_line)
-
-                sf_memo_outfile = md5_directory + 'SF/' + line_number + '/memo/page_' + str(sf_memo_page_no) + '.pdf'
-                pypdftk.fill_form(sf_memo_infile, sf_memo_schedule_page_dict, sf_memo_outfile)
-        pypdftk.concat(directory_files(md5_directory + 'SF/' + line_number + '/memo/'), md5_directory + 'SF/' + line_number
-                       + '/memo/all_pages.pdf')
-
-        # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + 'SF/'+line_number+'/memo/all_pages.pdf'):
-            pypdftk.concat([md5_directory + 'SF/all_pages.pdf', md5_directory + 'SF/' + line_number + '/memo/all_pages.pdf'],
-                           md5_directory + 'SF/temp_all_pages.pdf')
-            os.rename(md5_directory + 'SF/temp_all_pages.pdf', md5_directory + 'SF/all_pages.pdf')
-    return has_sf_memo_schedules
+# def process_sf_memo(f3x_data, md5_directory, line_number, sf_memo_line, sf_memo_line_page_cnt, sf_memo_line_start_page,
+#                     sf_memo_line_last_page_cnt, total_no_of_pages, cord_name=None):
+#     has_sf_memo_schedules = False
+#     if len(sf_memo_line) > 0:
+#         sf_memo_line_start_page += 1
+#         has_sf_memo_schedules = True
+#         os.makedirs(md5_directory + 'SF/' + line_number + '/memo', exist_ok=True)
+#         sf_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+#         if sf_memo_line_page_cnt > 0:
+#             for sf_memo_page_no in range(sf_memo_line_page_cnt):
+#                 last_page = False
+#                 sf_memo_schedule_page_dict = {}
+#                 sf_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sf_memo_page_no + 1) + " / " + str(total_no_of_pages)
+#                 page_start_index = sf_memo_page_no * 2
+#                 if ((sf_memo_page_no + 1) == sf_memo_line_page_cnt):
+#                     last_page = True
+#                 # This call prepares data to render on PDF
+#                 sf_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sf_memo_line_last_page_cnt,
+#                                                                    page_start_index, sf_memo_schedule_page_dict,
+#                                                                    sf_memo_line)
+#
+#                 sf_memo_outfile = md5_directory + 'SF/' + line_number + '/memo/page_' + str(sf_memo_page_no) + '.pdf'
+#                 pypdftk.fill_form(sf_memo_infile, sf_memo_schedule_page_dict, sf_memo_outfile)
+#         pypdftk.concat(directory_files(md5_directory + 'SF/' + line_number + '/memo/'), md5_directory + 'SF/' + line_number
+#                        + '/memo/all_pages.pdf')
+#
+#         # if all_pages.pdf exists in SB folder, concatenate line number pdf to all_pages.pdf
+#         if path.isfile(md5_directory + 'SF/'+line_number+'/memo/all_pages.pdf'):
+#             pypdftk.concat([md5_directory + 'SF/all_pages.pdf', md5_directory + 'SF/' + line_number + '/memo/all_pages.pdf'],
+#                            md5_directory + 'SF/temp_all_pages.pdf')
+#             os.rename(md5_directory + 'SF/temp_all_pages.pdf', md5_directory + 'SF/all_pages.pdf')
+#     return has_sf_memo_schedules
 
 
 def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_cnt, la_line_start_page,
@@ -2271,6 +2437,7 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
             if la_line_page_cnt > 0:
                 for la_page_no in range(la_line_page_cnt):
                     page_subtotal = 0.00
+                    memo_array = []
                     last_page = False
                     la_schedule_page_dict = {}
                     la_schedule_page_dict['lineNumber'] = line_number
@@ -2283,7 +2450,7 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
                    
                     la_schedule_dict = build_la_per_page_schedule_dict(last_page, la_line_last_page_cnt,
                                                                        page_start_index, la_schedule_page_dict,
-                                                                       la_line)
+                                                                       la_line, memo_array)
 
                     page_subtotal = float(la_schedule_page_dict['pageSubtotal'])
                     schedule_total += page_subtotal
@@ -2292,6 +2459,40 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
                     la_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                     la_outfile = md5_directory + 'SL-A/' + line_number + '/page_' + str(la_page_no) + '.pdf'
                     pypdftk.fill_form(la_infile, la_schedule_page_dict, la_outfile)
+                    # Memo text changes
+                    memo_dict = {}
+                    if len(memo_array) >= 1:
+                        temp_memo_outfile = md5_directory + 'SL-A/' + line_number + '/page_memo_temp.pdf'
+                        memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                        memo_outfile = md5_directory + 'SL-A/' + line_number + '/page_memo_' + str(la_page_no) + '.pdf'
+                        memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                        if len(memo_array) >= 2:
+                            memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                            memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                            memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                        # build page
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([la_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, la_outfile)
+
+                        if len(memo_array) >= 3:
+                            memo_dict = {}
+                            memo_outfile = md5_directory + 'SL-A/' + line_number + '/page_memo_' + str(
+                                la_page_no) + '.pdf'
+                            memo_dict['scheduleName_1'] = memo_array[2]['scheduleName']
+                            memo_dict['memoDescription_1'] = memo_array[2]['memoDescription']
+                            memo_dict['transactionId_1'] = memo_array[2]['transactionId']
+                            if len(memo_array) >= 4:
+                                memo_dict['scheduleName_2'] = memo_array[3]['scheduleName']
+                                memo_dict['memoDescription_2'] = memo_array[3]['memoDescription']
+                                memo_dict['transactionId_2'] = memo_array[3]['transactionId']
+                            pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                            pypdftk.concat([la_outfile, memo_outfile], temp_memo_outfile)
+                            os.remove(memo_outfile)
+                            os.rename(temp_memo_outfile, la_outfile)
             pypdftk.concat(directory_files(md5_directory + 'SL-A/' + line_number + '/'), md5_directory + 'SL-A/' + line_number
                            + '/all_pages.pdf')
             if path.isfile(md5_directory + 'SL-A/all_pages.pdf'):
@@ -2307,50 +2508,50 @@ def process_la_line(f3x_data, md5_directory, line_number, la_line, la_line_page_
     return has_la_schedules
 
 
-def process_la_memo(f3x_data, md5_directory, line_number, la_memo, la_memo_page_cnt, la_memo_start_page,
-                    la_memo_last_page_cnt, total_no_of_pages):
-    has_la_memo_schedules = False
-    try:
-        if len(la_memo) > 0:
-            la_memo_start_page += 1
-            has_la_memo_schedules = True
-            os.makedirs(md5_directory + 'SL-A/' + line_number + '/memo', exist_ok=True)
-            la_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-            if la_memo_page_cnt > 0:
-                for la_memo_page_no in range(la_memo_page_cnt):
-                    last_page = False
-
-                    la_memo_schedule_page_dict = {}
-                    la_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(la_memo_page_no + 1) + " / " + str(
-                        total_no_of_pages)
-
-                    page_start_index = la_memo_page_no * 2
-                    if ((la_memo_page_no + 1) == la_memo_page_cnt):
-                        last_page = True
-                    # This call prepares data to render on PDF
-                    la_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page,
-                                                                                   la_memo_last_page_cnt,
-                                                                                   page_start_index,
-                                                                                   la_memo_schedule_page_dict,
-                                                                                   la_memo)
-                    la_memo_outfile = md5_directory + 'SL-A/' + line_number + '/memo/page_' + str(
-                        la_memo_page_no) + '.pdf'
-                    pypdftk.fill_form(la_memo_infile, la_memo_schedule_page_dict, la_memo_outfile)
-                pypdftk.concat(directory_files(md5_directory + 'SL-A/' + line_number + '/memo/'),
-                               md5_directory + 'SL-A/' + line_number
-                               + '/memo/all_pages.pdf')
-
-                # if all_pages.pdf exists in SA folder, concatenate line number pdf to all_pages.pdf
-                if path.isfile(md5_directory + 'SL-A/' + line_number + '/memo/all_pages.pdf'):
-                    pypdftk.concat([md5_directory + 'SL-A/all_pages.pdf',
-                                    md5_directory + 'SL-A/' + line_number + '/memo/all_pages.pdf'],
-                                   md5_directory + 'SL-A/temp_all_pages.pdf')
-                    os.rename(md5_directory + 'SL-A/temp_all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf')
-                # else:
-                #     os.rename(md5_directory + 'SA/' + line_number + '/all_pages.pdf', md5_directory + 'SA/all_pages.pdf')
-    except Exception as e:
-        raise e
-    return has_la_memo_schedules
+# def process_la_memo(f3x_data, md5_directory, line_number, la_memo, la_memo_page_cnt, la_memo_start_page,
+#                     la_memo_last_page_cnt, total_no_of_pages):
+#     has_la_memo_schedules = False
+#     try:
+#         if len(la_memo) > 0:
+#             la_memo_start_page += 1
+#             has_la_memo_schedules = True
+#             os.makedirs(md5_directory + 'SL-A/' + line_number + '/memo', exist_ok=True)
+#             la_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+#             if la_memo_page_cnt > 0:
+#                 for la_memo_page_no in range(la_memo_page_cnt):
+#                     last_page = False
+#
+#                     la_memo_schedule_page_dict = {}
+#                     la_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(la_memo_page_no + 1) + " / " + str(
+#                         total_no_of_pages)
+#
+#                     page_start_index = la_memo_page_no * 2
+#                     if ((la_memo_page_no + 1) == la_memo_page_cnt):
+#                         last_page = True
+#                     # This call prepares data to render on PDF
+#                     la_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page,
+#                                                                                    la_memo_last_page_cnt,
+#                                                                                    page_start_index,
+#                                                                                    la_memo_schedule_page_dict,
+#                                                                                    la_memo)
+#                     la_memo_outfile = md5_directory + 'SL-A/' + line_number + '/memo/page_' + str(
+#                         la_memo_page_no) + '.pdf'
+#                     pypdftk.fill_form(la_memo_infile, la_memo_schedule_page_dict, la_memo_outfile)
+#                 pypdftk.concat(directory_files(md5_directory + 'SL-A/' + line_number + '/memo/'),
+#                                md5_directory + 'SL-A/' + line_number
+#                                + '/memo/all_pages.pdf')
+#
+#                 # if all_pages.pdf exists in SA folder, concatenate line number pdf to all_pages.pdf
+#                 if path.isfile(md5_directory + 'SL-A/' + line_number + '/memo/all_pages.pdf'):
+#                     pypdftk.concat([md5_directory + 'SL-A/all_pages.pdf',
+#                                     md5_directory + 'SL-A/' + line_number + '/memo/all_pages.pdf'],
+#                                    md5_directory + 'SL-A/temp_all_pages.pdf')
+#                     os.rename(md5_directory + 'SL-A/temp_all_pages.pdf', md5_directory + 'SL-A/all_pages.pdf')
+#                 # else:
+#                 #     os.rename(md5_directory + 'SA/' + line_number + '/all_pages.pdf', md5_directory + 'SA/all_pages.pdf')
+#     except Exception as e:
+#         raise e
+#     return has_la_memo_schedules
 
 
 def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_page_cnt, slb_line_start_page,
@@ -2364,6 +2565,7 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
             slb_line_start_page += 1
             for slb_page_no in range(slb_line_page_cnt):
                 page_subtotal = 0.00
+                memo_array = []
                 last_page = False
                 slb_schedule_page_dict = {}
                 slb_schedule_page_dict['lineNumber'] = line_number
@@ -2375,7 +2577,7 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
                 # This call prepares data to render on PDF
                 slb_schedule_dict = build_slb_per_page_schedule_dict(last_page, slb_line_last_page_cnt,
                                                                    page_start_index, slb_schedule_page_dict,
-                                                                   slb_line)
+                                                                   slb_line, memo_array)
 
                
 
@@ -2387,6 +2589,52 @@ def process_slb_line(f3x_data, md5_directory, line_number, slb_line, slb_line_pa
                 slb_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 slb_outfile = md5_directory + 'SL-B/' + line_number + '/page_' + str(slb_page_no) + '.pdf'
                 pypdftk.fill_form(slb_infile, slb_schedule_page_dict, slb_outfile)
+                # Memo text changes
+                memo_dict = {}
+                if len(memo_array) >= 1:
+                    temp_memo_outfile = md5_directory + 'SL-B/' + line_number + '/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SL-B/' + line_number + '/page_memo_' + str(slb_page_no) + '.pdf'
+                    memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                    memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                    memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                    if len(memo_array) >= 2:
+                        memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                        memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                        memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([slb_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, slb_outfile)
+
+                    if len(memo_array) >= 3:
+                        memo_dict = {}
+                        memo_outfile = md5_directory + 'SL-B/' + line_number + '/page_memo_' + str(slb_page_no) + '.pdf'
+                        memo_dict['scheduleName_1'] = memo_array[2]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[2]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[2]['transactionId']
+                        if len(memo_array) >= 4:
+                            memo_dict['scheduleName_2'] = memo_array[3]['scheduleName']
+                            memo_dict['memoDescription_2'] = memo_array[3]['memoDescription']
+                            memo_dict['transactionId_2'] = memo_array[3]['transactionId']
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([slb_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, slb_outfile)
+
+                    if len(memo_array) >= 5:
+                        temp_memo_outfile = md5_directory + 'SL-B/' + line_number + '/page_memo_temp.pdf'
+                        memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                        memo_outfile = md5_directory + 'SB/' + line_number + '/page_memo_' + str(slb_page_no) + '.pdf'
+                        memo_dict['scheduleName_1'] = memo_array[4]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[4]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[4]['transactionId']
+                        # build page
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([slb_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, slb_outfile)
         pypdftk.concat(directory_files(md5_directory + 'SL-B/' + line_number + '/'), md5_directory + 'SL-B/' + line_number
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SL-B/all_pages.pdf'):
@@ -2501,50 +2749,50 @@ def process_sl_levin(f3x_data, md5_directory, levin_name, sl_line, sl_line_page_
     return has_sl_summary
 
 
-def process_sl_memo(f3x_data, md5_directory, line_number, sl_memo, sl_memo_page_cnt, sl_memo_start_page,
-                     sl_memo_last_page_cnt, total_no_of_pages):
-    has_sl_memo_schedules = False
-    try:
-        if len(sl_memo) > 0:
-            sl_memo_start_page += 1
-            has_sl_memo_schedules = True
-            os.makedirs(md5_directory + 'SL/' + line_number + '/memo', exist_ok=True)
-            sl_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-            if sl_memo_page_cnt > 0:
-                for sl_memo_page_no in range(sl_memo_page_cnt):
-                    last_page = False
-
-                    sl_memo_schedule_page_dict = {}
-                    sl_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sl_memo_page_no + 1) + " / " + str(
-                        total_no_of_pages)
-
-                    page_start_index = sl_memo_page_no * 2
-                    if ((sl_memo_page_no + 1) == sl_memo_page_cnt):
-                        last_page = True
-                    # This call prepares data to render on PDF
-                    sl_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page,
-                                                                                   sl_memo_last_page_cnt,
-                                                                                   page_start_index,
-                                                                                   sl_memo_schedule_page_dict,
-                                                                                   sl_memo)
-                    sl_memo_outfile = md5_directory + 'SL/' + line_number + '/memo/page_' + str(
-                        sl_memo_page_no) + '.pdf'
-                    pypdftk.fill_form(sl_memo_infile, sl_memo_schedule_page_dict, sl_memo_outfile)
-                pypdftk.concat(directory_files(md5_directory + 'SL/' + line_number + '/memo/'),
-                               md5_directory + 'SL/' + line_number
-                               + '/memo/all_pages.pdf')
-
-                # if all_pages.pdf exists in SA folder, concatenate line number pdf to all_pages.pdf
-                if path.isfile(md5_directory + 'SL/' + line_number + '/memo/all_pages.pdf'):
-                    pypdftk.concat([md5_directory + 'SL/all_pages.pdf',
-                                    md5_directory + 'SL/' + line_number + '/memo/all_pages.pdf'],
-                                   md5_directory + 'SL/temp_all_pages.pdf')
-                    os.rename(md5_directory + 'SL/temp_all_pages.pdf', md5_directory + 'SL/all_pages.pdf')
-                # else:
-                #     os.rename(md5_directory + 'SA/' + line_number + '/all_pages.pdf', md5_directory + 'SA/all_pages.pdf')
-    except Exception as e:
-        raise e
-    return has_sl_memo_schedules
+# def process_sl_memo(f3x_data, md5_directory, line_number, sl_memo, sl_memo_page_cnt, sl_memo_start_page,
+#                      sl_memo_last_page_cnt, total_no_of_pages):
+#     has_sl_memo_schedules = False
+#     try:
+#         if len(sl_memo) > 0:
+#             sl_memo_start_page += 1
+#             has_sl_memo_schedules = True
+#             os.makedirs(md5_directory + 'SL/' + line_number + '/memo', exist_ok=True)
+#             sl_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+#             if sl_memo_page_cnt > 0:
+#                 for sl_memo_page_no in range(sl_memo_page_cnt):
+#                     last_page = False
+#
+#                     sl_memo_schedule_page_dict = {}
+#                     sl_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sl_memo_page_no + 1) + " / " + str(
+#                         total_no_of_pages)
+#
+#                     page_start_index = sl_memo_page_no * 2
+#                     if ((sl_memo_page_no + 1) == sl_memo_page_cnt):
+#                         last_page = True
+#                     # This call prepares data to render on PDF
+#                     sl_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page,
+#                                                                                    sl_memo_last_page_cnt,
+#                                                                                    page_start_index,
+#                                                                                    sl_memo_schedule_page_dict,
+#                                                                                    sl_memo)
+#                     sl_memo_outfile = md5_directory + 'SL/' + line_number + '/memo/page_' + str(
+#                         sl_memo_page_no) + '.pdf'
+#                     pypdftk.fill_form(sl_memo_infile, sl_memo_schedule_page_dict, sl_memo_outfile)
+#                 pypdftk.concat(directory_files(md5_directory + 'SL/' + line_number + '/memo/'),
+#                                md5_directory + 'SL/' + line_number
+#                                + '/memo/all_pages.pdf')
+#
+#                 # if all_pages.pdf exists in SA folder, concatenate line number pdf to all_pages.pdf
+#                 if path.isfile(md5_directory + 'SL/' + line_number + '/memo/all_pages.pdf'):
+#                     pypdftk.concat([md5_directory + 'SL/all_pages.pdf',
+#                                     md5_directory + 'SL/' + line_number + '/memo/all_pages.pdf'],
+#                                    md5_directory + 'SL/temp_all_pages.pdf')
+#                     os.rename(md5_directory + 'SL/temp_all_pages.pdf', md5_directory + 'SL/all_pages.pdf')
+#                 # else:
+#                 #     os.rename(md5_directory + 'SA/' + line_number + '/all_pages.pdf', md5_directory + 'SA/all_pages.pdf')
+#     except Exception as e:
+#         raise e
+#     return has_sl_memo_schedules
 
 
 def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_cnt, sh1_start_page,
@@ -2860,6 +3108,7 @@ def process_sh6_line(f3x_data, md5_directory, line_number, sh6_line, sh6_line_pa
             sh6_line_start_page += 1
             for sh6_page_no in range(sh6_line_page_cnt):
                 page_subtotal = 0.00
+                memo_array = []
                 last_page = False
                 sh6_schedule_page_dict = {}
                 sh6_schedule_page_dict['lineNumber'] = line_number
@@ -2871,7 +3120,7 @@ def process_sh6_line(f3x_data, md5_directory, line_number, sh6_line, sh6_line_pa
                 # This call prepares data to render on PDF
                 sh6_schedule_dict = build_sh6_line_per_page_schedule_dict(last_page, sh6_line_last_page_cnt,
                                                                    page_start_index, sh6_schedule_page_dict,
-                                                                   sh6_line)
+                                                                   sh6_line, memo_array)
 
                 page_fed_subtotal = float(sh6_schedule_page_dict['subTotalFederalShare'])
                 page_levin_subtotal = float(sh6_schedule_page_dict['subTotalLevinShare'])
@@ -2887,6 +3136,35 @@ def process_sh6_line(f3x_data, md5_directory, line_number, sh6_line, sh6_line_pa
                 sh6_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh6_outfile = md5_directory + 'SH6/' + line_number + '/page_' + str(sh6_page_no) + '.pdf'
                 pypdftk.fill_form(sh6_infile, sh6_schedule_page_dict, sh6_outfile)
+                # Memo text changes
+                memo_dict = {}
+                if len(memo_array) >= 1:
+                    temp_memo_outfile = md5_directory + 'SH6/' + line_number + '/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SH6/' + line_number + '/page_memo_' + str(sh6_page_no) + '.pdf'
+                    memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                    memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                    memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                    if len(memo_array) >= 2:
+                        memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                        memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                        memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([sh6_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, sh6_outfile)
+
+                    if len(memo_array) >= 3:
+                        memo_dict = {}
+                        memo_outfile = md5_directory + 'SH6/' + line_number + '/page_memo_' + str(sh6_page_no) + '.pdf'
+                        memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([sh6_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, sh6_outfile)
         pypdftk.concat(directory_files(md5_directory + 'SH6/' + line_number + '/'), md5_directory + 'SH6/' + line_number
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SH6/all_pages.pdf'):
@@ -2914,6 +3192,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
             sh4_line_start_page += 1
             for sh4_page_no in range(sh4_line_page_cnt):
                 page_subtotal = 0.00
+                memo_array = []
                 last_page = False
                 has_sh4_schedules = True
                 sh4_schedule_page_dict = {}
@@ -2926,7 +3205,7 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 # This call prepares data to render on PDF
                 sh4_schedule_dict = build_sh4_per_page_schedule_dict(last_page, sh4_line_last_page_cnt,
                                                                    page_start_index, sh4_schedule_page_dict,
-                                                                   sh4_line)
+                                                                   sh4_line, memo_array)
 
                 page_fed_subtotal = float(sh4_schedule_page_dict['subFedShare'])
                 page_nonfed_subtotal = float(sh4_schedule_page_dict['subNonFedShare'])
@@ -2942,6 +3221,35 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 sh4_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh4_outfile = md5_directory + 'SH4/' + line_number + '/page_' + str(sh4_page_no) + '.pdf'
                 pypdftk.fill_form(sh4_infile, sh4_schedule_page_dict, sh4_outfile)
+                # Memo text changes
+                memo_dict = {}
+                if len(memo_array) >= 1:
+                    temp_memo_outfile = md5_directory + 'SH4/' + line_number + '/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SH4/' + line_number + '/page_memo_' + str(sh4_page_no) + '.pdf'
+                    memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                    memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                    memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                    if len(memo_array) >= 2:
+                        memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                        memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                        memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([sh4_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, sh4_outfile)
+
+                    if len(memo_array) >= 3:
+                        memo_dict = {}
+                        memo_outfile = md5_directory + 'SH4/' + line_number + '/page_memo_' + str(sh4_page_no) + '.pdf'
+                        memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                        pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                        pypdftk.concat([sh4_outfile, memo_outfile], temp_memo_outfile)
+                        os.remove(memo_outfile)
+                        os.rename(temp_memo_outfile, sh4_outfile)
         pypdftk.concat(directory_files(md5_directory + 'SH4/' + line_number + '/'), md5_directory + 'SH4/' + line_number
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SH4/all_pages.pdf'):
@@ -2954,42 +3262,42 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
     return has_sh4_schedules
 
 
-def process_sh_memo(f3x_data, md5_directory, sh_schedule_type, line_number, sh_memo, sh_memo_page_cnt, sh_memo_start_page,
-                     sh_memo_last_page_cnt, total_no_of_pages):
-    has_sh_memo_schedules = False
-    if len(sh_memo) > 0:
-        has_sh_memo_schedules = True
-        os.makedirs(md5_directory + sh_schedule_type + line_number + '/memo', exist_ok=True)
-        sh_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-        if sh_memo_page_cnt > 0:
-            sh_memo_start_page += 1
-            for sh_memo_page_no in range(sh_memo_page_cnt):
-
-                last_page = False
-                sh_memo_schedule_page_dict = {}
-                sh_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sh_memo_page_no + 1) + " / " + str(
-                    total_no_of_pages)
-                page_start_index = sh_memo_page_no * 2
-                if ((sh_memo_page_no + 1) == sh_memo_page_cnt):
-                    last_page = True
-                # This call prepares data to render on PDF
-                sh_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sh_memo_last_page_cnt,
-                                                                               page_start_index,
-                                                                               sh_memo_schedule_page_dict,
-                                                                               sh_memo)
-
-                sh_memo_outfile = md5_directory + sh_schedule_type + line_number + '/memo/page_' + str(sh_memo_page_no) + '.pdf'
-                pypdftk.fill_form(sh_memo_infile, sh_memo_schedule_page_dict, sh_memo_outfile)
-        pypdftk.concat(directory_files(md5_directory + sh_schedule_type + line_number + '/memo/'), md5_directory + sh_schedule_type + line_number
-                       + '/memo/all_pages.pdf')
-        # if all_pages.pdf exists in SH folder, concatenate line number pdf to all_pages.pdf
-        if path.isfile(md5_directory + sh_schedule_type + line_number + '/memo/all_pages.pdf'):
-            pypdftk.concat(
-                [md5_directory + sh_schedule_type + 'all_pages.pdf', md5_directory + sh_schedule_type + line_number + '/memo/all_pages.pdf'],
-                md5_directory + sh_schedule_type + 'temp_all_pages.pdf')
-            os.rename(md5_directory + sh_schedule_type + 'temp_all_pages.pdf', md5_directory + sh_schedule_type + 'all_pages.pdf')
-
-    return has_sh_memo_schedules
+# def process_sh_memo(f3x_data, md5_directory, sh_schedule_type, line_number, sh_memo, sh_memo_page_cnt, sh_memo_start_page,
+#                      sh_memo_last_page_cnt, total_no_of_pages):
+#     has_sh_memo_schedules = False
+#     if len(sh_memo) > 0:
+#         has_sh_memo_schedules = True
+#         os.makedirs(md5_directory + sh_schedule_type + line_number + '/memo', exist_ok=True)
+#         sh_memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+#         if sh_memo_page_cnt > 0:
+#             sh_memo_start_page += 1
+#             for sh_memo_page_no in range(sh_memo_page_cnt):
+#
+#                 last_page = False
+#                 sh_memo_schedule_page_dict = {}
+#                 sh_memo_schedule_page_dict['PAGESTR'] = "PAGE " + str(sh_memo_page_no + 1) + " / " + str(
+#                     total_no_of_pages)
+#                 page_start_index = sh_memo_page_no * 2
+#                 if ((sh_memo_page_no + 1) == sh_memo_page_cnt):
+#                     last_page = True
+#                 # This call prepares data to render on PDF
+#                 sh_memo_schedule_page_dict = build_memo_per_page_schedule_dict(last_page, sh_memo_last_page_cnt,
+#                                                                                page_start_index,
+#                                                                                sh_memo_schedule_page_dict,
+#                                                                                sh_memo)
+#
+#                 sh_memo_outfile = md5_directory + sh_schedule_type + line_number + '/memo/page_' + str(sh_memo_page_no) + '.pdf'
+#                 pypdftk.fill_form(sh_memo_infile, sh_memo_schedule_page_dict, sh_memo_outfile)
+#         pypdftk.concat(directory_files(md5_directory + sh_schedule_type + line_number + '/memo/'), md5_directory + sh_schedule_type + line_number
+#                        + '/memo/all_pages.pdf')
+#         # if all_pages.pdf exists in SH folder, concatenate line number pdf to all_pages.pdf
+#         if path.isfile(md5_directory + sh_schedule_type + line_number + '/memo/all_pages.pdf'):
+#             pypdftk.concat(
+#                 [md5_directory + sh_schedule_type + 'all_pages.pdf', md5_directory + sh_schedule_type + line_number + '/memo/all_pages.pdf'],
+#                 md5_directory + sh_schedule_type + 'temp_all_pages.pdf')
+#             os.rename(md5_directory + sh_schedule_type + 'temp_all_pages.pdf', md5_directory + sh_schedule_type + 'all_pages.pdf')
+#
+#     return has_sh_memo_schedules
 
 
 def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_page_cnt, sh5_line_start_page,
@@ -3009,6 +3317,7 @@ def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_pa
             sh5_line_start_page += 1
             for sh5_page_no in range(sh5_line_page_cnt):
                 page_subtotal = 0.00
+                memo_array = []
                 last_page = False
                 sh5_schedule_page_dict = {}
                 sh5_schedule_page_dict['lineNumber'] = line_number
@@ -3020,7 +3329,7 @@ def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_pa
                 # This call prepares data to render on PDF
                 sh5_schedule_dict = build_sh5_per_page_schedule_dict(last_page, sh5_line_last_page_cnt,
                                                                    page_start_index, sh5_schedule_page_dict,
-                                                                   sh5_line)
+                                                                   sh5_line, memo_array)
 
                 transferred_amt_subtotal = float(sh5_schedule_page_dict['subtotalAmountTransferred'])
                 voter_reg_amt_subtotal = float(sh5_schedule_page_dict['subvoterRegistrationAmount'])
@@ -3047,6 +3356,24 @@ def process_sh5_line(f3x_data, md5_directory, line_number, sh5_line, sh5_line_pa
                 sh5_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh5_outfile = md5_directory + 'SH5/' + line_number + '/page_' + str(sh5_page_no) + '.pdf'
                 pypdftk.fill_form(sh5_infile, sh5_schedule_page_dict, sh5_outfile)
+                # Memo text changes
+                memo_dict = {}
+                if len(memo_array) >= 1:
+                    temp_memo_outfile = md5_directory + 'SH5/' + line_number + '/page_memo_temp.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_outfile = md5_directory + 'SH5/' + line_number + '/page_memo_' + str(sh5_page_no) + '.pdf'
+                    memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
+                    memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
+                    memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                    if len(memo_array) >= 2:
+                        memo_dict['scheduleName_2'] = memo_array[1]['scheduleName']
+                        memo_dict['memoDescription_2'] = memo_array[1]['memoDescription']
+                        memo_dict['transactionId_2'] = memo_array[1]['transactionId']
+                    # build page
+                    pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
+                    pypdftk.concat([sh5_outfile, memo_outfile], temp_memo_outfile)
+                    os.remove(memo_outfile)
+                    os.rename(temp_memo_outfile, sh5_outfile)
         pypdftk.concat(directory_files(md5_directory + 'SH5/' + line_number + '/'), md5_directory + 'SH5/' + line_number
                        + '/all_pages.pdf')
         if path.isfile(md5_directory + 'SH5/all_pages.pdf'):
@@ -3375,10 +3702,17 @@ def process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_18a, sh_h1, sh_h2,
         sh_h2.append(sh_obj)
 
 
+def process_memo_text(schedule_dict, schedule, memo_array):
+    if 'memoDescription' in schedule_dict and schedule_dict['memoDescription']:
+        memo_array.append(
+            {'scheduleName': schedule + schedule_dict['lineNumber'],
+             'memoDescription': schedule_dict['memoDescription'],
+             'transactionId': schedule_dict['transactionId']})
+
 
 # This method builds data for individual SA page
 def build_sa_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sa_schedule_page_dict,
-                                    sa_schedules):
+                                    sa_schedules, memo_array):
     page_subtotal = 0.00
     if not last_page:
         transactions_in_page = 3
@@ -3386,33 +3720,39 @@ def build_sa_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     if transactions_in_page == 1:
         index = 1
         sa_schedule_dict = sa_schedules[page_start_index + 0]
+        process_memo_text(sa_schedule_dict, 'SA', memo_array)
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
     elif transactions_in_page == 2:
         index = 1
         sa_schedule_dict = sa_schedules[page_start_index + 0]
+        process_memo_text(sa_schedule_dict, 'SA', memo_array)
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
         index = 2
         sa_schedule_dict = sa_schedules[page_start_index + 1]
+        process_memo_text(sa_schedule_dict, 'SA', memo_array)
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
     elif transactions_in_page == 3:
         index = 1
         sa_schedule_dict = sa_schedules[page_start_index + 0]
+        process_memo_text(sa_schedule_dict, 'SA', memo_array)
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
         index = 2
         sa_schedule_dict = sa_schedules[page_start_index + 1]
+        process_memo_text(sa_schedule_dict, 'SA', memo_array)
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
         index = 3
         sa_schedule_dict = sa_schedules[page_start_index + 2]
+        process_memo_text(sa_schedule_dict, 'SA', memo_array)
         if sa_schedule_dict['memoCode'] != 'X':
             page_subtotal += sa_schedule_dict['contributionAmount']
         build_contributor_name_date_dict(index, page_start_index, sa_schedule_dict, sa_schedule_page_dict)
@@ -3441,7 +3781,7 @@ def build_memo_per_page_schedule_dict(last_page, transactions_in_page, page_star
 
 
 def build_sh4_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sh4_schedule_page_dict,
-                                    sh4_schedules):
+                                    sh4_schedules, memo_array):
     page_fed_subtotal = 0.00
     page_nonfed_subtotal = 0.00
     if not last_page:
@@ -3450,6 +3790,7 @@ def build_sh4_per_page_schedule_dict(last_page, transactions_in_page, page_start
     if transactions_in_page == 1:
         index = 1
         sh4_schedule_dict = sh4_schedules[page_start_index + 0]
+        process_memo_text(sh4_schedule_dict, 'H4', memo_array)
         if sh4_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh4_schedule_dict['federalShare']
             page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
@@ -3458,12 +3799,14 @@ def build_sh4_per_page_schedule_dict(last_page, transactions_in_page, page_start
     elif transactions_in_page == 2:
         index = 1
         sh4_schedule_dict = sh4_schedules[page_start_index + 0]
+        process_memo_text(sh4_schedule_dict, 'H4', memo_array)
         if sh4_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh4_schedule_dict['federalShare']
             page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
         build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
         index = 2
         sh4_schedule_dict = sh4_schedules[page_start_index + 1]
+        process_memo_text(sh4_schedule_dict, 'H4', memo_array)
         if sh4_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh4_schedule_dict['federalShare']
             page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
@@ -3472,18 +3815,21 @@ def build_sh4_per_page_schedule_dict(last_page, transactions_in_page, page_start
     elif transactions_in_page == 3:
         index = 1
         sh4_schedule_dict = sh4_schedules[page_start_index + 0]
+        process_memo_text(sh4_schedule_dict, 'H4', memo_array)
         if sh4_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh4_schedule_dict['federalShare']
             page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
         build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
         index = 2
         sh4_schedule_dict = sh4_schedules[page_start_index + 1]
+        process_memo_text(sh4_schedule_dict, 'H4', memo_array)
         if sh4_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh4_schedule_dict['federalShare']
             page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
         build_sh_name_date_dict(index, page_start_index, sh4_schedule_dict, sh4_schedule_page_dict)
         index = 3
         sh4_schedule_dict = sh4_schedules[page_start_index + 2]
+        process_memo_text(sh4_schedule_dict, 'H4', memo_array)
         if sh4_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh4_schedule_dict['federalShare']
             page_nonfed_subtotal += sh4_schedule_dict['nonfederalShare']
@@ -3615,7 +3961,7 @@ def build_sh2_per_page_schedule_dict(last_page, transactions_in_page, page_start
     return sh2_schedule_dict
 
 def build_sh5_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sh5_schedule_page_dict,
-                                    sh5_schedules):
+                                    sh5_schedules, memo_array):
     transferred_amt_subtotal = 0.00
     voter_reg_amt_subtotal = 0.00
     voter_id_amt_subtotal = 0.00
@@ -3628,6 +3974,7 @@ def build_sh5_per_page_schedule_dict(last_page, transactions_in_page, page_start
     if transactions_in_page == 1:
         index = 1
         sh5_schedule_dict = sh5_schedules[page_start_index + 0]
+        process_memo_text(sh5_schedule_dict, 'H5', memo_array)
         transferred_amt_subtotal += sh5_schedule_dict['totalAmountTransferred']
         voter_reg_amt_subtotal += sh5_schedule_dict['voterRegistrationAmount']
         voter_id_amt_subtotal += sh5_schedule_dict['voterIdAmount']
@@ -3638,6 +3985,7 @@ def build_sh5_per_page_schedule_dict(last_page, transactions_in_page, page_start
     elif transactions_in_page == 2:
         index = 1
         sh5_schedule_dict = sh5_schedules[page_start_index + 0]
+        process_memo_text(sh5_schedule_dict, 'H5', memo_array)
         transferred_amt_subtotal += sh5_schedule_dict['totalAmountTransferred']
         voter_reg_amt_subtotal += sh5_schedule_dict['voterRegistrationAmount']
         voter_id_amt_subtotal += sh5_schedule_dict['voterIdAmount']
@@ -3646,6 +3994,7 @@ def build_sh5_per_page_schedule_dict(last_page, transactions_in_page, page_start
         build_sh_name_date_dict(index, page_start_index, sh5_schedule_dict, sh5_schedule_page_dict)
         index = 2
         sh5_schedule_dict = sh5_schedules[page_start_index + 1]
+        process_memo_text(sh5_schedule_dict, 'H5', memo_array)
         transferred_amt_subtotal += sh5_schedule_dict['totalAmountTransferred']
         voter_reg_amt_subtotal += sh5_schedule_dict['voterRegistrationAmount']
         voter_id_amt_subtotal += sh5_schedule_dict['voterIdAmount']
@@ -3667,7 +4016,7 @@ def build_sh5_per_page_schedule_dict(last_page, transactions_in_page, page_start
 
 
 def build_sh6_line_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sh6_schedule_page_dict,
-                                    sh6_schedules):
+                                    sh6_schedules, memo_array):
     page_fed_subtotal = 0.00
     page_levin_subtotal = 0.00
     if not last_page:
@@ -3676,6 +4025,7 @@ def build_sh6_line_per_page_schedule_dict(last_page, transactions_in_page, page_
     if transactions_in_page == 1:
         index = 1
         sh6_schedule_dict = sh6_schedules[page_start_index + 0]
+        process_memo_text(sh6_schedule_dict, 'H6', memo_array)
         if sh6_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh6_schedule_dict['federalShare']
             page_levin_subtotal += sh6_schedule_dict['levinShare']
@@ -3684,12 +4034,14 @@ def build_sh6_line_per_page_schedule_dict(last_page, transactions_in_page, page_
     elif transactions_in_page == 2:
         index = 1
         sh6_schedule_dict = sh6_schedules[page_start_index + 0]
+        process_memo_text(sh6_schedule_dict, 'H6', memo_array)
         if sh6_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh6_schedule_dict['federalShare']
             page_levin_subtotal += sh6_schedule_dict['levinShare']
         build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
         index = 2
         sh6_schedule_dict = sh6_schedules[page_start_index + 1]
+        process_memo_text(sh6_schedule_dict, 'H6', memo_array)
         if sh6_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh6_schedule_dict['federalShare']
             page_levin_subtotal += sh6_schedule_dict['levinShare']
@@ -3698,18 +4050,21 @@ def build_sh6_line_per_page_schedule_dict(last_page, transactions_in_page, page_
     elif transactions_in_page == 3:
         index = 1
         sh6_schedule_dict = sh6_schedules[page_start_index + 0]
+        process_memo_text(sh6_schedule_dict, 'H6', memo_array)
         if sh6_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh6_schedule_dict['federalShare']
             page_levin_subtotal += sh6_schedule_dict['levinShare']
         build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
         index = 2
         sh6_schedule_dict = sh6_schedules[page_start_index + 1]
+        process_memo_text(sh6_schedule_dict, 'H6', memo_array)
         if sh6_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh6_schedule_dict['federalShare']
             page_levin_subtotal += sh6_schedule_dict['levinShare']
         build_sh_name_date_dict(index, page_start_index, sh6_schedule_dict, sh6_schedule_page_dict)
         index = 3
         sh6_schedule_dict = sh6_schedules[page_start_index + 2]
+        process_memo_text(sh6_schedule_dict, 'H6', memo_array)
         if sh6_schedule_dict['memoCode'] != 'X':
             page_fed_subtotal += sh6_schedule_dict['federalShare']
             page_levin_subtotal += sh6_schedule_dict['levinShare']
@@ -3722,13 +4077,14 @@ def build_sh6_line_per_page_schedule_dict(last_page, transactions_in_page, page_
 
 # This method builds data for individual SB page
 def build_sb_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sb_schedule_page_dict,
-                                    sb_schedules):
+                                    sb_schedules, memo_array):
     page_subtotal = 0.00
     if not last_page:
         transactions_in_page = 3
     if transactions_in_page == 1:
         index = 1
         sb_schedule_dict = sb_schedules[page_start_index + 0]
+        process_memo_text(sb_schedule_dict, 'SB', memo_array)
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
@@ -3736,12 +4092,14 @@ def build_sb_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     elif transactions_in_page == 2:
         index = 1
         sb_schedule_dict = sb_schedules[page_start_index + 0]
+        process_memo_text(sb_schedule_dict, 'SB', memo_array)
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
             build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
         index = 2
         sb_schedule_dict = sb_schedules[page_start_index + 1]
+        process_memo_text(sb_schedule_dict, 'SB', memo_array)
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
@@ -3749,18 +4107,21 @@ def build_sb_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     elif transactions_in_page == 3:
         index = 1
         sb_schedule_dict = sb_schedules[page_start_index + 0]
+        process_memo_text(sb_schedule_dict, 'SB', memo_array)
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
             build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
         index = 2
         sb_schedule_dict = sb_schedules[page_start_index + 1]
+        process_memo_text(sb_schedule_dict, 'SB', memo_array)
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
             build_payee_name_date_dict(index, key, sb_schedule_dict, sb_schedule_page_dict)
         index = 3
         sb_schedule_dict = sb_schedules[page_start_index + 2]
+        process_memo_text(sb_schedule_dict, 'SB', memo_array)
         if sb_schedule_dict['memoCode'] != 'X':
             page_subtotal += sb_schedule_dict['expenditureAmount']
         for key in sb_schedules[page_start_index]:
@@ -3769,13 +4130,14 @@ def build_sb_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     return sb_schedule_dict
 
 def build_se_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, se_schedule_page_dict,
-                                    se_schedules):
+                                    se_schedules, memo_array):
     page_subtotal = 0.00
     if not last_page:
         transactions_in_page = 2
     if transactions_in_page == 1:
         index = 1
         se_schedule_dict = se_schedules[page_start_index + 0]
+        process_memo_text(se_schedule_dict, 'SE', memo_array)
         if se_schedule_dict['memoCode'] != 'X':
             page_subtotal += se_schedule_dict['expenditureAmount']
         for key in se_schedules[page_start_index]:
@@ -3783,12 +4145,14 @@ def build_se_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     elif transactions_in_page == 2:
         index = 1
         se_schedule_dict = se_schedules[page_start_index + 0]
+        process_memo_text(se_schedule_dict, 'SE', memo_array)
         if se_schedule_dict['memoCode'] != 'X':
             page_subtotal += se_schedule_dict['expenditureAmount']
         for key in se_schedules[page_start_index]:
             build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
         index = 2
         se_schedule_dict = se_schedules[page_start_index + 1]
+        process_memo_text(se_schedule_dict, 'SE', memo_array)
         if se_schedule_dict['memoCode'] != 'X':
             page_subtotal += se_schedule_dict['expenditureAmount']
         for key in se_schedules[page_start_index]:
@@ -3797,13 +4161,14 @@ def build_se_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     return se_schedule_dict
 
 def build_sf_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, sf_schedule_page_dict,
-                                    sf_schedules):
+                                    sf_schedules, memo_array):
     page_subtotal = 0.00
     if not last_page:
         transactions_in_page = 3
     if transactions_in_page == 1:
         index = 1
         sf_schedule_dict = sf_schedules[page_start_index + 0]
+        process_memo_text(sf_schedule_dict, 'SF', memo_array)
         if sf_schedule_dict['memoCode'] != 'X':
             page_subtotal += sf_schedule_dict['expenditureAmount']
         for key in sf_schedules[page_start_index]:
@@ -3811,12 +4176,14 @@ def build_sf_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     elif transactions_in_page == 2:
         index = 1
         sf_schedule_dict = sf_schedules[page_start_index + 0]
+        process_memo_text(sf_schedule_dict, 'SF', memo_array)
         if sf_schedule_dict['memoCode'] != 'X':
             page_subtotal += sf_schedule_dict['expenditureAmount']
         for key in sf_schedules[page_start_index]:
             build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page_dict)
         index = 2
         sf_schedule_dict = sf_schedules[page_start_index + 1]
+        process_memo_text(sf_schedule_dict, 'SF', memo_array)
         if sf_schedule_dict['memoCode'] != 'X':
             page_subtotal += sf_schedule_dict['expenditureAmount']
         for key in sf_schedules[page_start_index]:
@@ -3824,18 +4191,21 @@ def build_sf_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     elif transactions_in_page == 3:
         index = 1
         sf_schedule_dict = sf_schedules[page_start_index + 0]
+        process_memo_text(sf_schedule_dict, 'SF', memo_array)
         if sf_schedule_dict['memoCode'] != 'X':
             page_subtotal += sf_schedule_dict['expenditureAmount']
         for key in sf_schedules[page_start_index]:
             build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page_dict)
         index = 2
         sf_schedule_dict = sf_schedules[page_start_index + 1]
+        process_memo_text(sf_schedule_dict, 'SF', memo_array)
         if sf_schedule_dict['memoCode'] != 'X':
             page_subtotal += sf_schedule_dict['expenditureAmount']
         for key in sf_schedules[page_start_index]:
             build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page_dict)
         index = 3
         sf_schedule_dict = sf_schedules[page_start_index + 2]
+        process_memo_text(sf_schedule_dict, 'SF', memo_array)
         if sf_schedule_dict['memoCode'] != 'X':
             page_subtotal += sf_schedule_dict['expenditureAmount']
         for key in sf_schedules[page_start_index]:
@@ -3844,10 +4214,8 @@ def build_sf_per_page_schedule_dict(last_page, transactions_in_page, page_start_
     return sf_schedule_dict
 
 
-
-
 def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_index, la_schedule_page_dict,
-                                    la_schedules):
+                                    la_schedules, memo_array):
     page_subtotal = 0.00
     
     try:
@@ -3857,6 +4225,7 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
         if tranlactions_in_page == 1:
             index = 1
             la_schedule_dict = la_schedules[page_start_index + 0]
+            process_memo_text(la_schedule_dict, 'SL', memo_array)
             if la_schedule_dict['memoCode'] != 'X':
                 page_subtotal += la_schedule_dict['contributionAmount']
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
@@ -3864,11 +4233,13 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
 
             index = 1
             la_schedule_dict = la_schedules[page_start_index + 0]
+            process_memo_text(la_schedule_dict, 'SL', memo_array)
             if la_schedule_dict['memoCode'] != 'X':
                 page_subtotal += la_schedule_dict['contributionAmount']
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
             index = 2
             la_schedule_dict = la_schedules[page_start_index + 1]
+            process_memo_text(la_schedule_dict, 'SL', memo_array)
             if la_schedule_dict['memoCode'] != 'X':
                 page_subtotal += la_schedule_dict['contributionAmount']
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
@@ -3877,18 +4248,20 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
 
                 index = 1
                 la_schedule_dict = la_schedules[page_start_index + 0]
-
+                process_memo_text(la_schedule_dict, 'SL', memo_array)
                 if la_schedule_dict['memoCode'] != 'X':
                     page_subtotal += la_schedule_dict['contributionAmount']
 
                 build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
                 index = 2
                 la_schedule_dict = la_schedules[page_start_index + 1]
+                process_memo_text(la_schedule_dict, 'SL', memo_array)
                 if la_schedule_dict['memoCode'] != 'X':
                     page_subtotal += la_schedule_dict['contributionAmount']
                 build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
                 index = 3
                 la_schedule_dict = la_schedules[page_start_index + 2]
+                process_memo_text(la_schedule_dict, 'SL', memo_array)
                 if la_schedule_dict['memoCode'] != 'X':
                     page_subtotal += la_schedule_dict['contributionAmount']
                 build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
@@ -3899,21 +4272,25 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
         elif tranlactions_in_page == 4:
             index = 1
             la_schedule_dict = la_schedules[page_start_index + 0]
+            process_memo_text(la_schedule_dict, 'SL', memo_array)
             if la_schedule_dict['memoCode'] != 'X':
                 page_subtotal += la_schedule_dict['contributionAmount']
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
             index = 2
             la_schedule_dict = la_schedules[page_start_index + 1]
+            process_memo_text(la_schedule_dict, 'SL', memo_array)
             if la_schedule_dict['memoCode'] != 'X':
                 page_subtotal += la_schedule_dict['contributionAmount']
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
             index = 3
             la_schedule_dict = la_schedules[page_start_index + 2]
+            process_memo_text(la_schedule_dict, 'SL', memo_array)
             if la_schedule_dict['memoCode'] != 'X':
                 page_subtotal += la_schedule_dict['contributionAmount']
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
             index = 4
             la_schedule_dict = la_schedules[page_start_index + 3]
+            process_memo_text(la_schedule_dict, 'SL', memo_array)
             if la_schedule_dict['memoCode'] != 'X':
                 page_subtotal += la_schedule_dict['contributionAmount']
             build_contributor_la_name_date_dict(index, page_start_index, la_schedule_dict, la_schedule_page_dict)
@@ -3927,7 +4304,7 @@ def build_la_per_page_schedule_dict(last_page, tranlactions_in_page, page_start_
     return la_schedule_dict
 
 def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start_index, slb_schedule_page_dict,
-                                     slb_schedules):
+                                     slb_schedules, memo_array):
 
     page_subtotal = 0.00
     if not last_page:
@@ -3935,6 +4312,7 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
     if transactions_in_page == 1:
         index = 1
         slb_schedule_dict = slb_schedules[page_start_index + 0]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
@@ -3942,12 +4320,14 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
     elif transactions_in_page == 2:
         index = 1
         slb_schedule_dict = slb_schedules[page_start_index + 0]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 2
         slb_schedule_dict = slb_schedules[page_start_index + 1]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
@@ -3955,18 +4335,21 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
     elif transactions_in_page == 3:
         index = 1
         slb_schedule_dict = slb_schedules[page_start_index + 0]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 2
         slb_schedule_dict = slb_schedules[page_start_index + 1]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 3
         slb_schedule_dict = slb_schedules[page_start_index + 2]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
@@ -3975,24 +4358,28 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
     elif transactions_in_page == 4:
         index = 1
         slb_schedule_dict = slb_schedules[page_start_index + 0]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 2
         slb_schedule_dict = slb_schedules[page_start_index + 1]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 3
         slb_schedule_dict = slb_schedules[page_start_index + 2]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 4
         slb_schedule_dict = slb_schedules[page_start_index + 3]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
@@ -4000,30 +4387,35 @@ def build_slb_per_page_schedule_dict(last_page, transactions_in_page, page_start
     elif transactions_in_page == 5:
         index = 1
         slb_schedule_dict = slb_schedules[page_start_index + 0]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 2
         slb_schedule_dict = slb_schedules[page_start_index + 1]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 3
         slb_schedule_dict = slb_schedules[page_start_index + 2]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 4
         slb_schedule_dict = slb_schedules[page_start_index + 3]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
             build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_dict)
         index = 5
         slb_schedule_dict = slb_schedules[page_start_index + 4]
+        process_memo_text(slb_schedule_dict, 'SL', memo_array)
         if slb_schedule_dict['memoCode'] != 'X':
             page_subtotal += slb_schedule_dict['expenditureAmount']
         for key in slb_schedules[page_start_index]:
