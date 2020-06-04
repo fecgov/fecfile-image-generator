@@ -1641,12 +1641,18 @@ def process_sc_line(f3x_data, md5_directory, sc_schedules, sc_start_page, total_
                     sc_schedule_page_dict['loanDueDateMonth'] = date_array[1]
                     sc_schedule_page_dict['loanDueDateDay'] = date_array[2]
                     sc_schedule_page_dict['loanDueDateYear'] = date_array[0]
+                else:
+                    sc_schedule_page_dict['loanDueDateYear'] = sc.get('loanDueDate')
             elif "/" in sc.get('loanDueDate'):
                 date_array = sc.get('loanDueDate').split("/")
                 if len(date_array) == 3:
                     sc_schedule_page_dict['loanDueDateMonth'] = date_array[0]
                     sc_schedule_page_dict['loanDueDateDay'] = date_array[1]
                     sc_schedule_page_dict['loanDueDateYear'] = date_array[2]
+                else:
+                    sc_schedule_page_dict['loanDueDateYear'] = sc.get('loanDueDate')
+            else:
+                sc_schedule_page_dict['loanDueDateYear'] = sc.get('loanDueDate')
         if 'child' in sc and sc.get('child'):
             sc2 = []
             for sc_child in sc.get('child'):
@@ -1908,12 +1914,18 @@ def process_sc1_line(f3x_data, md5_directory, sc1, sc1_start_page, total_no_of_p
                 sc1_schedule_page_dict['loanDueDateMonth'] = date_array[1]
                 sc1_schedule_page_dict['loanDueDateDay'] = date_array[2]
                 sc1_schedule_page_dict['loanDueDateYear'] = date_array[0]
+            else:
+                sc1_schedule_page_dict['loanDueDateYear'] = sc1.get('loanDueDate')
         elif "/" in sc1.get('loanDueDate'):
             date_array = sc1.get('loanDueDate').split("/")
             if len(date_array) == 3:
                 sc1_schedule_page_dict['loanDueDateMonth'] = date_array[0]
                 sc1_schedule_page_dict['loanDueDateDay'] = date_array[1]
                 sc1_schedule_page_dict['loanDueDateYear'] = date_array[2]
+            else:
+                sc1_schedule_page_dict['loanDueDateYear'] = sc1.get('loanDueDate')
+        else:
+            sc1_schedule_page_dict['loanDueDateYear'] = sc1.get('loanDueDate')
     if sc1.get('originalLoanDate') != "":
         date_array = sc1.get('originalLoanDate').split("/")
         sc1_schedule_page_dict['originalLoanDateMonth'] = date_array[0]
