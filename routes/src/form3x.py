@@ -4652,8 +4652,10 @@ def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page
                                                                       + sf_schedule_dict['payeeMiddleName'] + ','
                                                                       + sf_schedule_dict['payeePrefix'] + ','
                                                                       + sf_schedule_dict['payeeSuffix'])
-        elif 'payeeOrganizationName' in sf_schedule_dict:
+        elif 'payeeOrganizationName' in sf_schedule_dict and sf_schedule_dict['payeeOrganizationName']:
             sf_schedule_page_dict["payeeName_" + str(index)] = sf_schedule_dict['payeeOrganizationName']
+        elif 'designatingCommitteeName' in sf_schedule_dict and sf_schedule_dict['designatingCommitteeName']:
+            sf_schedule_page_dict["payeeName_" + str(index)] = sf_schedule_dict['designatingCommitteeName']
 
         if 'payeeCandidateLastName' in sf_schedule_dict:
             sf_schedule_page_dict['payeeCandidateName_' + str(index)] = (sf_schedule_dict['payeeCandidateLastName'] + ','
