@@ -60,25 +60,25 @@ def print_pdftk(stamp_print):
 
             md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
             # checking if server has already generated pdf for same json file
-            if os.path.isdir(md5_directory) and path.isfile(md5_directory + 'all_pages.pdf'):
-                # push output file to AWS
-                s3 = boto3.client('s3')
-                s3.upload_file(md5_directory + 'all_pages.pdf',
-                               current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                               md5_directory + 'all_pages.pdf',
-                               ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
-                response = {
-                    'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5) + 'all_pages.pdf'
-                }
-
-                # return response
-                if flask.request.method == "POST":
-                    envelope = common.get_return_envelope(
-                        data=response
-                    )
-                    status_code = status.HTTP_201_CREATED
-                    return flask.jsonify(**envelope), status_code
-
+            # if os.path.isdir(md5_directory) and path.isfile(md5_directory + 'all_pages.pdf'):
+            #     # push output file to AWS
+            #     s3 = boto3.client('s3')
+            #     s3.upload_file(md5_directory + 'all_pages.pdf',
+            #                    current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+            #                    md5_directory + 'all_pages.pdf',
+            #                    ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
+            #     response = {
+            #         'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5) + 'all_pages.pdf'
+            #     }
+            #
+            #     # return response
+            #     if flask.request.method == "POST":
+            #         envelope = common.get_return_envelope(
+            #             data=response
+            #         )
+            #         status_code = status.HTTP_201_CREATED
+            #         return flask.jsonify(**envelope), status_code
+            #
             os.makedirs(md5_directory, exist_ok=True)
             infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('F3X')
             # save json file as md5 file name
@@ -140,6 +140,8 @@ def print_pdftk(stamp_print):
             if len(f3x_summary) > 0:
                 total_no_of_pages = 5
                 f3x_data_summary_array = [f3x_data, f3x_summary]
+                if 'memoText' in f3x_data and f3x_data['memoText']:
+                    total_no_of_pages += 1
             else:
                 f3x_data_summary_array = [f3x_data]
             f3x_data_summary = {i: j for x in f3x_data_summary_array for i, j in x.items()}
@@ -170,6 +172,19 @@ def print_pdftk(stamp_print):
                 pypdftk.fill_form(infile, f3x_data_summary, outfile)
                 shutil.copy(outfile, md5_directory + 'F3X_Summary.pdf')
                 os.remove(md5_directory + json_file_md5 + '_temp.pdf')
+                # Memo text changes
+                if 'memoText' in f3x_data_summary and f3x_data_summary['memoText']:
+                    memo_dict = {}
+                    temp_memo_outfile = md5_directory + 'F3X_Summary_memo.pdf'
+                    memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+                    memo_dict['scheduleName_1'] = 'F3X' + f3x_data_summary['amendmentIndicator']
+                    memo_dict['memoDescription_1'] = f3x_data_summary['memoText']
+                    memo_dict['PAGESTR'] = "PAGE " + str(6) + " / " + str(total_no_of_pages)
+                    pypdftk.fill_form(memo_infile, memo_dict, temp_memo_outfile)
+                    pypdftk.concat([md5_directory + 'F3X_Summary.pdf', temp_memo_outfile], md5_directory +
+                                   json_file_md5 + '_temp.pdf')
+                    shutil.copy(md5_directory + json_file_md5 + '_temp.pdf', md5_directory + 'F3X_Summary.pdf')
+                    os.remove(md5_directory + json_file_md5 + '_temp.pdf')
 
                 # checking for sa transactions
                 if has_sa_schedules:
@@ -879,105 +894,104 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
             sh_schedules.extend(schedules.get('SH'))
             sh_schedules_cnt = len(sh_schedules)
             sh_line_numbers = ['30A', '21A', '18B', '18A']
+            if sh_schedules_cnt > 0:
+                sh_30a = []
+                sh_21a = []
+                sh_18b = []
+                sh_18a = []
+                sh_h1 = []
+                sh_h2 = []
+                sh_30a_memo = []
+                sh_21a_memo = []
+                sh_18b_memo = []
+                sh_18a_memo = []
 
-            sh_30a = []
-            sh_21a = []
-            sh_18b = []
-            sh_18a = []
-            sh_h1 = []
-            sh_h2 = []
-            sh_30a_memo = []
-            sh_21a_memo = []
-            sh_18b_memo = []
-            sh_18a_memo = []
+                sh_30a_last_page_cnt = sh_21a_last_page_cnt = 3
+                sh_18b_last_page_cnt = 2
+                sh_30a_memo_last_page_cnt = sh_21a_memo_last_page_cnt = sh_18b_memo_last_page_cnt = 2
+                sh_30a_page_cnt = sh_21a_page_cnt = sh_18b_page_cnt = sh_30a_memo_page_cnt = 0
+                sh_21a_memo_page_cnt = sh_18b_memo_page_cnt = 0
 
-            sh_30a_last_page_cnt = sh_21a_last_page_cnt = 3
-            sh_18b_last_page_cnt = 2
-            sh_30a_memo_last_page_cnt = sh_21a_memo_last_page_cnt = sh_18b_memo_last_page_cnt = 2
-            sh_30a_page_cnt = sh_21a_page_cnt = sh_18b_page_cnt = sh_30a_memo_page_cnt = 0
-            sh_21a_memo_page_cnt = sh_18b_memo_page_cnt = 0
+                for sh_count in range(sh_schedules_cnt):
+                    process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_18a, sh_h1, sh_h2,
+                                            sh_30a_memo, sh_21a_memo, sh_18b_memo, sh_18a_memo,
+                                            sh_schedules[sh_count])
+                    if 'child' in sh_schedules[sh_count]:
+                        sh_child_schedules = sh_schedules[sh_count]['child']
 
-            for sh_count in range(sh_schedules_cnt):
-                process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_18a, sh_h1, sh_h2,
-                                        sh_30a_memo, sh_21a_memo, sh_18b_memo, sh_18a_memo,
-                                        sh_schedules[sh_count])
-                if 'child' in sh_schedules[sh_count]:
-                    sh_child_schedules = sh_schedules[sh_count]['child']
-
-                    sh_child_schedules_count = len(sh_child_schedules)
-                    for sh_child_count in range(sh_child_schedules_count):
-                        if sh_schedules[sh_count]['child'][sh_child_count]['lineNumber'] in sh_line_numbers:
-                            process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_18a, sh_h1, sh_h2,
-                                                    sh_30a_memo, sh_21a_memo,sh_18b_memo, sh_18a_memo,
-                                                    sh_schedules[sh_count]['child'][sh_child_count])
-
-
-                if len(sh_30a) != 0:
-                    sh6_start_page = total_no_of_pages
-                    sh6_schedules_cnt = len(sh_30a)
-                    if sh6_schedules_cnt > 0:
-                        has_sh6_schedules = True
-                        os.makedirs(md5_directory + 'SH6', exist_ok=True)
-
-                if len(sh_21a) != 0:
-                    sh4_start_page = total_no_of_pages
-                    sh4_schedules_cnt = len(sh_21a)
-                    if sh4_schedules_cnt > 0:
-                        has_sh4_schedules = True
-                        os.makedirs(md5_directory + 'SH4', exist_ok=True)
-
-                if len(sh_18b) != 0:
-                    sh5_start_page = total_no_of_pages
-                    sh5_schedules_cnt = len(sh_18b)
-                    if sh5_schedules_cnt > 0:
-                        has_sh5_schedules = True
-                        os.makedirs(md5_directory + 'SH5', exist_ok=True)
-
-                if len(sh_18a) != 0:
-                    sh3_start_page = total_no_of_pages
-                    sh3_schedules_cnt = len(sh_18a)
-                    if sh3_schedules_cnt > 0:
-                        has_sh3_schedules = True
-                        os.makedirs(md5_directory + 'SH3', exist_ok=True)
-
-                if len(sh_h1) != 0:
-                    sh1_start_page = total_no_of_pages
-                    sh1_schedules_cnt = len(sh_h1)
-                    if sh1_schedules_cnt > 0:
-                        has_sh1_schedules = True
-                        os.makedirs(md5_directory + 'SH1', exist_ok=True)
+                        sh_child_schedules_count = len(sh_child_schedules)
+                        for sh_child_count in range(sh_child_schedules_count):
+                            if sh_schedules[sh_count]['child'][sh_child_count]['lineNumber'] in sh_line_numbers:
+                                process_sh_line_numbers(sh_30a, sh_21a,sh_18b, sh_18a, sh_h1, sh_h2,
+                                                        sh_30a_memo, sh_21a_memo,sh_18b_memo, sh_18a_memo,
+                                                        sh_schedules[sh_count]['child'][sh_child_count])
 
 
-                if len(sh_h2) != 0:
-                    sh2_start_page = total_no_of_pages
-                    sh2_schedules_cnt = len(sh_h2)
-                    if sh2_schedules_cnt > 0:
-                        has_sh2_schedules = True
-                        os.makedirs(md5_directory + 'SH2', exist_ok=True)
+                    if len(sh_30a) != 0:
+                        sh6_start_page = total_no_of_pages
+                        sh6_schedules_cnt = len(sh_30a)
+                        if sh6_schedules_cnt > 0:
+                            has_sh6_schedules = True
+                            os.makedirs(md5_directory + 'SH6', exist_ok=True)
+
+                    if len(sh_21a) != 0:
+                        sh4_start_page = total_no_of_pages
+                        sh4_schedules_cnt = len(sh_21a)
+                        if sh4_schedules_cnt > 0:
+                            has_sh4_schedules = True
+                            os.makedirs(md5_directory + 'SH4', exist_ok=True)
+
+                    if len(sh_18b) != 0:
+                        sh5_start_page = total_no_of_pages
+                        sh5_schedules_cnt = len(sh_18b)
+                        if sh5_schedules_cnt > 0:
+                            has_sh5_schedules = True
+                            os.makedirs(md5_directory + 'SH5', exist_ok=True)
+
+                    if len(sh_18a) != 0:
+                        sh3_start_page = total_no_of_pages
+                        sh3_schedules_cnt = len(sh_18a)
+                        if sh3_schedules_cnt > 0:
+                            has_sh3_schedules = True
+                            os.makedirs(md5_directory + 'SH3', exist_ok=True)
+
+                    if len(sh_h1) != 0:
+                        sh1_start_page = total_no_of_pages
+                        sh1_schedules_cnt = len(sh_h1)
+                        if sh1_schedules_cnt > 0:
+                            has_sh1_schedules = True
+                            os.makedirs(md5_directory + 'SH1', exist_ok=True)
+
+
+                    if len(sh_h2) != 0:
+                        sh2_start_page = total_no_of_pages
+                        sh2_schedules_cnt = len(sh_h2)
+                        if sh2_schedules_cnt > 0:
+                            has_sh2_schedules = True
+                            os.makedirs(md5_directory + 'SH2', exist_ok=True)
 
 
 
-                sh_30a_page_cnt, sh_30a_last_page_cnt = calculate_page_count(sh_30a)
-                total_no_of_pages = (total_no_of_pages + sh_30a_page_cnt)
-                sh_30a_memo_page_cnt, sh_30a_memo_last_page_cnt = calculate_memo_page_count(sh_30a_memo)
+                    sh_30a_page_cnt, sh_30a_last_page_cnt = calculate_page_count(sh_30a)
+                    total_no_of_pages = (total_no_of_pages + sh_30a_page_cnt)
+                    sh_30a_memo_page_cnt, sh_30a_memo_last_page_cnt = calculate_memo_page_count(sh_30a_memo)
 
-                sh_21a_page_cnt, sh_21a_last_page_cnt = calculate_page_count(sh_21a)
-                total_no_of_pages = (total_no_of_pages + sh_21a_page_cnt)
-                sh_21a_memo_page_cnt, sh_21a_memo_last_page_cnt = calculate_memo_page_count(sh_21a_memo)
+                    sh_21a_page_cnt, sh_21a_last_page_cnt = calculate_page_count(sh_21a)
+                    total_no_of_pages = (total_no_of_pages + sh_21a_page_cnt)
+                    sh_21a_memo_page_cnt, sh_21a_memo_last_page_cnt = calculate_memo_page_count(sh_21a_memo)
 
-                sh_18b_page_cnt, sh_18b_last_page_cnt = calculate_sh5page_count(sh_18b)
-                total_no_of_pages = (total_no_of_pages + sh_18b_page_cnt)
-                sh_18b_memo_page_cnt, sh_18b_memo_last_page_cnt = calculate_memo_page_count(sh_18b_memo)
+                    sh_18b_page_cnt, sh_18b_last_page_cnt = calculate_sh5page_count(sh_18b)
+                    total_no_of_pages = (total_no_of_pages + sh_18b_page_cnt)
+                    sh_18b_memo_page_cnt, sh_18b_memo_last_page_cnt = calculate_memo_page_count(sh_18b_memo)
 
-                sh_18a_page_cnt, sh_18a_last_page_cnt = calculate_page_count(sh_18a)
-                total_no_of_pages = (total_no_of_pages + sh_18a_page_cnt)
-                sh_18a_memo_page_cnt, sh_18a_memo_last_page_cnt = calculate_memo_page_count(sh_18a_memo)
+                    sh_18a_page_cnt, sh_18a_last_page_cnt = calculate_page_count(sh_18a)
+                    total_no_of_pages = (total_no_of_pages + sh_18a_page_cnt)
+                    sh_18a_memo_page_cnt, sh_18a_memo_last_page_cnt = calculate_memo_page_count(sh_18a_memo)
 
-                sh2_page_cnt, sh2_last_page_cnt = calculate_sh2_page_count(sh_h2)
-                total_no_of_pages = (total_no_of_pages + sh2_page_cnt)
+                    sh2_page_cnt, sh2_last_page_cnt = calculate_sh2_page_count(sh_h2)
+                    total_no_of_pages = (total_no_of_pages + sh2_page_cnt)
 
-
-        if 'SL' in schedules or len(sl_summary) > 0:
+        if ('SL' in schedules and schedules['SL'])  or len(sl_summary) > 0:
             sl_start_page = 0
             sl_start_page = total_no_of_pages
             total_sl_pages = total_no_of_pages+1
@@ -1104,12 +1118,12 @@ def process_schedules(f3x_data, md5_directory, total_no_of_pages):
                 total_no_of_pages = (total_no_of_pages + slb_4a_page_cnt + slb_4b_page_cnt + slb_4c_page_cnt
                                      + slb_4d_page_cnt + slb_5_page_cnt + slb_4a_memo_page_cnt + slb_4b_memo_page_cnt
                                      + slb_4c_memo_page_cnt + slb_4d_memo_page_cnt + slb_5_memo_page_cnt)
-
-        sc_start_page = total_no_of_pages + 1
-        total_no_of_pages += total_sc_pages
-
-        sd_start_page = total_no_of_pages + 1
-        total_no_of_pages += total_sd_pages
+        if total_sc_pages > 0:
+            sc_start_page = total_no_of_pages + 1
+            total_no_of_pages += total_sc_pages
+        if total_sd_pages > 0:
+            sd_start_page = total_no_of_pages + 1
+            total_no_of_pages += total_sd_pages
 
         if sa_schedules_cnt > 0:
             # process Schedule 11AI
