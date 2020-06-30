@@ -25,14 +25,14 @@ pipeline{
     stage('Deploy Dev'){
       when { branch 'develop' }
       steps {
-        deployImage("${VERSION}", "dev")
+        deployImage16("${VERSION}", "dev")
         code_quality("${BUILD_ID}", "${VERSION}")
       }
     }
     stage('Deploy QA'){
       when { branch 'release' }
       steps {
-        deployImage("${VERSION}", "qa")
+        deployImage16("${VERSION}", "qa")
       }
     }
     stage('Deploy UAT'){
@@ -55,6 +55,16 @@ def deployImage(String version, String toEnv) {
    sh """ 
      kubectl \
        --context=arn:aws:eks:us-east-1:813218302951:cluster/fecfile4 \
+       --namespace=${toEnv} \
+       set image deployment/fecfile-imagegenerator \
+       fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${version}
+   """
+}
+
+def deployImage16(String version, String toEnv) {
+   sh """ 
+     kubectl16 \
+       --context=arn:aws:eks:us-east-1:813218302951:cluster/fecnxg-dev1 \
        --namespace=${toEnv} \
        set image deployment/fecfile-imagegenerator \
        fecfile-imagegenerator=813218302951.dkr.ecr.us-east-1.amazonaws.com/fecfile-imagegenerator:${version}
