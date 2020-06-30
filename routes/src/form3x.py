@@ -2845,8 +2845,8 @@ def process_sh1_line(f3x_data, md5_directory, tran_type_ident, sh_h1, sh1_page_c
                     sh1_schedule_page_dict['senateOnly'] = str(sh1_line['senateOnly'])
                     sh1_schedule_page_dict['nonPresidentialAndNonSenate'] = str(sh1_line['nonPresidentialAndNonSenate'])
                 else:
-                    sh1_schedule_page_dict['federalPercent'] = (float(sh1_line['federalPercent']) * 100)
-                    sh1_schedule_page_dict['nonFederalPercent'] = (float(sh1_line['nonFederalPercent']) * 100)
+                    sh1_schedule_page_dict['federalPercent'] = '{0:.2f}'.format(float(sh1_line['federalPercent']))
+                    sh1_schedule_page_dict['nonFederalPercent'] = '{0:.2f}'.format(float(sh1_line['nonFederalPercent']))
                     sh1_schedule_page_dict['administrative'] = str(sh1_line['administrative'])
                     sh1_schedule_page_dict['genericVoterDrive'] = str(sh1_line['genericVoterDrive'])
                     sh1_schedule_page_dict['publicCommunications'] = str(sh1_line['publicCommunications'])
@@ -4775,10 +4775,23 @@ def build_slb_name_date_dict(index, key, slb_schedule_dict, slb_schedule_page_di
 def build_contributor_sl_levin_name_date_dict(index, key, sl_schedule_dict, sl_schedule_page_dict):
 
     try:
+        list_SL_convert_2_decimals = ['itemizedReceiptsFromPersons', 'unitemizedReceiptsFromPersons',
+            'totalReceiptsFromPersons','otherReceipts','totalReceipts','voterRegistrationDisbursements',
+            'voterIdDisbursements','gotvDisbursements','genericCampaignDisbursements','totalSubDisbursements',
+            'otherDisbursements','totalDisbursements','beginningCashOnHand','receipts','subtotal',
+            'disbursements','endingCashOnHand','itemizedReceiptsFromPersonsYTD',
+            'unitemizedReceiptsFromPersonsYTD','totalReceiptsFromPersonsYTD','otherReceiptsYTD',
+            'totalReceiptsYTD','voterRegistrationDisbursementsYTD','voterIdDisbursementsYTD',
+            'gotvDisbursementsYTD','genericCampaignDisbursementsYTD','totalSubDisbursementsYTD',
+            'otherDisbursementsYTD','totalDisbursementsYTD','beginningCashOnHandYTD','receiptsYTD',
+            'subtotalYTD','disbursementsYTD','endingCashOnHandYTD']
         for key in sl_schedule_dict:
 
             if key != 'accountName':
                 sl_schedule_page_dict[key] = sl_schedule_dict[key]
+            if key in list_SL_convert_2_decimals:
+                sl_schedule_page_dict[key] = '{0:.2f}'.format(sl_schedule_page_dict[key])
+
 
     except Exception as e:
         print('Error at key: ' + key + ' in Schedule SL tranlaction: ' + str(sl_schedule_dict))
@@ -4839,6 +4852,8 @@ def build_sh2_name_date_dict(index, key, sh2_schedule_dict, sh2_schedule_page_di
         for key in sh2_schedule_dict:
             if key in ['fundraising','directCandidateSupport']:
                 sh2_schedule_dict[key] = str(sh2_schedule_dict[key])
+            if key in ['federalPercent', 'nonFederalPercent']:
+                sh2_schedule_dict[key] = '{:.2f}'.format(float(sh2_schedule_dict[key]))
 
 
             sh2_schedule_page_dict[key + '_' + str(index)] = sh2_schedule_dict[key]
