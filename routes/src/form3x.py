@@ -3063,7 +3063,7 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 # sh3_schedule_page_dict['adtransactionId'] = sh3_page['transactionId']
                 #sh3_schedule_page_dict['adtransferredAmount'] = t_transfered[sh3_page_no]
                 sh3_schedule_page_dict['accountName'] = acc_name
-                sh3_schedule_page_dict['totalAmountTransferred'] = t_transfered[sh3_page_no]
+                sh3_schedule_page_dict['totalAmountTransferred'] = '{0:.2f}'.format(float(t_transfered[sh3_page_no]))
 
                 if 'receiptDate' in sh3_page:
                     
@@ -3076,16 +3076,16 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 for sub_sh3 in sh3_page.get('subs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'] = sub_sh3['transactionId']
-                    sh3_schedule_page_dict[s_+'transferredAmount'] = sub_sh3['transferredAmount']
+                    sh3_schedule_page_dict[s_+'transferredAmount'] = '{0:.2f}'.format(float(sub_sh3['transferredAmount']))
 
                 df_inc = ''
 
                 for sub_sh3 in sh3_page.get('dfsubs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'+df_inc] = sub_sh3['transactionId']
-                    sh3_schedule_page_dict[s_+'transferredAmount'+df_inc] = sub_sh3['transferredAmount']
+                    sh3_schedule_page_dict[s_+'transferredAmount'+df_inc] = '{0:.2f}'.format(float(sub_sh3['transferredAmount']))
                     sh3_schedule_page_dict[s_+'activityEventName'+df_inc] = sub_sh3['activityEventName']
-                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = sh3_page.get(s_+'total', '')
+                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = '{0:.2f}'.format(float(sh3_page.get(s_+'total', '')))
                     df_inc = '_1'
 
                 dc_inc = ''
@@ -3093,17 +3093,17 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 for sub_sh3 in sh3_page.get('dcsubs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'+dc_inc] = sub_sh3['transactionId']
-                    sh3_schedule_page_dict[s_+'transferredAmount'+dc_inc] = sub_sh3['transferredAmount']
+                    sh3_schedule_page_dict[s_+'transferredAmount'+dc_inc] = '{0:.2f}'.format(float(sub_sh3['transferredAmount']))
                     sh3_schedule_page_dict[s_+'activityEventName'+dc_inc] = sub_sh3['activityEventName']
-                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = sh3_page.get(s_+'total', '')
+                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = '{0:.2f}'.format(float(sh3_page.get(s_+'total', '')))
                     dc_inc = '_1'
 
                 sh3_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 if last_page: 
                     total_dict[acc_name]['lastpage'] = 0
-                    sh3_schedule_page_dict['totalAmountPeriod'] = sum(total_dict[acc_name].values())
+                    sh3_schedule_page_dict['totalAmountPeriod'] = '{0:.2f}'.format(float(sum(total_dict[acc_name].values())))
                     for total_key in total_dict[acc_name]:
-                        sh3_schedule_page_dict[total_key.lower()+'total'] = total_dict[acc_name][total_key]
+                        sh3_schedule_page_dict[total_key.lower()+'total'] = '{0:.2f}'.format(float(total_dict[acc_name][total_key]))
                 
                 sh3_outfile = md5_directory + 'SH3/' + line_number + '/page_' + str(sh3_page_no) + '.pdf'
                 pypdftk.fill_form(sh3_infile, sh3_schedule_page_dict, sh3_outfile)
