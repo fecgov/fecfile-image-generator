@@ -4785,10 +4785,25 @@ def build_contributor_sl_levin_name_date_dict(index, key, sl_schedule_dict, sl_s
             'gotvDisbursementsYTD','genericCampaignDisbursementsYTD','totalSubDisbursementsYTD',
             'otherDisbursementsYTD','totalDisbursementsYTD','beginningCashOnHandYTD','receiptsYTD',
             'subtotalYTD','disbursementsYTD','endingCashOnHandYTD']
+        list_skip = ['accountName', 'receipts','disbursements', 'subtotal', 'receiptsYTD','disbursementsYTD','subtotalYTD']
         for key in sl_schedule_dict:
 
-            if key != 'accountName':
+            if key == 'receipts':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalReceipts']
+            if key == 'disbursements':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalDisbursements']
+            if key == 'subtotal':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalReceipts'] + sl_schedule_dict['beginningCashOnHand']
+            if key == 'receiptsYTD':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalReceiptsYTD']
+            if key == 'disbursementsYTD':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalDisbursementsYTD']
+            if key == 'subtotalYTD':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalReceiptsYTD'] + sl_schedule_dict['beginningCashOnHandYTD']
+
+            if key not in list_skip:
                 sl_schedule_page_dict[key] = sl_schedule_dict[key]
+
             if key in list_SL_convert_2_decimals:
                 sl_schedule_page_dict[key] = '{0:.2f}'.format(sl_schedule_page_dict[key])
 
