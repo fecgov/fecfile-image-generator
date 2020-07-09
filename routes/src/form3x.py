@@ -4678,7 +4678,7 @@ def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page
                                                                       + sf_schedule_dict['payeeCandidatePrefix'] + ','
                                                                       + sf_schedule_dict['payeeCandidateSuffix'])
 
-        if key == 'expenditureDate':
+        if key == 'expenditureDate' and sf_schedule_dict['expenditureDate'] not in ["none", "null", " ", ""]:
             date_array = sf_schedule_dict[key].split("/")
             sf_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
             sf_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
