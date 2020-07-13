@@ -38,7 +38,7 @@ pipeline{
     stage('Deploy UAT'){
       when { branch 'master' }
       steps {
-        deployImage("${VERSION}", "uat")
+        deployImage16("${VERSION}", "uat")
       }
     }
   }
