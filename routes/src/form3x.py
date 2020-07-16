@@ -3241,8 +3241,8 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 total_fedshare += page_fed_subtotal
                 total_nonfedshare += page_nonfed_subtotal
                 if sh4_line_page_cnt == (sh4_page_no + 1):
-                    sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
-                    sh4_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
+                    sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(total_fedshare)
+                    sh4_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(total_nonfedshare)
                     sh4_schedule_page_dict['TotalFedNonFedShare'] = '{0:.2f}'.format(total_fedshare+total_nonfedshare)
                 sh4_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh4_outfile = md5_directory + 'SH4/' + line_number + '/page_' + str(sh4_page_no) + '.pdf'
@@ -3269,9 +3269,9 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                     if len(memo_array) >= 3:
                         memo_dict = {}
                         memo_outfile = md5_directory + 'SH4/' + line_number + '/page_memo_' + str(sh4_page_no) + '.pdf'
-                        memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
-                        memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
-                        memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                        memo_dict['scheduleName_1'] = memo_array[2]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[2]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[2]['transactionId']
                         pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
                         pypdftk.concat([sh4_outfile, memo_outfile], temp_memo_outfile)
                         os.remove(memo_outfile)
