@@ -3063,7 +3063,7 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 # sh3_schedule_page_dict['adtransactionId'] = sh3_page['transactionId']
                 #sh3_schedule_page_dict['adtransferredAmount'] = t_transfered[sh3_page_no]
                 sh3_schedule_page_dict['accountName'] = acc_name
-                sh3_schedule_page_dict['totalAmountTransferred'] = t_transfered[sh3_page_no]
+                sh3_schedule_page_dict['totalAmountTransferred'] = '{0:.2f}'.format(float(t_transfered[sh3_page_no]))
 
                 if 'receiptDate' in sh3_page:
                     
@@ -3076,16 +3076,16 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 for sub_sh3 in sh3_page.get('subs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'] = sub_sh3['transactionId']
-                    sh3_schedule_page_dict[s_+'transferredAmount'] = sub_sh3['transferredAmount']
+                    sh3_schedule_page_dict[s_+'transferredAmount'] = '{0:.2f}'.format(float(sub_sh3['transferredAmount']))
 
                 df_inc = ''
 
                 for sub_sh3 in sh3_page.get('dfsubs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'+df_inc] = sub_sh3['transactionId']
-                    sh3_schedule_page_dict[s_+'transferredAmount'+df_inc] = sub_sh3['transferredAmount']
+                    sh3_schedule_page_dict[s_+'transferredAmount'+df_inc] = '{0:.2f}'.format(float(sub_sh3['transferredAmount']))
                     sh3_schedule_page_dict[s_+'activityEventName'+df_inc] = sub_sh3['activityEventName']
-                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = sh3_page.get(s_+'total', '')
+                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = '{0:.2f}'.format(float(sh3_page.get(s_+'total', '')))
                     df_inc = '_1'
 
                 dc_inc = ''
@@ -3093,17 +3093,17 @@ def process_sh3_line(f3x_data, md5_directory, line_number, sh3_line, sh3_line_pa
                 for sub_sh3 in sh3_page.get('dcsubs', []):
                     s_ = sub_sh3['activityEventType'].lower()
                     sh3_schedule_page_dict[s_+'transactionId'+dc_inc] = sub_sh3['transactionId']
-                    sh3_schedule_page_dict[s_+'transferredAmount'+dc_inc] = sub_sh3['transferredAmount']
+                    sh3_schedule_page_dict[s_+'transferredAmount'+dc_inc] = '{0:.2f}'.format(float(sub_sh3['transferredAmount']))
                     sh3_schedule_page_dict[s_+'activityEventName'+dc_inc] = sub_sh3['activityEventName']
-                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = sh3_page.get(s_+'total', '')
+                    sh3_schedule_page_dict[s_+'subtransferredAmount'] = '{0:.2f}'.format(float(sh3_page.get(s_+'total', '')))
                     dc_inc = '_1'
 
                 sh3_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 if last_page: 
                     total_dict[acc_name]['lastpage'] = 0
-                    sh3_schedule_page_dict['totalAmountPeriod'] = sum(total_dict[acc_name].values())
+                    sh3_schedule_page_dict['totalAmountPeriod'] = '{0:.2f}'.format(float(sum(total_dict[acc_name].values())))
                     for total_key in total_dict[acc_name]:
-                        sh3_schedule_page_dict[total_key.lower()+'total'] = total_dict[acc_name][total_key]
+                        sh3_schedule_page_dict[total_key.lower()+'total'] = '{0:.2f}'.format(float(total_dict[acc_name][total_key]))
                 
                 sh3_outfile = md5_directory + 'SH3/' + line_number + '/page_' + str(sh3_page_no) + '.pdf'
                 pypdftk.fill_form(sh3_infile, sh3_schedule_page_dict, sh3_outfile)
@@ -3241,8 +3241,8 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                 total_fedshare += page_fed_subtotal
                 total_nonfedshare += page_nonfed_subtotal
                 if sh4_line_page_cnt == (sh4_page_no + 1):
-                    sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(page_fed_subtotal)
-                    sh4_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(page_nonfed_subtotal)
+                    sh4_schedule_page_dict['TotalFedShare'] = '{0:.2f}'.format(total_fedshare)
+                    sh4_schedule_page_dict['totalNonFedShare'] = '{0:.2f}'.format(total_nonfedshare)
                     sh4_schedule_page_dict['TotalFedNonFedShare'] = '{0:.2f}'.format(total_fedshare+total_nonfedshare)
                 sh4_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 sh4_outfile = md5_directory + 'SH4/' + line_number + '/page_' + str(sh4_page_no) + '.pdf'
@@ -3269,9 +3269,9 @@ def process_sh4_line(f3x_data, md5_directory, line_number, sh4_line, sh4_line_pa
                     if len(memo_array) >= 3:
                         memo_dict = {}
                         memo_outfile = md5_directory + 'SH4/' + line_number + '/page_memo_' + str(sh4_page_no) + '.pdf'
-                        memo_dict['scheduleName_1'] = memo_array[0]['scheduleName']
-                        memo_dict['memoDescription_1'] = memo_array[0]['memoDescription']
-                        memo_dict['transactionId_1'] = memo_array[0]['transactionId']
+                        memo_dict['scheduleName_1'] = memo_array[2]['scheduleName']
+                        memo_dict['memoDescription_1'] = memo_array[2]['memoDescription']
+                        memo_dict['transactionId_1'] = memo_array[2]['transactionId']
                         pypdftk.fill_form(memo_infile, memo_dict, memo_outfile)
                         pypdftk.concat([sh4_outfile, memo_outfile], temp_memo_outfile)
                         os.remove(memo_outfile)
@@ -4678,7 +4678,7 @@ def build_payee_sf_name_date_dict(index, key, sf_schedule_dict, sf_schedule_page
                                                                       + sf_schedule_dict['payeeCandidatePrefix'] + ','
                                                                       + sf_schedule_dict['payeeCandidateSuffix'])
 
-        if key == 'expenditureDate':
+        if key == 'expenditureDate' and sf_schedule_dict['expenditureDate'] not in ["none", "null", " ", ""]:
             date_array = sf_schedule_dict[key].split("/")
             sf_schedule_page_dict['expenditureDateMonth_' + str(index)] = date_array[0]
             sf_schedule_page_dict['expenditureDateDay_' + str(index)] = date_array[1]
@@ -4785,10 +4785,29 @@ def build_contributor_sl_levin_name_date_dict(index, key, sl_schedule_dict, sl_s
             'gotvDisbursementsYTD','genericCampaignDisbursementsYTD','totalSubDisbursementsYTD',
             'otherDisbursementsYTD','totalDisbursementsYTD','beginningCashOnHandYTD','receiptsYTD',
             'subtotalYTD','disbursementsYTD','endingCashOnHandYTD']
+
+        list_skip = ['accountName', 'receipts','disbursements', 'subtotal', 'receiptsYTD','disbursementsYTD','subtotalYTD']
         for key in sl_schedule_dict:
 
-            if key != 'accountName':
+            if key == 'receipts':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalReceipts']
+            if key == 'disbursements':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalDisbursements']
+            if key == 'subtotal':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalReceipts'] + sl_schedule_dict['beginningCashOnHand']
+            if key == 'receiptsYTD':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalReceiptsYTD']
+            if key == 'disbursementsYTD':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalDisbursementsYTD']
+            if key == 'subtotalYTD':
+                sl_schedule_page_dict[key] = sl_schedule_dict['totalReceiptsYTD'] + sl_schedule_dict['beginningCashOnHandYTD']
+
+            if key not in list_skip:
                 sl_schedule_page_dict[key] = sl_schedule_dict[key]
+            if key in list_SL_convert_2_decimals:
+                sl_schedule_page_dict[key] = '{0:.2f}'.format(sl_schedule_page_dict[key])
+
+
             if key in list_SL_convert_2_decimals:
                 sl_schedule_page_dict[key] = '{0:.2f}'.format(sl_schedule_page_dict[key])
 
