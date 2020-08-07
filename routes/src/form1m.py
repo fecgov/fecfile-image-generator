@@ -43,7 +43,7 @@ def error(msg):
 # stamp_print is a flag that will be passed at the time of submitting a report.
 def print_pdftk(stamp_print):
     # check if json_file is in the request
-    # try:
+    try:
         if 'json_file' in request.files:
             
             json_file = request.files.get('json_file')
@@ -125,5 +125,5 @@ def print_pdftk(stamp_print):
                 )
                 status_code = status.HTTP_400_BAD_REQUEST
                 return flask.jsonify(**envelope), status_code
-    # except Exception as e:
-    #     return error('Error generating print preview, error message: ' + str(e))
+    except Exception as e:
+        return error('Error generating print preview, error message: ' + str(e))
