@@ -42,7 +42,7 @@ def error(msg):
 # stamp_print is a flag that will be passed at the time of submitting a report.
 def print_pdftk(stamp_print):
 	# check if json_file is in the request
-	try:
+	# try:
 		if 'json_file' in request.files:
 			json_file = request.files.get('json_file')
 
@@ -71,40 +71,64 @@ def print_pdftk(stamp_print):
 			output['committeeName'] = f24_data['committeeName']
 			output['reportType'] = f24_data['reportType']
 			output['amendIndicator'] = f24_data['amendIndicator']
+
+			# checking report memo text
+			report_memo_flag = True if f24_data.get('memoText') else False
+
+			# build treasurer name to map it to PDF template
+			treasurer_full_name = []
+			treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
+			for item in treasurer_list:
+				if f24_data[item] not in [None, '', "", " "]:
+					treasurer_full_name.append(f24_data[item])
+			output['treasurerFullName'] = ", ".join(map(str, treasurer_full_name))
+			output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
+			output['efStamp'] = '[Electronically Filed]'
 			if output['amendIndicator'] == 'A':
 				if f24_data['amendDate']:
 					amend_date_array = f24_data['amendDate'].split("/")
 					output['amendDate_MM'] = amend_date_array[0]
 					output['amendDate_DD'] = amend_date_array[1]
 					output['amendDate_YY'] = amend_date_array[2]
+
+			# Calculating total number of pages
 			if not f24_data['schedules'].get('SE'):
-				output['PAGENO'] = 1
-				output['TOTALPAGES'] = 1
+				output['PAGENO'] = page_index
+				output['TOTALPAGES'] = page_index
 			else:
 				if len(f24_data['schedules']['SE']) % 2 == 0:
 					output['TOTALPAGES'] = len(f24_data['schedules']['SE'])//2
 				else:
 					output['TOTALPAGES'] = (len(f24_data['schedules']['SE'])//2)+1
-			
+				full_counter = 0
+				for page in range(0, output['TOTALPAGES'], 1):
+					counter = 0
+					for i in range(0,2,1):
+						if 2*(page)+i < len(f24_data['schedules']['SE']):
+							item = f24_data['schedules'].get('SE')[2*(page)+i]
+							if item.get("memoCode") == 'X' and item.get("memoDescription"):
+								counter = 1
+					full_counter = full_counter + counter
+				if report_memo_flag: full_counter += 1
+				output['TOTALPAGES'] += full_counter
+
+			# Printing report memo text page
+			if report_memo_flag:
+				memo_dict = {'scheduleName_1' : 'F3X' + f24_data['amendIndicator'],
+							'memoDescription_1' : f24_data['memoText'],
+							'PAGESTR' : "PAGE " + str(1) + " / " + str(output['TOTALPAGES'])}
+				print_summ(memo_dict, 1, reportId, json_file_md5)
+
 			if f24_data.get('filedDate'):
-				# build treasurer name to map it to PDF template
-				treasurer_full_name = []
-				treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
-				for item in treasurer_list:
-					if f24_data[item] not in [None, '', "", " "]:
-						treasurer_full_name.append(f24_data[item])
-				output['treasurerFullName'] = ", ".join(map(str, treasurer_full_name))
-				output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
-				output['efStamp'] = '[Electronically Filed]'
 				filed_date_array = f24_data['filedDate'].split("/")
 				output['filedDate_MM'] = filed_date_array[0]
 				output['filedDate_DD'] = filed_date_array[1]
 				output['filedDate_YY'] = filed_date_array[2]
 			if f24_data['schedules'].get('SE'):
+				page_index = 2 if report_memo_flag else 1
 				page_dict = {}
 				sub_total = 0
 				total = 0
-				page_index = 1
 				for i, se in enumerate(f24_data['schedules']['SE']):
 					index = (i%2)+1
 					if 'payeeLastName' in se and se['payeeLastName']:
@@ -147,19 +171,29 @@ def print_pdftk(stamp_print):
 					for item in ['candidateLastName', 'candidateFirstName', 'candidateMiddleName', 'candidatePrefix', 'candidateSuffix']:
 						if se[item]: candidate_name_list.append(se[item])
 					page_dict["candidateName_" + str(index)] = " ".join(candidate_name_list)
-					sub_total += se['expenditureAmount']
-					total += se['expenditureAmount']
+					if se.get('memoCode') != 'X':
+						sub_total += se['expenditureAmount']
+						total += se['expenditureAmount']
 					# print and reset
 					if (index%2 == 0 or i == (len(f24_data['schedules']['SE'])-1)):
 						page_dict['PAGENO'] = page_index
 						page_dict["subTotal"] = "{:.2f}".format(sub_total)
 						if i == (len(f24_data['schedules']['SE'])-1): page_dict["total"] = "{:.2f}".format(total)
 						print_dict = {**output, **page_dict}
-						print(print_dict)
 						print_f24(print_dict, page_index, reportId, json_file_md5)
+						page_index += 1
+						memo_dict = {}
+						for xir in range(1, 3):
+							if page_dict.get("memoCode_{}".format(xir)) == 'X' and page_dict.get("memoDescription_{}".format(xir)):
+								memo_dict["scheduleName_{}".format(xir)] = 'SE'
+								memo_dict["memoDescription_{}".format(xir)] = page_dict["memoDescription_{}".format(xir)]
+								memo_dict["transactionId_{}".format(xir)] = page_dict["transactionId_{}".format(xir)]
+								memo_dict['PAGESTR'] = "PAGE " + str(page_index) + " / " + str(output['TOTALPAGES'])
+						if memo_dict:
+							print_summ(memo_dict, page_index, reportId, json_file_md5)
+							page_index += 1
 						page_dict = {}
 						sub_total = 0
-						page_index += 1
 			else:
 				output["subTotal"] = "0.00"
 				output["total"] = "0.00"
@@ -167,14 +201,14 @@ def print_pdftk(stamp_print):
 
 			# Concatinating all pages generated
 			for i in range(1, output['TOTALPAGES']+1, 1):
-				if path.isfile(md5_directory + reportId + '/F24.pdf'):
-					print('TRUE')
-					pypdftk.concat([md5_directory + reportId + '/F24.pdf', md5_directory + reportId + '/F24_{}.pdf'.format(i)],
-					md5_directory + reportId + '/temp_F24.pdf')
-					os.rename(md5_directory + reportId + '/temp_F24.pdf', md5_directory + reportId + '/F24.pdf')
+				if path.isfile(md5_directory + reportId + '/F24_temp.pdf'):
+					pypdftk.concat([md5_directory + reportId + '/F24_temp.pdf', md5_directory + reportId + '/F24_{}.pdf'.format(i)],
+					md5_directory + reportId + '/concat_F24.pdf')
+					os.rename(md5_directory + reportId + '/concat_F24.pdf', md5_directory + reportId + '/F24_temp.pdf')
 					os.remove(md5_directory + reportId + '/F24_{}.pdf'.format(i))
 				else:
-					os.rename(md5_directory + reportId + '/F24_{}.pdf'.format(i), md5_directory + reportId + '/F24.pdf')
+					os.rename(md5_directory + reportId + '/F24_{}.pdf'.format(i), md5_directory + reportId + '/F24_temp.pdf')
+			os.rename(md5_directory + reportId + '/F24_temp.pdf', md5_directory + reportId + '/F24.pdf')
 
 			# push output file to AWS
 			s3 = boto3.client('s3')
@@ -182,7 +216,6 @@ def print_pdftk(stamp_print):
 			md5_directory + 'F24.pdf',
 			ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
 			response = {
-			# 'file_name': '{}.pdf'.format(json_file_md5),
 			'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5) + 'F24.pdf'
 			}
 			# response = {'yes':True}
@@ -199,23 +232,27 @@ def print_pdftk(stamp_print):
 				)
 				status_code = status.HTTP_400_BAD_REQUEST
 				return flask.jsonify(**envelope), status_code
-	except Exception as e:
-		return error('Error generating print preview, error message: ' + str(e))
+	# except Exception as e:
+	# 	return error('Error generating print preview, error message: ' + str(e))
 
 def print_f24(print_dict, page_index, reportId, json_file_md5):
 	try:
 		md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
-		print('here')
 		infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('F24')
-		print('here1')
 		outfile = md5_directory + json_file_md5 + '_temp.pdf'
-		print('here2')
-		print(infile)
-		print(print_dict)
-		print(outfile)
 		pypdftk.fill_form(infile, print_dict, outfile)
 		shutil.copy(outfile, md5_directory + reportId + '/F24_{}.pdf'.format(page_index))
 		os.remove(outfile)
-		print('here_end')
 	except Exception as e:
 		return error('print_f24 error, error message: ' + str(e))
+
+def print_summ(print_dict, page_index, reportId, json_file_md5):
+	try:
+		md5_directory = current_app.config['OUTPUT_DIR_LOCATION'].format(json_file_md5)
+		infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
+		outfile = md5_directory + json_file_md5 + '_temp.pdf'
+		pypdftk.fill_form(infile, print_dict, outfile)
+		shutil.copy(outfile, md5_directory + reportId + '/F24_{}.pdf'.format(page_index))
+		os.remove(outfile)
+	except Exception as e:
+		return error('print_f24_summ error, error message: ' + str(e))
