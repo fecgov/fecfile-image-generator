@@ -118,6 +118,7 @@ def print_pdftk(stamp_print):
 							'memoDescription_1' : f24_data['memoText'],
 							'PAGESTR' : "PAGE " + str(1) + " / " + str(output['TOTALPAGES'])}
 				print_summ(memo_dict, 1, reportId, json_file_md5)
+
 			if f24_data.get('filedDate'):
 				filed_date_array = f24_data['filedDate'].split("/")
 				output['filedDate_MM'] = filed_date_array[0]
