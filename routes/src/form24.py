@@ -71,6 +71,15 @@ def print_pdftk(stamp_print):
 			output['committeeName'] = f24_data['committeeName']
 			output['reportType'] = f24_data['reportType']
 			output['amendIndicator'] = f24_data['amendIndicator']
+			# build treasurer name to map it to PDF template
+			treasurer_full_name = []
+			treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
+			for item in treasurer_list:
+				if f24_data[item] not in [None, '', "", " "]:
+					treasurer_full_name.append(f24_data[item])
+			output['treasurerFullName'] = ", ".join(map(str, treasurer_full_name))
+			output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
+			output['efStamp'] = '[Electronically Filed]'
 			if output['amendIndicator'] == 'A':
 				if f24_data['amendDate']:
 					amend_date_array = f24_data['amendDate'].split("/")
@@ -85,17 +94,7 @@ def print_pdftk(stamp_print):
 					output['TOTALPAGES'] = len(f24_data['schedules']['SE'])//2
 				else:
 					output['TOTALPAGES'] = (len(f24_data['schedules']['SE'])//2)+1
-			
 			if f24_data.get('filedDate'):
-				# build treasurer name to map it to PDF template
-				treasurer_full_name = []
-				treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
-				for item in treasurer_list:
-					if f24_data[item] not in [None, '', "", " "]:
-						treasurer_full_name.append(f24_data[item])
-				output['treasurerFullName'] = ", ".join(map(str, treasurer_full_name))
-				output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
-				output['efStamp'] = '[Electronically Filed]'
 				filed_date_array = f24_data['filedDate'].split("/")
 				output['filedDate_MM'] = filed_date_array[0]
 				output['filedDate_DD'] = filed_date_array[1]
@@ -147,8 +146,9 @@ def print_pdftk(stamp_print):
 					for item in ['candidateLastName', 'candidateFirstName', 'candidateMiddleName', 'candidatePrefix', 'candidateSuffix']:
 						if se[item]: candidate_name_list.append(se[item])
 					page_dict["candidateName_" + str(index)] = " ".join(candidate_name_list)
-					sub_total += se['expenditureAmount']
-					total += se['expenditureAmount']
+					if se.get('memoCode') != 'X':
+						sub_total += se['expenditureAmount']
+						total += se['expenditureAmount']
 					# print and reset
 					if (index%2 == 0 or i == (len(f24_data['schedules']['SE'])-1)):
 						page_dict['PAGENO'] = page_index
