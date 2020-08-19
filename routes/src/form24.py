@@ -76,12 +76,10 @@ def print_pdftk(stamp_print):
 			report_memo_flag = True if f24_data.get('memoText') else False
 
 			# build treasurer name to map it to PDF template
-			treasurer_full_name = []
 			treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
+			output['treasurerFullName'] = ""
 			for item in treasurer_list:
-				if f24_data[item] not in [None, '', "", " "]:
-					treasurer_full_name.append(f24_data[item])
-			output['treasurerFullName'] = ", ".join(map(str, treasurer_full_name))
+				output['treasurerFullName'] += f24_data.get(item, "")+','
 			output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
 			output['efStamp'] = '[Electronically Filed]'
 			if output['amendIndicator'] == 'A':
@@ -132,10 +130,9 @@ def print_pdftk(stamp_print):
 				for i, se in enumerate(f24_data['schedules']['SE']):
 					index = (i%2)+1
 					if 'payeeLastName' in se and se['payeeLastName']:
-						name_list = []
+						page_dict["payeeName_" + str(index)] = ""
 						for item in ['payeeLastName', 'payeeFirstName', 'payeeMiddleName', 'payeePrefix', 'payeeSuffix']:
-							if se[item]: name_list.append(se[item])
-						page_dict["payeeName_" + str(index)] = " ".join(name_list)
+							page_dict["payeeName_" + str(index)] += se.get(item,"")+','
 
 					elif 'payeeOrganizationName' in se:
 						page_dict["payeeName_" + str(index)] = se['payeeOrganizationName']
@@ -167,10 +164,11 @@ def print_pdftk(stamp_print):
 						page_dict["disbursementDate_MM_" + str(index)] = disburse_date_array[0]
 						page_dict["disbursementDate_DD_" + str(index)] = disburse_date_array[1]
 						page_dict["disbursementDate_YY_" + str(index)] = disburse_date_array[2]
-					candidate_name_list = []
+					page_dict["candidateName_" + str(index)] = ""
 					for item in ['candidateLastName', 'candidateFirstName', 'candidateMiddleName', 'candidatePrefix', 'candidateSuffix']:
-						if se[item]: candidate_name_list.append(se[item])
-					page_dict["candidateName_" + str(index)] = " ".join(candidate_name_list)
+						page_dict["candidateName_" + str(index)] += se.get(item,"")+','
+					# 	if se[item]: candidate_name_list.append(se[item])
+					# page_dict["candidateName_" + str(index)] = " ".join(candidate_name_list)
 					if se.get('memoCode') != 'X':
 						sub_total += se['expenditureAmount']
 						total += se['expenditureAmount']
