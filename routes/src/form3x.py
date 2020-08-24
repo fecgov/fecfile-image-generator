@@ -2273,6 +2273,14 @@ def process_se_line(f3x_data, md5_directory, line_number, se_line, se_line_page_
                     se_schedule_page_dict['pageTotal'] = '{0:.2f}'.format(schedule_total)
                 se_schedule_page_dict['committeeName'] = f3x_data['committeeName']
                 se_schedule_page_dict['committeeId'] = f3x_data['committeeId']
+                # checking for signed date, it is only available for submitted reports
+                # and adding in date signed and treasurer name for signed reports
+                if len(f3x_data['dateSigned']) > 0:
+                    date_signed_array = f3x_data['dateSigned'].split("/")
+                    se_schedule_page_dict['dateSignedMonth'] = date_signed_array[0]
+                    se_schedule_page_dict['dateSignedDay'] = date_signed_array[1]
+                    se_schedule_page_dict['dateSignedYear'] = date_signed_array[2]
+                    se_schedule_page_dict['completingName'] = f3x_data['treasurerName']
                 se_outfile = md5_directory + 'SE/' + line_number + '/page_' + str(se_page_no) + '.pdf'
                 pypdftk.fill_form(se_infile, se_schedule_page_dict, se_outfile)
                 # Memo text changes
@@ -4614,7 +4622,7 @@ def build_se_name_date_dict(index, key, se_schedule_dict, se_schedule_page_dict)
             se_schedule_page_dict['disbursementDateDay_' + str(index)] = date_array[1]
             se_schedule_page_dict['disbursementDateYear_' + str(index)] = date_array[2]
 
-        if key == 'dateSigned':
+        if (key == 'dateSigned' and len(se_schedule_dict[key])) > 0:
             date_array = se_schedule_dict[key].split("/")
             se_schedule_page_dict['dateSignedMonth_' + str(index)] = date_array[0]
             se_schedule_page_dict['dateSignedDay_' + str(index)] = date_array[1]
