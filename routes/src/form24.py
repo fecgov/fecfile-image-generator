@@ -121,6 +121,7 @@ def print_pdftk(stamp_print):
 				output['treasurerFullName'] = ""
 				for item in treasurer_list:
 					output['treasurerFullName'] += f24_data.get(item, "")+','
+				output['treasurerFullName'] = output['treasurerFullName'][:-1]
 				output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
 
 			if f24_data['schedules'].get('SE'):
@@ -134,7 +135,7 @@ def print_pdftk(stamp_print):
 						page_dict["payeeName_" + str(index)] = ""
 						for item in ['payeeLastName', 'payeeFirstName', 'payeeMiddleName', 'payeePrefix', 'payeeSuffix']:
 							page_dict["payeeName_" + str(index)] += se.get(item,"")+','
-
+						page_dict["payeeName_" + str(index)] = page_dict["payeeName_" + str(index)][:-1]
 					elif 'payeeOrganizationName' in se:
 						page_dict["payeeName_" + str(index)] = se['payeeOrganizationName']
 					page_dict["memoCode_" + str(index)] = se['memoCode']
@@ -168,6 +169,7 @@ def print_pdftk(stamp_print):
 					page_dict["candidateName_" + str(index)] = ""
 					for item in ['candidateLastName', 'candidateFirstName', 'candidateMiddleName', 'candidatePrefix', 'candidateSuffix']:
 						page_dict["candidateName_" + str(index)] += se.get(item,"")+','
+					page_dict["candidateName_" + str(index)] = page_dict["candidateName_" + str(index)][:-1]
 					# 	if se[item]: candidate_name_list.append(se[item])
 					# page_dict["candidateName_" + str(index)] = " ".join(candidate_name_list)
 					if se.get('memoCode') != 'X':
