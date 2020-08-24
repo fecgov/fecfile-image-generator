@@ -75,12 +75,6 @@ def print_pdftk(stamp_print):
 			# checking report memo text
 			report_memo_flag = True if f24_data.get('memoText') else False
 
-			# build treasurer name to map it to PDF template
-			treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
-			output['treasurerFullName'] = ""
-			for item in treasurer_list:
-				output['treasurerFullName'] += f24_data.get(item, "")+','
-			output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
 			output['efStamp'] = '[Electronically Filed]'
 			if output['amendIndicator'] == 'A':
 				if f24_data['amendDate']:
@@ -104,14 +98,14 @@ def print_pdftk(stamp_print):
 					for i in range(0,2,1):
 						if 2*(page)+i < len(f24_data['schedules']['SE']):
 							item = f24_data['schedules'].get('SE')[2*(page)+i]
-							if item.get("memoCode") == 'X' and item.get("memoDescription"):
+							if item.get("memoDescription"):
 								counter = 1
 					full_counter = full_counter + counter
-				if report_memo_flag: full_counter += 1
+				if report_memo_flag and f24_data['reportPrint']: full_counter += 1
 				output['TOTALPAGES'] += full_counter
 
 			# Printing report memo text page
-			if report_memo_flag:
+			if report_memo_flag and f24_data['reportPrint']:
 				memo_dict = {'scheduleName_1' : 'F3X' + f24_data['amendIndicator'],
 							'memoDescription_1' : f24_data['memoText'],
 							'PAGESTR' : "PAGE " + str(1) + " / " + str(output['TOTALPAGES'])}
@@ -122,8 +116,15 @@ def print_pdftk(stamp_print):
 				output['filedDate_MM'] = filed_date_array[0]
 				output['filedDate_DD'] = filed_date_array[1]
 				output['filedDate_YY'] = filed_date_array[2]
+				# build treasurer name to map it to PDF template
+				treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
+				output['treasurerFullName'] = ""
+				for item in treasurer_list:
+					output['treasurerFullName'] += f24_data.get(item, "")+','
+				output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
+
 			if f24_data['schedules'].get('SE'):
-				page_index = 2 if report_memo_flag else 1
+				page_index = 2 if report_memo_flag and f24_data['reportPrint'] else 1
 				page_dict = {}
 				sub_total = 0
 				total = 0
@@ -182,7 +183,7 @@ def print_pdftk(stamp_print):
 						page_index += 1
 						memo_dict = {}
 						for xir in range(1, 3):
-							if page_dict.get("memoCode_{}".format(xir)) == 'X' and page_dict.get("memoDescription_{}".format(xir)):
+							if page_dict.get("memoDescription_{}".format(xir)):
 								memo_dict["scheduleName_{}".format(xir)] = 'SE'
 								memo_dict["memoDescription_{}".format(xir)] = page_dict["memoDescription_{}".format(xir)]
 								memo_dict["transactionId_{}".format(xir)] = page_dict["transactionId_{}".format(xir)]
