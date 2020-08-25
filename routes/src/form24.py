@@ -75,14 +75,6 @@ def print_pdftk(stamp_print):
 			# checking report memo text
 			report_memo_flag = True if f24_data.get('memoText') else False
 
-			# build treasurer name to map it to PDF template
-			treasurer_full_name = []
-			treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
-			for item in treasurer_list:
-				if f24_data[item] not in [None, '', "", " "]:
-					treasurer_full_name.append(f24_data[item])
-			output['treasurerFullName'] = ", ".join(map(str, treasurer_full_name))
-			output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
 			output['efStamp'] = '[Electronically Filed]'
 			if output['amendIndicator'] == 'A':
 				if f24_data['amendDate']:
@@ -106,14 +98,14 @@ def print_pdftk(stamp_print):
 					for i in range(0,2,1):
 						if 2*(page)+i < len(f24_data['schedules']['SE']):
 							item = f24_data['schedules'].get('SE')[2*(page)+i]
-							if item.get("memoCode") == 'X' and item.get("memoDescription"):
+							if item.get("memoDescription"):
 								counter = 1
 					full_counter = full_counter + counter
-				if report_memo_flag: full_counter += 1
+				if report_memo_flag and f24_data['reportPrint']: full_counter += 1
 				output['TOTALPAGES'] += full_counter
 
 			# Printing report memo text page
-			if report_memo_flag:
+			if report_memo_flag and f24_data['reportPrint']:
 				memo_dict = {'scheduleName_1' : 'F3X' + f24_data['amendIndicator'],
 							'memoDescription_1' : f24_data['memoText'],
 							'PAGESTR' : "PAGE " + str(1) + " / " + str(output['TOTALPAGES'])}
@@ -124,19 +116,26 @@ def print_pdftk(stamp_print):
 				output['filedDate_MM'] = filed_date_array[0]
 				output['filedDate_DD'] = filed_date_array[1]
 				output['filedDate_YY'] = filed_date_array[2]
+				# build treasurer name to map it to PDF template
+				treasurer_list = ['treasurerLastName', 'treasurerFirstName', 'treasurerMiddleName', 'treasurerPrefix', 'treasurerSuffix']
+				output['treasurerFullName'] = ""
+				for item in treasurer_list:
+					output['treasurerFullName'] += f24_data.get(item, "")+','
+				output['treasurerFullName'] = output['treasurerFullName'][:-1]
+				output['treasurerName'] = f24_data['treasurerLastName'] + ", " + f24_data['treasurerFirstName']
+
 			if f24_data['schedules'].get('SE'):
-				page_index = 2 if report_memo_flag else 1
+				page_index = 2 if report_memo_flag and f24_data['reportPrint'] else 1
 				page_dict = {}
 				sub_total = 0
 				total = 0
 				for i, se in enumerate(f24_data['schedules']['SE']):
 					index = (i%2)+1
 					if 'payeeLastName' in se and se['payeeLastName']:
-						name_list = []
+						page_dict["payeeName_" + str(index)] = ""
 						for item in ['payeeLastName', 'payeeFirstName', 'payeeMiddleName', 'payeePrefix', 'payeeSuffix']:
-							if se[item]: name_list.append(se[item])
-						page_dict["payeeName_" + str(index)] = " ".join(name_list)
-
+							page_dict["payeeName_" + str(index)] += se.get(item,"")+','
+						page_dict["payeeName_" + str(index)] = page_dict["payeeName_" + str(index)][:-1]
 					elif 'payeeOrganizationName' in se:
 						page_dict["payeeName_" + str(index)] = se['payeeOrganizationName']
 					page_dict["memoCode_" + str(index)] = se['memoCode']
@@ -167,10 +166,12 @@ def print_pdftk(stamp_print):
 						page_dict["disbursementDate_MM_" + str(index)] = disburse_date_array[0]
 						page_dict["disbursementDate_DD_" + str(index)] = disburse_date_array[1]
 						page_dict["disbursementDate_YY_" + str(index)] = disburse_date_array[2]
-					candidate_name_list = []
+					page_dict["candidateName_" + str(index)] = ""
 					for item in ['candidateLastName', 'candidateFirstName', 'candidateMiddleName', 'candidatePrefix', 'candidateSuffix']:
-						if se[item]: candidate_name_list.append(se[item])
-					page_dict["candidateName_" + str(index)] = " ".join(candidate_name_list)
+						page_dict["candidateName_" + str(index)] += se.get(item,"")+','
+					page_dict["candidateName_" + str(index)] = page_dict["candidateName_" + str(index)][:-1]
+					# 	if se[item]: candidate_name_list.append(se[item])
+					# page_dict["candidateName_" + str(index)] = " ".join(candidate_name_list)
 					if se.get('memoCode') != 'X':
 						sub_total += se['expenditureAmount']
 						total += se['expenditureAmount']
@@ -184,7 +185,7 @@ def print_pdftk(stamp_print):
 						page_index += 1
 						memo_dict = {}
 						for xir in range(1, 3):
-							if page_dict.get("memoCode_{}".format(xir)) == 'X' and page_dict.get("memoDescription_{}".format(xir)):
+							if page_dict.get("memoDescription_{}".format(xir)):
 								memo_dict["scheduleName_{}".format(xir)] = 'SE'
 								memo_dict["memoDescription_{}".format(xir)] = page_dict["memoDescription_{}".format(xir)]
 								memo_dict["transactionId_{}".format(xir)] = page_dict["transactionId_{}".format(xir)]
