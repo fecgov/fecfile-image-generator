@@ -193,14 +193,17 @@ def print_pdftk(stamp_print):
         else:
             # no summary, expecting it to be from individual transactions
             if has_sa_schedules:
-                shutil.move(md5_directory + 'SA/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                if os.path.exists(md5_directory + 'all_pages.pdf'):
+                    os.remove(md5_directory + 'all_pages.pdf')
+                    shutil.move(md5_directory + 'SA/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                else:
+                    shutil.move(md5_directory + 'SA/all_pages.pdf', md5_directory + 'all_pages.pdf')
                 shutil.rmtree(md5_directory + 'SA')
 
             if has_sb_schedules:
-                if path.exists(md5_directory + 'all_pages.pdf'):
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SB/all_pages.pdf'],
-                                   md5_directory + 'temp_all_pages.pdf')
-                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                if os.path.exists(md5_directory + 'all_pages.pdf'):
+                    os.remove(md5_directory + 'all_pages.pdf')
+                    shutil.move(md5_directory + 'SB/all_pages.pdf', md5_directory + 'all_pages.pdf')
                 else:
                     shutil.move(md5_directory + 'SB/all_pages.pdf', md5_directory + 'all_pages.pdf')
                 shutil.rmtree(md5_directory + 'SB')
