@@ -162,7 +162,7 @@ def print_pdftk(stamp_print):
                 memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
                 memo_dict['scheduleName_1'] = 'F3L' + f3l_data_summary['amendmentIndicator']
                 memo_dict['memoDescription_1'] = f3l_data_summary['memoText']
-                memo_dict['PAGESTR'] = "PAGE " + str(6) + " / " + str(total_no_of_pages)
+                memo_dict['PAGESTR'] = "PAGE " + str(2) + " / " + str(total_no_of_pages)
                 pypdftk.fill_form(memo_infile, memo_dict, temp_memo_outfile)
                 pypdftk.concat([md5_directory + 'F3L_Summary.pdf', temp_memo_outfile], md5_directory +
                                json_file_md5 + '_temp.pdf')
