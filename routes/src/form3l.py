@@ -208,12 +208,12 @@ def print_pdftk(stamp_print):
                     shutil.move(md5_directory + 'SB/all_pages.pdf', md5_directory + 'all_pages.pdf')
                 shutil.rmtree(md5_directory + 'SB')
 
-                # push output file to AWS
-                s3 = boto3.client('s3')
-                s3.upload_file(md5_directory + 'all_pages.pdf',
-                               current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                               md5_directory + 'all_pages.pdf',
-                               ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
+        # push output file to AWS
+        s3 = boto3.client('s3')
+        s3.upload_file(md5_directory + 'all_pages.pdf',
+                       current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+                       md5_directory + 'all_pages.pdf',
+                       ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
         response = {
             # 'file_name': '{}.pdf'.format(json_file_md5),
             'pdf_url': current_app.config['PRINT_OUTPUT_FILE_URL'].format(json_file_md5) + 'all_pages.pdf'
