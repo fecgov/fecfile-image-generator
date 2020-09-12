@@ -160,13 +160,13 @@ def print_pdftk(stamp_print):
                 memo_dict = {}
                 temp_memo_outfile = md5_directory + 'F3L_Summary_memo.pdf'
                 memo_infile = current_app.config['FORM_TEMPLATES_LOCATION'].format('TEXT')
-                memo_dict['scheduleName_1'] = 'F3X' + f3l_data_summary['amendmentIndicator']
+                memo_dict['scheduleName_1'] = 'F3L' + f3l_data_summary['amendmentIndicator']
                 memo_dict['memoDescription_1'] = f3l_data_summary['memoText']
-                memo_dict['PAGESTR'] = "PAGE " + str(6) + " / " + str(total_no_of_pages)
+                memo_dict['PAGESTR'] = "PAGE " + str(2) + " / " + str(total_no_of_pages)
                 pypdftk.fill_form(memo_infile, memo_dict, temp_memo_outfile)
-                pypdftk.concat([md5_directory + 'F3X_Summary.pdf', temp_memo_outfile], md5_directory +
+                pypdftk.concat([md5_directory + 'F3L_Summary.pdf', temp_memo_outfile], md5_directory +
                                json_file_md5 + '_temp.pdf')
-                shutil.copy(md5_directory + json_file_md5 + '_temp.pdf', md5_directory + 'F3X_Summary.pdf')
+                shutil.copy(md5_directory + json_file_md5 + '_temp.pdf', md5_directory + 'F3L_Summary.pdf')
                 os.remove(md5_directory + json_file_md5 + '_temp.pdf')
 
             # check if all_pages already exsits
@@ -180,7 +180,7 @@ def print_pdftk(stamp_print):
                 os.remove(md5_directory + 'SA/all_pages.pdf')
                 shutil.rmtree(md5_directory + 'SA')
             else:
-                shutil.copy(md5_directory + 'F3L.pdf', md5_directory + 'all_pages.pdf')
+                shutil.copy(md5_directory + 'F3L_Summary.pdf', md5_directory + 'all_pages.pdf')
 
             # checking for sb transactions
             if has_sb_schedules:
@@ -193,14 +193,17 @@ def print_pdftk(stamp_print):
         else:
             # no summary, expecting it to be from individual transactions
             if has_sa_schedules:
-                shutil.move(md5_directory + 'SA/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                if os.path.exists(md5_directory + 'all_pages.pdf'):
+                    os.remove(md5_directory + 'all_pages.pdf')
+                    shutil.move(md5_directory + 'SA/all_pages.pdf', md5_directory + 'all_pages.pdf')
+                else:
+                    shutil.move(md5_directory + 'SA/all_pages.pdf', md5_directory + 'all_pages.pdf')
                 shutil.rmtree(md5_directory + 'SA')
 
             if has_sb_schedules:
-                if path.exists(md5_directory + 'all_pages.pdf'):
-                    pypdftk.concat([md5_directory + 'all_pages.pdf', md5_directory + 'SB/all_pages.pdf'],
-                                   md5_directory + 'temp_all_pages.pdf')
-                    shutil.move(md5_directory + 'temp_all_pages.pdf', md5_directory + 'all_pages.pdf')
+                if os.path.exists(md5_directory + 'all_pages.pdf'):
+                    os.remove(md5_directory + 'all_pages.pdf')
+                    shutil.move(md5_directory + 'SB/all_pages.pdf', md5_directory + 'all_pages.pdf')
                 else:
                     shutil.move(md5_directory + 'SB/all_pages.pdf', md5_directory + 'all_pages.pdf')
                 shutil.rmtree(md5_directory + 'SB')
