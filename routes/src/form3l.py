@@ -61,6 +61,7 @@ def get_summary_detail(f3l_summary, f3l_data, f3l_data_summary):
             f3l_data_summary['semiAnnualPeriod_6b_H2'] = 'X'
 
     f3l_data_summary['amendmentIndicator'] = f3l_data['amend_indicator']
+    f3l_data_summary['reportCode'] = f3l_data['reportcode']
 
     if f3l_summary['contribute_amount_query'] and len(f3l_summary['contribute_amount_query']) > 0:
         f3l_amount = f3l_summary['contribute_amount_query']
@@ -105,15 +106,17 @@ def print_pdftk(stamp_print):
             f3l_summary = f3l_data['summary']
 
         # split coverage start date and coverage end date to set month, day, and year
-        coverage_start_date_array = f3l_data['coverageStartDate'].split("/")
-        f3l_data['coverageStartDateMonth'] = coverage_start_date_array[0]
-        f3l_data['coverageStartDateDay'] = coverage_start_date_array[1]
-        f3l_data['coverageStartDateYear'] = coverage_start_date_array[2]
+        if f3l_data['coverageStartDate'] and len(f3l_data['coverageStartDate']) > 0:
+            coverage_start_date_array = f3l_data['coverageStartDate'].split("/")
+            f3l_data['coverageStartDateMonth'] = coverage_start_date_array[0]
+            f3l_data['coverageStartDateDay'] = coverage_start_date_array[1]
+            f3l_data['coverageStartDateYear'] = coverage_start_date_array[2]
 
-        coverage_end_date_array = f3l_data['coverageEndDate'].split("/")
-        f3l_data['coverageEndDateMonth'] = coverage_end_date_array[0]
-        f3l_data['coverageEndDateDay'] = coverage_end_date_array[1]
-        f3l_data['coverageEndDateYear'] = coverage_end_date_array[2]
+        if f3l_data['coverageEndDate'] and len(f3l_data['coverageEndDate']) > 0:
+            coverage_end_date_array = f3l_data['coverageEndDate'].split("/")
+            f3l_data['coverageEndDateMonth'] = coverage_end_date_array[0]
+            f3l_data['coverageEndDateDay'] = coverage_end_date_array[1]
+            f3l_data['coverageEndDateYear'] = coverage_end_date_array[2]
 
         # checking for signed date, it is only available for submitted reports
         if f3l_data['date_signed'] and len(f3l_data['date_signed']) > 0:
