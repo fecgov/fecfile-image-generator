@@ -120,7 +120,7 @@ def print_pdftk(stamp_print):
 
         # checking for signed date, it is only available for submitted reports
         if f3l_data['date_signed'] and len(f3l_data['date_signed']) > 0:
-            date_signed_array = f3l_data['date_signed'].split("/")
+            date_signed_array = f3l_data['date_signed'].split("-")
             f3l_data['dateSignedMonth'] = date_signed_array[0]
             f3l_data['dateSignedDay'] = date_signed_array[1]
             f3l_data['dateSignedYear'] = date_signed_array[2]
