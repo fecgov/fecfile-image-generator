@@ -3,7 +3,7 @@ import flask
 
 from flask import request
 from flask_cors import CORS
-from routes.src import tmoflask, form99, form3x, form1m
+from routes.src import tmoflask, form99, form3x, form1m, form24, form3l
 
 logger = logging.getLogger()
 
@@ -36,6 +36,10 @@ def print_pdf():
         return form3x.print_pdftk('')
     elif form_type == 'F1M':
         return form1m.print_pdftk('')
+    elif form_type == 'F24':
+        return form24.print_pdftk('')
+    elif form_type == 'F3L':
+        return form3l.print_pdftk('')
 
 @app.route('/stamp_print', methods=['POST'])
 def stamp_print_pdf():
