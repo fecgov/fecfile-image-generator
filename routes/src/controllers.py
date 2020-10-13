@@ -3,7 +3,7 @@ import flask
 
 from flask import request
 from flask_cors import CORS
-from routes.src import tmoflask, form99, form3x_copy, form1m, form24
+from routes.src import tmoflask, form99, form1m, form24
 from routes.src.f3x import form3x
 
 logger = logging.getLogger()
