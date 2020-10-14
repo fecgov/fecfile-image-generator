@@ -67,7 +67,7 @@ def print_se_line(
                     schedule_page_dict["dateSignedMonth"] = date_signed_array[0]
                     schedule_page_dict["dateSignedDay"] = date_signed_array[1]
                     schedule_page_dict["dateSignedYear"] = date_signed_array[2]
-                    schedule_page_dict["completingName"] = f3x_data["treasurerName"]
+                schedule_page_dict["completingName"] = f3x_data["treasurerName"]
                 se_outfile = (
                     md5_directory
                     + "SE/"
