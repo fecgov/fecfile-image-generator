@@ -434,10 +434,10 @@ def print_pdftk(stamp_print, paginate=False):
 
             if not page_count and not paginate:
                 # push output file to AWS
-                # s3 = boto3.client('s3')
-                # s3.upload_file(md5_directory + 'all_pages.pdf', current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                # 			md5_directory + 'all_pages.pdf',
-                # 			ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
+                s3 = boto3.client('s3')
+                s3.upload_file(md5_directory + 'all_pages.pdf', current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+                 			md5_directory + 'all_pages.pdf',
+                 			ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
 
                 response = {
                     # 'file_name': '{}.pdf'.format(json_file_md5),
