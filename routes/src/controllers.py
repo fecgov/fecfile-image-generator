@@ -44,7 +44,6 @@ def print_pdf():
         return form99.print_f99_pdftk_html("")
     elif form_type == "F3X":
         return form3x.print_pdftk("")
-        # return form3x_copy.print_pdftk('')
     elif form_type == "F1M":
         return form1m.print_pdftk("")
     elif form_type == "F24":
@@ -72,15 +71,15 @@ def paginate_pdf():
     success": "true"
     }
     """
-    form_type = request.form["form_type"]
+    form_type = request.json["form_type"]
     if form_type == "F99":
-        return form99.print_f99_pdftk_html("")
+        return form99.print_f99_pdftk_html("", paginate=True)
     elif form_type == "F3X":
         return form3x.print_pdftk("", paginate=True)
     elif form_type == "F1M":
-        return form1m.print_pdftk("")
+        return form1m.paginate()
     elif form_type == "F24":
-        return form24.print_pdftk("")
+        return form24.paginate()
 
 
 @app.route("/stamp_print", methods=["POST"])

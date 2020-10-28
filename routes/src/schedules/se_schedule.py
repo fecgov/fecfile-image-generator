@@ -143,7 +143,6 @@ def print_se_line(
                     md5_directory + "SE/" + line_number + "/all_pages.pdf",
                     md5_directory + "SE/all_pages.pdf",
                 )
-
         return current_page_num, image_num
     except:
         traceback.print_exception(*sys.exc_info())
