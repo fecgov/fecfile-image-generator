@@ -38,9 +38,7 @@ def print_sd_line(
                 concat_no = index % 3 + 1
 
                 if image_num:
-                    print("Schedule D image number", image_num)
                     sd_page_dict["IMGNO"] = image_num
-                    image_num += 1
 
                 if (
                     "creditorOrganizationName" in sd_list[index]
@@ -149,6 +147,8 @@ def print_sd_line(
                             md5_directory + "SD/all_pages.pdf",
                         )
                     page_count += 1
+                    if image_num:
+                        image_num += 1
                     sd_sub_total = 0
 
         return sd_total_balance, image_num

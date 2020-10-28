@@ -122,6 +122,19 @@ def calculate_page_count(schedules, num):
 
     return sch_page_count, memo_sch_page_count
 
+def calculate_sh3_page_count(schedules):
+
+    df_count = dc_count = 0
+
+    for schedule in schedules:
+        if schedule.get('activityEventType') == 'DF':
+            df_count += 1
+
+        elif schedule.get('activityEventType') == 'DC':
+            dc_count += 1
+
+    return math.ceil(max(df_count, dc_count) / 2)
+
 
 def build_memo_page(
     memo_array,
@@ -205,7 +218,6 @@ def build_memo_page(
 
 def map_txn_img_num(schedules, num, txn_img_json, image_num):
     sch_count = memo_sch_count = 0
-    sch_page_count = memo_sch_page_count = 0
 
     for schedule in schedules:
         sch_count += 1
@@ -217,11 +229,8 @@ def map_txn_img_num(schedules, num, txn_img_json, image_num):
             memo_sch_count += 1
 
         if sch_count == num:
-            sch_page_count += 1
-            memo_sch_page_count += math.ceil(memo_sch_count / 2)
-
-            # increase the image_num_count
-            image_num += sch_page_count + memo_sch_page_count
+            image_num += 1
+            image_num += math.ceil(memo_sch_count / 2)
 
             sch_count = 0
             memo_sch_count = 0

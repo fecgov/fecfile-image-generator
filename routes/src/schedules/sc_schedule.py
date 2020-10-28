@@ -370,7 +370,6 @@ def print_sc_line(
 
                 if image_num:
                     sc_schedule_page_dict["IMGNO"] = image_num
-                    print("Bug", image_num)
                     image_num += 1
 
                 if sc_schedules[len(sc_schedules) - 1].get(
