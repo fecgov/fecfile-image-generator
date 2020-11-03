@@ -122,18 +122,23 @@ def calculate_page_count(schedules, num):
 
     return sch_page_count, memo_sch_page_count
 
-def calculate_sh3_page_count(schedules):
 
-    df_count = dc_count = 0
+def calculate_sh3_page_count(schedules):
+    event_type_dict = {}
+    max_count = 0
 
     for schedule in schedules:
-        if schedule.get('activityEventType') == 'DF':
-            df_count += 1
-
-        elif schedule.get('activityEventType') == 'DC':
-            dc_count += 1
-
-    return math.ceil(max(df_count, dc_count) / 2)
+        event_type = schedule.get('activityEventType', None)
+        if event_type:
+            if event_type in event_type_dict:
+                event_type_dict[event_type] = event_type_dict[event_type] + 1
+                if event_type_dict[event_type] > max_count:
+                    max_count = event_type_dict[event_type]
+            else:
+                event_type_dict[event_type] = 1
+                if event_type_dict[event_type] > max_count:
+                    max_count = event_type_dict[event_type]
+    return math.ceil(max_count / 2)
 
 
 def build_memo_page(
