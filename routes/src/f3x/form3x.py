@@ -268,12 +268,14 @@ def print_pdftk(stamp_print, paginate=False):
             if f3x_summary:
                 total_no_of_pages = 5
                 if silent_print or paginate:
+                    txn_img_num = int(txn_img_num)
                     txn_img_num += 5
                 f3x_data_summary_array = [f3x_data, f3x_summary]
                 # if 'memoText' in f3x_data and f3x_data['memoText']:
                 if f3x_data.get("memoText"):
                     total_no_of_pages += 1
                     if silent_print or paginate:
+                        txn_img_num = int(txn_img_num)
                         txn_img_num += 1
             else:
                 f3x_data_summary_array = [f3x_data]
