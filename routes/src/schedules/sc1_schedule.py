@@ -45,7 +45,7 @@ def print_sc1_line(
         sc1_schedule_page_dict["loanIncurredDateDay"] = date_array[1]
         sc1_schedule_page_dict["loanIncurredDateYear"] = date_array[2]
 
-    if sc1.get("loanDueDate") != "":
+    if sc1.get("loanDueDate") not in ["none", "null", " ", "", None]:
         if "-" in sc1.get("loanDueDate"):
             date_array = sc1.get("loanDueDate").split("-")
             if len(date_array) == 3:
