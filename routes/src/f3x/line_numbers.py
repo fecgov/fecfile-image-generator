@@ -3,7 +3,7 @@
 
 def process_sa_line_numbers(sa_line_numbers_dict, sa_obj):
     line_num_val = (
-        "11A1"
+        "11AI"
         if sa_obj.get("lineNumber") in ["11A", "11AI", "11AII"]
         else sa_obj.get("lineNumber")
     )

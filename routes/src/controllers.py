@@ -96,28 +96,29 @@ def _paginate_pdf(
     attachment_file_content=None,
 ):
     if form_type == "F99":
-        status, response = form99.print_f99_pdftk_html(
+        response, status = form99.print_f99_pdftk_html(
             paginate=True,
             file_content=file_content,
             begin_image_num=begin_image_num,
             attachment_file_content=attachment_file_content,
         )
     elif form_type == "F3X":
-        status, response = form3x.print_pdftk(
+        response, status = form3x.print_pdftk(
             paginate=True, file_content=file_content, begin_image_num=begin_image_num
         )
     elif form_type == "F1M":
-        status, response = form1m.paginate(
+        response, status = form1m.paginate(
             file_content=file_content, begin_image_num=begin_image_num
         )
     elif form_type == "F24":
-        status, response = form24.paginate(
+        response, status = form24.paginate(
             file_content=file_content, begin_image_num=begin_image_num
         )
 
-    if status:
+    response = response.json.get("results")
+    if status != 400:
         return response.get("total_pages"), response.get("txn_img_json")
-    return None
+    return None, None
 
 
 @app.route("/stamp_print", methods=["POST"])
@@ -144,25 +145,24 @@ def stamp_print_pdf():
 
 def page_count_pdf(form_type=None, file_content=None):
     if form_type == "F99":
-        response = form99.print_f99_pdftk_html(
+        response, status = form99.print_f99_pdftk_html(
             page_count=True, file_content=file_content
         )
     elif form_type == "F3X":
-        status, response = form3x.print_pdftk(
+        response, status = form3x.print_pdftk(
             page_count=True, file_content=file_content
         )
     elif form_type == "F1M":
-        status, response = form1m.print_pdftk(
+        response, status = form1m.print_pdftk(
             page_count=True, file_content=file_content
         )
     elif form_type == "F24":
-        status, response = form24.print_pdftk(
+        response, status = form24.print_pdftk(
             page_count=True, file_content=file_content
         )
 
-    if status:
-        return response.get("total_pages")
-    return None
+    response = response.json.get("results")
+    return response.get("total_pages") if status != 400 else None
 
 
 def _print_pdf(
@@ -172,45 +172,45 @@ def _print_pdf(
     silent_print=False,
     filing_timestamp=None,
     attachment_file_content=None,
-    rep_id=None
+    rep_id=None,
 ):
     if form_type == "F99":
-        status, response = form99.print_f99_pdftk_html(
+        response, status = form99.print_f99_pdftk_html(
             paginate=False,
             file_content=file_content,
             begin_image_num=begin_image_num,
             attachment_file_content=attachment_file_content,
             silent_print=silent_print,
             filing_timestamp=filing_timestamp,
-            rep_id=rep_id
+            rep_id=rep_id,
         )
     elif form_type == "F3X":
-        status, response = form3x.print_pdftk(
+        response, status = form3x.print_pdftk(
             paginate=False,
             file_content=file_content,
             begin_image_num=begin_image_num,
             silent_print=silent_print,
             filing_timestamp=filing_timestamp,
-            rep_id=rep_id
+            rep_id=rep_id,
         )
     elif form_type == "F1M":
-        status, response = form1m.print_pdftk(
+        response, status = form1m.print_pdftk(
             file_content=file_content,
             begin_image_num=begin_image_num,
             silent_print=silent_print,
             filing_timestamp=filing_timestamp,
-            rep_id=rep_id
+            rep_id=rep_id,
         )
     elif form_type == "F24":
-        status, response = form24.print_pdftk(
+        response, status = form24.print_pdftk(
             file_content=file_content,
             begin_image_num=begin_image_num,
             silent_print=silent_print,
             filing_timestamp=filing_timestamp,
-            rep_id=rep_id
+            rep_id=rep_id,
         )
 
-    return status, response
+    return response, status
 
 
 @app.route("parse_next_in_image_number_queue", methods=["GET"])
@@ -281,16 +281,19 @@ def parse_next_filing_from_image_number_queue():
                         "fileName": message.message_attributes.get("fileName").get(
                             "StringValue"
                         ),
-                        "beginImageNumber": message.message_attributes.get("beginImageNumber").get(
-                            "StringValue"
-                        )
+                        "beginImageNumber": message.message_attributes.get(
+                            "beginImageNumber"
+                        ).get("StringValue"),
                     }
                 )
                 # Parsing the data
-                res = image_number_data(next_imaging[0])
-                # message.delete()
-                print(res)
+                image_number = image_number_data(next_imaging[0])
+                message.delete()
+                print(image_number)
+                # return res
+                res = flask.jsonify({"result": [{"beginImageNum": str(image_number)}]})
                 return res
+
     else:
         print("Nothing to process - Message Queue is empty")
         envelope = common.get_return_envelope(
@@ -317,10 +320,12 @@ def image_number_data(next_imaging=None):
     json_file_name = next_imaging["fileName"]
     begin_image_number = next_imaging["beginImageNumber"]
     # image number should not be null, temporarily assigning summy image number
-    if begin_image_number != '':
-        begin_image_number = '20201109000000'
+    if begin_image_number != "":
+        begin_image_number = "20201109000000"
 
-    file_url = "https://"+cfg.AWS_S3_PAGINATION_COMPONENTS_DOMAIN + "/" + json_file_name
+    file_url = (
+        "https://" + cfg.AWS_S3_PAGINATION_COMPONENTS_DOMAIN + "/" + json_file_name
+    )
     # file_url = "https://dev-efile-repo.s3.amazonaws.com/" + file_name
     print(file_url)
 
@@ -335,14 +340,7 @@ def image_number_data(next_imaging=None):
 
     if json_data.get("data"):
         data = json_data.get("data")
-        # begin_image_num = 1
-        total_pages, txn_img_json = _paginate_pdf(
-            data.get("formType"), file_content, begin_image_number
-        )
-        txn_img_json = json.dumps(txn_img_json)
-        print(total_pages, txn_img_json)
-
-        # total_pages = page_count_pdf(data.get("formType"), file_content)
+        total_pages = page_count_pdf(data.get("formType"), file_content)
         # call parser to update begin image number
         data_obj = {
             "imageType": "EFILING",
@@ -351,26 +349,34 @@ def image_number_data(next_imaging=None):
             "reportType": data.get("reportCode"),
             "cvgStartDate": data.get("coverageStartDate"),
             "cvgEndDate": data.get("coverageEndDate"),
-            "totalPages": total_pages
+            "submissionId": submission_id,
+            "totalPages": total_pages,
         }
-        begin_image_number = requests.post(
+        ## data_obj = json.dumps(data_obj)
+        begin_image_number_object = requests.post(
             cfg.NXG_FEC_PARSER_API_URL
             + cfg.NXG_FEC_PARSER_API_VERSION
             + "/image_number",
             data=data_obj,
         )
+        begin_image_number_json = begin_image_number_object.json()
+        begin_image_num = begin_image_number_json["beginImageNumber"]
+        # begin_image_num = 20201109000000
+        total_pages, txn_img_json = _paginate_pdf(
+            data.get("formType"), file_content, begin_image_num
+        )
+        txn_img_json = json.dumps(txn_img_json)
+        print(total_pages, txn_img_json)
+
         # Call parser to update JSON tran file
-        data_obj = {
-            "submissionId": submission_id,
-            "imageJsonText": txn_img_json
-        }
+        data_obj = {"submissionId": submission_id, "imageJsonText": txn_img_json}
         requests.put(
             cfg.NXG_FEC_PARSER_API_URL
             + cfg.NXG_FEC_PARSER_API_VERSION
             + "/image_number",
-            data=data_obj
+            data=data_obj,
         )
-        return begin_image_number
+        return begin_image_num
 
 
 @app.route("parse_next_in_image_generator_queue", methods=["GET"])
@@ -380,7 +386,7 @@ def parse_next_in_image_generator_queue():
     *****************************************************************************************************************"""
     if request.method == "GET":
         res = parse_next_in_image_generator_queue()
-        return res, status.HTTP_200_OK
+        return res
 
 
 def parse_next_in_image_generator_queue():
@@ -414,6 +420,11 @@ def parse_next_in_image_generator_queue():
         )
         return flask.jsonify(**envelope), status.HTTP_400_BAD_REQUEST
 
+    next_image_generator = []
+    next_image_generator.append("one")
+    res = image_generator_data(next_image_generator)
+    print(res)
+    return res
     if len(messages) > 0:
         # Getting the first message
         for message in messages:
@@ -441,12 +452,12 @@ def parse_next_in_image_generator_queue():
                         "fileName": message.message_attributes.get("fileName").get(
                             "StringValue"
                         ),
-                        "beginImageNumber": message.message_attributes.get("beginImageNumber").get(
-                            "StringValue"
-                        ),
-                        "receivedTime": message.message_attributes.get("receivedTime").get(
-                            "StringValue"
-                        )
+                        "beginImageNumber": message.message_attributes.get(
+                            "beginImageNumber"
+                        ).get("StringValue"),
+                        "receivedTime": message.message_attributes.get(
+                            "receivedTime"
+                        ).get("StringValue"),
                     }
                 )
                 # Parsing the data
@@ -465,21 +476,25 @@ def parse_next_in_image_generator_queue():
 def image_generator_data(next_image_generator=None):
     print(next_image_generator)
     # submission_id = next_imaging["submissionId"]
-    committee_id = next_image_generator["committeeId"]
-    json_file_name = next_image_generator["fileName"]
-    begin_image_number = next_image_generator["beginImageNumber"]
-    filing_timestamp = next_image_generator["receivedTime"]
-    rep_id = json_file_name[0:json_file_name.index(".json")]
-
+    # committee_id = next_image_generator["committeeId"]
+    # json_file_name = next_image_generator["fileName"]
+    # begin_image_number = next_image_generator["beginImageNumber"]
+    # filing_timestamp = next_image_generator["receivedTime"]
+    # rep_id = json_file_name[0 : json_file_name.index(".json")]
+    rep_id = '8'
     print(rep_id)
 
     # image number should not be null, temporarily assigning summy image number
-    if not begin_image_number:
-        begin_image_number = '20201109000000'
-
-    file_url = "https://"+cfg.AWS_S3_PAGINATION_COMPONENTS_DOMAIN + "/" + json_file_name
+    # if not begin_image_number:
+    #     begin_image_number = "20201109000000"
+    begin_image_number = "20201109000000"
+    filing_timestamp = "11/25/2020 1:32PM"
+    # file_url = (
+    #     "https://" + cfg.AWS_S3_FECFILE_COMPONENTS_DOMAIN + "/output/" + json_file_name
+    # )
     # file_url = "https://dev-efile-repo.s3.amazonaws.com/" + file_name
     # file_url = "https://dev-efile-repo.s3.amazonaws.com/C00000935_4498f6f2b355426ca127708551e34f2f.json"
+    file_url = 'https://fecfile-dev-components.s3.amazonaws.com/output/8.json'
     print(file_url)
 
     file_content = None
@@ -495,5 +510,11 @@ def image_generator_data(next_image_generator=None):
         data = json_data.get("data")
         # Stamp PDF
         return _print_pdf(
-            data.get("formType"), file_content, begin_image_number, True, filing_timestamp, rep_id
+            data.get("formType"),
+            file_content,
+            begin_image_number,
+            True,
+            filing_timestamp,
+            None,
+            rep_id,
         )
