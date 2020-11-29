@@ -420,11 +420,11 @@ def parse_next_in_image_generator_queue():
         )
         return flask.jsonify(**envelope), status.HTTP_400_BAD_REQUEST
 
-    next_image_generator = []
-    next_image_generator.append("one")
-    res = image_generator_data(next_image_generator)
-    print(res)
-    return res
+    # next_image_generator = []
+    # next_image_generator.append("one")
+    # res = image_generator_data(next_image_generator)
+    # print(res)
+    # return res
     if len(messages) > 0:
         # Getting the first message
         for message in messages:
@@ -475,27 +475,27 @@ def parse_next_in_image_generator_queue():
 
 def image_generator_data(next_image_generator=None):
     print(next_image_generator)
-    # submission_id = next_imaging["submissionId"]
-    # committee_id = next_image_generator["committeeId"]
-    # json_file_name = next_image_generator["fileName"]
-    # begin_image_number = next_image_generator["beginImageNumber"]
-    # filing_timestamp = next_image_generator["receivedTime"]
-    # rep_id = json_file_name[0 : json_file_name.index(".json")]
-    rep_id = '8'
-    print(rep_id)
+    submission_id = next_image_generator["submissionId"]
+    committee_id = next_image_generator["committeeId"]
+    json_file_name = next_image_generator["fileName"]
+    begin_image_number = next_image_generator["beginImageNumber"]
+    filing_timestamp = next_image_generator["receivedTime"]
+    rep_id = json_file_name[0 : json_file_name.index(".json")]
+    # rep_id = '8'
+    # print(rep_id)
 
     # image number should not be null, temporarily assigning summy image number
     # if not begin_image_number:
     #     begin_image_number = "20201109000000"
-    begin_image_number = "20201109000000"
-    filing_timestamp = "11/25/2020 1:32PM"
-    # file_url = (
-    #     "https://" + cfg.AWS_S3_FECFILE_COMPONENTS_DOMAIN + "/output/" + json_file_name
-    # )
+    # begin_image_number = "20201109000000"
+    # filing_timestamp = "11/25/2020 1:32PM"
+    file_url = (
+        "https://" + cfg.AWS_S3_FECFILE_COMPONENTS_DOMAIN + "/output/" + json_file_name
+    )
     # file_url = "https://dev-efile-repo.s3.amazonaws.com/" + file_name
     # file_url = "https://dev-efile-repo.s3.amazonaws.com/C00000935_4498f6f2b355426ca127708551e34f2f.json"
-    file_url = 'https://fecfile-dev-components.s3.amazonaws.com/output/8.json'
-    print(file_url)
+    # file_url = 'https://fecfile-dev-components.s3.amazonaws.com/output/8.json'
+    # print(file_url)
 
     file_content = None
     json_data = None
