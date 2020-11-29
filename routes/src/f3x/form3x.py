@@ -455,17 +455,13 @@ def print_pdftk(
                     extraArgs = {'ContentType': "application/pdf", 'ACL': "public-read"}
 
                     if silent_print:
-                        response["pdf_url"] = (current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'] +
-                                               current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] +
-                                               rep_id + '.pdf')
-                        
+                        response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
                         s3.upload_file(
                             md5_directory + 'all_pages.pdf',
                             current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                            current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] +
-                            rep_id + '.pdf',
+                            current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
+                            str(rep_id) + '.pdf',
                             ExtraArgs=extraArgs)
-
                     else:
                         response["pdf_url"] = (
                             current_app.config["PRINT_OUTPUT_FILE_URL"].format(
