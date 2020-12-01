@@ -254,6 +254,13 @@ def parse_next_filing_from_image_number_queue():
         )
         return flask.jsonify(**envelope), status.HTTP_400_BAD_REQUEST
     # messages = {}
+    # next_imaging = []
+    # next_imaging.append({"submissionId":"fab1d0fc-0089-4b47-8b80-0a1f3f970066","committeeId":"C00337733",
+    #                      "fileName": "C00337733_fab1d0fc00894b478b800a1f3f970066.json","beginImageNumber":""})
+    # image_number = image_number_data(next_imaging[0])
+    # message.delete()
+    # print(image_number)
+
     if len(messages) > 0:
         # Getting the first message
         for message in messages:

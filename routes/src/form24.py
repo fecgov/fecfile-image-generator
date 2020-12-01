@@ -343,33 +343,28 @@ def print_pdftk(
         }
 
         if not page_count:
-            s3 = boto3.client('s3')
-            extraArgs = {'ContentType': "application/pdf", 'ACL': "public-read"}
+            s3 = boto3.client("s3")
+            extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
 
             if silent_print:
-                response["pdf_url"] = (
-                    current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                    rep_id + '.pdf',
-                )
-                
+                response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
                 s3.upload_file(
-                    md5_directory + reportId + "/F24.pdf",
+                    md5_directory + 'all_pages.pdf',
                     current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                    rep_id + '.pdf',
+                    current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
+                    str(rep_id) + '.pdf',
                     ExtraArgs=extraArgs)
             else:
                 response["pdf_url"] = (
-                    current_app.config["PRINT_OUTPUT_FILE_URL"].format(
-                        json_file_md5
-                    )
+                    current_app.config["PRINT_OUTPUT_FILE_URL"].format(json_file_md5)
                     + "F24.pdf",
                 )
-                                
+
                 s3.upload_file(
                     md5_directory + reportId + "/F24.pdf",
-                    current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                    md5_directory + 'F24.pdf',
-                    ExtraArgs=extraArgs
+                    current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                    md5_directory + "F24.pdf",
+                    ExtraArgs=extraArgs,
                 )
 
         # if flask.request.method == "POST":
@@ -377,9 +372,7 @@ def print_pdftk(
         return flask.jsonify(**envelope), status.HTTP_201_CREATED
     else:
         if page_count or silent_print:
-            envelope = common.get_return_envelope(
-            False, ""
-        )
+            envelope = common.get_return_envelope(False, "")
         elif flask.request.method == "POST":
             envelope = common.get_return_envelope(
                 False, "json_file is missing from your request"
@@ -460,11 +453,14 @@ def paginate(file_content=None, begin_image_num=None):
 
             summary = {}
             if txn_img_json:
-                summary['begin_image_num'] = min(txn_img_json.values())
-                summary['end_image_num'] = max(txn_img_json.values())
-            
-            summary['committeeId'] = data.get('committeeId', None)
-            txn_img_json['summary'] = summary
+                summary["begin_image_num"] = min(txn_img_json.values())
+                summary["end_image_num"] = max(txn_img_json.values())
+            else:
+                summary["begin_image_num"] = begin_image_num
+                summary["end_image_num"] = txn_img_num
+
+            summary["committeeId"] = data.get("committeeId", None)
+            txn_img_json["summary"] = summary
         # return True, {"total_pages": total_no_of_pages, "txn_img_json": txn_img_json}
         response = {"total_pages": total_no_of_pages, "txn_img_json": txn_img_json}
 
