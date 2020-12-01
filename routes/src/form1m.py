@@ -175,19 +175,16 @@ def print_pdftk(
             response = {"total_pages": 1}
 
             if not page_count:
-                s3 = boto3.client('s3')
-                extraArgs = {'ContentType': "application/pdf", 'ACL': "public-read"}
+                s3 = boto3.client("s3")
+                extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
 
                 if silent_print:
-                    response["pdf_url"] = (
-                        current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                        rep_id + '.pdf',
-                    )
-                    
+                    response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
                     s3.upload_file(
-                        md5_directory + str(f1m_data["reportId"]) + "/F1M.pdf",
+                        md5_directory + 'all_pages.pdf',
                         current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                        rep_id + '.pdf',
+                        current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
+                        str(rep_id) + '.pdf',
                         ExtraArgs=extraArgs)
                 else:
                     response["pdf_url"] = (
@@ -196,12 +193,13 @@ def print_pdftk(
                         )
                         + "F1M.pdf",
                     )
-                                    
+
                     s3.upload_file(
                         md5_directory + str(f1m_data["reportId"]) + "/F1M.pdf",
-                        current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                        md5_directory + 'F1M.pdf',
-                        ExtraArgs=extraArgs)
+                        current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                        md5_directory + "F1M.pdf",
+                        ExtraArgs=extraArgs,
+                    )
 
             # return response
             # if flask.request.method == "POST":
@@ -212,11 +210,9 @@ def print_pdftk(
             #     return True, {}
         else:
             if page_count or silent_print:
-                envelope = common.get_return_envelope(
-                    False, ""
-                )
+                envelope = common.get_return_envelope(False, "")
             else:
-            # elif flask.request.method == "POST":
+                # elif flask.request.method == "POST":
                 envelope = common.get_return_envelope(
                     False, "json_file is missing from your request"
                 )
@@ -249,10 +245,12 @@ def paginate(file_content=None, begin_image_num=None):
         data = f1m_json["data"]
 
         txn_img_json = {
-            'summary' : {
-                'committeeId': data.get('committeeId', None)
+            "summary": {
+                "committeeId": data.get("committeeId", None),
+                "begin_image_num": begin_image_num,
+                "end_image_num": begin_image_num
+                }
             }
-        }
         total_no_of_pages = 1
 
         # return True, {"total_pages": total_no_of_pages, "txn_img_json": txn_img_json}

@@ -349,28 +349,23 @@ def print_f99_pdftk_html(
 
             # if flask.request.method == "POST":
 
-
             response = {
                 # 'file_name': ent_app.conf'{}.pdf'.format(json_file_md5),
                 "total_pages": total_no_of_pages,
             }
 
             if not page_count and not paginate:
-                s3 = boto3.client('s3')
-                extraArgs = {'ContentType': "application/pdf", 'ACL': "public-read"}
+                s3 = boto3.client("s3")
+                extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
 
                 if silent_print:
-                    response["pdf_url"] = (
-                        current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                        rep_id + '.pdf',
-                    )
-                    
+                    response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
                     s3.upload_file(
                         md5_directory + 'all_pages.pdf',
                         current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                        rep_id + '.pdf',
+                        current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
+                        str(rep_id) + '.pdf',
                         ExtraArgs=extraArgs)
-
                 else:
                     response["pdf_url"] = (
                         current_app.config["PRINT_OUTPUT_FILE_URL"].format(
@@ -378,23 +373,25 @@ def print_f99_pdftk_html(
                         )
                         + "all_pages.pdf",
                     )
-                                    
+
                     s3.upload_file(
-                        md5_directory + 'all_pages.pdf', 
-                        current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                        md5_directory + 'all_pages.pdf',
-                        ExtraArgs=extraArgs
+                        md5_directory + "all_pages.pdf",
+                        current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                        md5_directory + "all_pages.pdf",
+                        ExtraArgs=extraArgs,
                     )
             else:
                 if not is_dir_exist:
                     shutil.rmtree(md5_directory)
                 if paginate:
                     txn_img_json = {
-                        'summary' : {
-                            'committeeId': form99_json_data.get('committeeId', None)
+                        "summary": {
+                            "committeeId": form99_json_data.get("committeeId", None),
+                            "begin_image_num": begin_image_num,
+                            "end_image_num": txn_img_num
                         }
                     }
-                    response['txn_img_json'] = txn_img_json
+                    response["txn_img_json"] = txn_img_json
 
             envelope = common.get_return_envelope(data=response)
             status_code = (
@@ -422,11 +419,9 @@ def print_f99_pdftk_html(
             #     return True, {}
         else:
             if paginate or page_count or silent_print:
-                envelope = common.get_return_envelope(
-                    False, ""
-                )
+                envelope = common.get_return_envelope(False, "")
             else:
-            # elif flask.request.method == "POST":
+                # elif flask.request.method == "POST":
                 envelope = common.get_return_envelope(
                     False, "json_file is missing from your request"
                 )

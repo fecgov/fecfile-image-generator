@@ -298,11 +298,14 @@ def print_pdftk(
             if paginate:
                 summary = {}
                 if txn_img_json:
-                    summary['begin_image_num'] = min(txn_img_json.values())
-                    summary['end_image_num'] = max(txn_img_json.values())
-                summary['committeeId'] = f3x_data.get('committeeId', None)
-                txn_img_json['summary'] = summary
-            
+                    summary["begin_image_num"] = min(txn_img_json.values())
+                    summary["end_image_num"] = max(txn_img_json.values())
+                else:
+                    summary["begin_image_num"] = begin_image_num
+                    summary["end_image_num"] = txn_img_num
+                summary["committeeId"] = f3x_data.get("committeeId", None)
+                txn_img_json["summary"] = summary
+
             for key, value in process_output.items():
                 schedule_dict[key][0] = value
 
@@ -441,18 +444,18 @@ def print_pdftk(
                         # os.remove(md5_directory + schedule_dict[key][1] + '/all_pages.pdf')
 
             # if flask.request.method == "POST":
-                # 'file_name': '{}.pdf'.format(json_file_md5),
-            
+            # 'file_name': '{}.pdf'.format(json_file_md5),
+
             response = {
                 "total_pages": total_no_of_pages,
-                }
-            
+            }
+
             if paginate:
                 response["txn_img_json"] = txn_img_json
             else:
                 if not page_count:
-                    s3 = boto3.client('s3')
-                    extraArgs = {'ContentType': "application/pdf", 'ACL': "public-read"}
+                    s3 = boto3.client("s3")
+                    extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
 
                     if silent_print:
                         response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
@@ -462,6 +465,14 @@ def print_pdftk(
                             current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
                             str(rep_id) + '.pdf',
                             ExtraArgs=extraArgs)
+
+                        s3.upload_file(
+                            md5_directory + "all_pages.pdf",
+                            current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                            rep_id + ".pdf",
+                            ExtraArgs=extraArgs,
+                        )
+
                     else:
                         response["pdf_url"] = (
                             current_app.config["PRINT_OUTPUT_FILE_URL"].format(
@@ -469,12 +480,12 @@ def print_pdftk(
                             )
                             + "all_pages.pdf",
                         )
-                                        
+
                         s3.upload_file(
-                            md5_directory + 'all_pages.pdf', 
-                            current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                            md5_directory + 'all_pages.pdf',
-                            ExtraArgs=extraArgs
+                            md5_directory + "all_pages.pdf",
+                            current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                            md5_directory + "all_pages.pdf",
+                            ExtraArgs=extraArgs,
                         )
 
             envelope = common.get_return_envelope(data=response)
@@ -485,8 +496,7 @@ def print_pdftk(
             )
 
             return flask.jsonify(**envelope), status_code
-            
-            
+
             # elif page_count and not paginate:
             #     return True, {
             #         "total_pages": total_no_of_pages,
@@ -502,11 +512,9 @@ def print_pdftk(
             #     }
         else:
             if paginate or page_count or silent_print:
-                envelope = common.get_return_envelope(
-                    False, ""
-                )
+                envelope = common.get_return_envelope(False, "")
             else:
-            # elif flask.request.method == "POST":
+                # elif flask.request.method == "POST":
                 envelope = common.get_return_envelope(
                     False, "json_file is missing from your request"
                 )
