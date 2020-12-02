@@ -16,60 +16,79 @@ from routes.src.utils import md5_for_text, md5_for_file, error
 
 
 # stamp_print is a flag that will be passed at the time of submitting a report.
-def print_pdftk(stamp_print):
+def print_pdftk(
+    stamp_print="",
+    page_count=False,
+    file_content=None,
+    begin_image_num=None,
+    silent_print=False,
+    filing_timestamp=None,
+    rep_id=None,
+):
     # check if json_file_name is in the request
     try:
-        if "json_file" in request.files:
-            json_file = request.files.get("json_file")
-            page_count = (
-                True
-                if request.form.get("page_count")
-                and request.form.get("page_count").lower() in ["true", "1"]
-                else False
-            )
-            silent_print = (
-                True
-                if request.form.get("silent_print")
-                and request.form.get("silent_print").lower() in ["true", "1"]
-                else False
-            )
-            image_num = None
+        silent_print = silent_print
+        txn_img_num = begin_image_num
+        filing_timestamp = filing_timestamp
 
-            if silent_print:
-                image_num = request.form.get("begin_image_num")
+        if "json_file" in request.files or (page_count and file_content):
+            if "json_file" in request.files:
+                json_file = request.files.get("json_file")
+                silent_print = (
+                    True
+                    if request.form.get("silent_print")
+                    and request.form.get("silent_print").lower() in ["true", "1"]
+                    else False
+                )
+                page_count = (
+                    True
+                    if request.form.get("page_count")
+                    and request.form.get("page_count").lower() in ["true", "1"]
+                    else False
+                )
 
-                if not image_num:
-                    if flask.request.method == "POST":
-                        envelope = common.get_return_envelope(
-                            "false", "begin_image_num is missing from your request"
+                if silent_print:
+                    txn_img_num = request.form.get("begin_image_num", None)
+
+                    if not txn_img_num:
+                        if flask.request.method == "POST":
+                            envelope = common.get_return_envelope(
+                                "false", "begin_image_num is missing from your request"
+                            )
+                            status_code = status.HTTP_400_BAD_REQUEST
+                            return flask.jsonify(**envelope), status_code
+                    txn_img_num = int(txn_img_num)
+
+                    filing_timestamp = request.form.get("filing_timestamp", None)
+
+                json_file_md5 = md5_for_file(json_file)
+                json_file.stream.seek(0)
+
+                # save json file as md5 file name
+                json_file.save(
+                    current_app.config["REQUEST_FILE_LOCATION"].format(json_file_md5)
+                )
+
+                # load json file
+                f1m_json = json.load(
+                    open(
+                        current_app.config["REQUEST_FILE_LOCATION"].format(
+                            json_file_md5
                         )
-                        status_code = status.HTTP_400_BAD_REQUEST
-                        return flask.jsonify(**envelope), status_code
-                image_num = int(image_num)
-
-                filing_timestamp = request.form.get("filing_timestamp")
-
-            json_file_md5 = md5_for_file(json_file)
-            json_file.stream.seek(0)
-
-            # save json file as md5 file name
-            json_file.save(
-                current_app.config["REQUEST_FILE_LOCATION"].format(json_file_md5)
-            )
-
-            # load json file
-            f1m_json = json.load(
-                open(current_app.config["REQUEST_FILE_LOCATION"].format(json_file_md5))
-            )
+                    )
+                )
 
             # if page_count is True then return from here
-            if page_count:
+            elif page_count and file_content:
                 response = {"total_pages": 1}
 
-                if flask.request.method == "POST":
-                    envelope = common.get_return_envelope(data=response)
-                    status_code = status.HTTP_201_CREATED
-                    return flask.jsonify(**envelope), status_code
+                # if flask.request.method == "POST":
+                envelope = common.get_return_envelope(data=response)
+                return flask.jsonify(**envelope), status.HTTP_200_OK
+
+            elif silent_print and begin_image_num and file_content:
+                json_file_md5 = md5_for_text(file_content)
+                f1m_json = json.loads(file_content)
 
             md5_directory = current_app.config["OUTPUT_DIR_LOCATION"].format(
                 json_file_md5
@@ -86,9 +105,9 @@ def print_pdftk(stamp_print):
             # read data from json file
             f1m_data = f1m_json["data"]
 
-            # adding image_num if silent_print is True
+            # adding txn_img_num if silent_print is True
             if silent_print:
-                f1m_data["IMGNO"] = image_num
+                f1m_data["IMGNO"] = txn_img_num
                 if filing_timestamp:
                     f1m_data["FILING_TIMESTAMP"] = filing_timestamp
 
@@ -152,51 +171,69 @@ def print_pdftk(stamp_print):
             shutil.copy(outfile, md5_directory + str(f1m_data["reportId"]) + "/F1M.pdf")
             os.remove(outfile)
 
-            # push output file to AWS
-            s3 = boto3.client("s3")
-            s3.upload_file(
-                md5_directory + str(f1m_data["reportId"]) + "/F1M.pdf",
-                current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
-                md5_directory + "F1M.pdf",
-                ExtraArgs={"ContentType": "application/pdf", "ACL": "public-read"},
-            )
-            response = {
-                # 'file_name': '{}.pdf'.format(json_file_md5),
-                "pdf_url": current_app.config["PRINT_OUTPUT_FILE_URL"].format(
-                    json_file_md5
-                )
-                + "F1M.pdf"
-            }
+            # 'file_name': '{}.pdf'.format(json_file_md5),
+            response = {"total_pages": 1}
+
+            if not page_count:
+                s3 = boto3.client("s3")
+                extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
+
+                if silent_print:
+                    response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
+                    s3.upload_file(
+                        md5_directory + 'all_pages.pdf',
+                        current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+                        current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
+                        str(rep_id) + '.pdf',
+                        ExtraArgs=extraArgs)
+                else:
+                    response["pdf_url"] = (
+                        current_app.config["PRINT_OUTPUT_FILE_URL"].format(
+                            json_file_md5
+                        )
+                        + "F1M.pdf",
+                    )
+
+                    s3.upload_file(
+                        md5_directory + str(f1m_data["reportId"]) + "/F1M.pdf",
+                        current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                        md5_directory + "F1M.pdf",
+                        ExtraArgs=extraArgs,
+                    )
 
             # return response
-            if flask.request.method == "POST":
-                envelope = common.get_return_envelope(data=response)
-                status_code = status.HTTP_201_CREATED
-                return flask.jsonify(**envelope), status_code
-
+            # if flask.request.method == "POST":
+            envelope = common.get_return_envelope(data=response)
+            status_code = status.HTTP_201_CREATED
+            return flask.jsonify(**envelope), status_code
+            # elif silent_print:
+            #     return True, {}
         else:
-            if flask.request.method == "POST":
+            if page_count or silent_print:
+                envelope = common.get_return_envelope(False, "")
+            else:
+                # elif flask.request.method == "POST":
                 envelope = common.get_return_envelope(
-                    "false", "json_file_name is missing from your request"
+                    False, "json_file is missing from your request"
                 )
-                status_code = status.HTTP_400_BAD_REQUEST
-                return flask.jsonify(**envelope), status_code
+            return flask.jsonify(**envelope), status.HTTP_400_BAD_REQUEST
     except Exception as e:
         return error("Error generating print preview, error message: " + str(e))
 
 
-def paginate():
-    if "json_file_name" in request.json:
-        # json_file_name = request.json.get("json_file_name")
+def paginate(file_content=None, begin_image_num=None):
+    if file_content and begin_image_num:
+        # if "json_file_name" in request.json:
+        #     # json_file_name = request.json.get("json_file_name")
 
-        begin_image_num = request.json.get("begin_image_num")
-        if not begin_image_num:
-            if flask.request.method == "POST":
-                envelope = common.get_return_envelope(
-                    "false", "begin_image_num is missing from your request"
-                )
-                status_code = status.HTTP_400_BAD_REQUEST
-                return flask.jsonify(**envelope), status_code
+        #     txn_img_num = request.json.get("begin_image_num")
+        #     if not txn_img_num:
+        #         if flask.request.method == "POST":
+        #             envelope = common.get_return_envelope(
+        #                 "false", "begin_image_num is missing from your request"
+        #             )
+        #             status_code = status.HTTP_400_BAD_REQUEST
+        #             return flask.jsonify(**envelope), status_code
 
         # file_url = current_app.config["AWS_S3_FECFILE_COMPONENTS_DOMAIN"] + "/" + json_file_name + ".json"
         # file_url = "https://dev-efile-repo.s3.amazonaws.com/" + json_file_name + ".json"
@@ -204,22 +241,28 @@ def paginate():
         # with urllib.request.urlopen(file_url) as url:
         #     file_content = url.read().decode()
 
-        # f1m_json = json.loads(file_content)
-        # data = f1m_json["data"]
+        f1m_json = json.loads(file_content)
+        data = f1m_json["data"]
 
-        txn_img_json = {}
+        txn_img_json = {
+            "summary": {
+                "committeeId": data.get("committeeId", None),
+                "begin_image_num": begin_image_num,
+                "end_image_num": begin_image_num
+                }
+            }
         total_no_of_pages = 1
 
+        # return True, {"total_pages": total_no_of_pages, "txn_img_json": txn_img_json}
         response = {"total_pages": total_no_of_pages, "txn_img_json": txn_img_json}
 
-        if flask.request.method == "POST":
-            envelope = common.get_return_envelope(data=response)
-            status_code = status.HTTP_201_CREATED
-            return flask.jsonify(**envelope), status_code
+        # if flask.request.method == "POST":
+        envelope = common.get_return_envelope(data=response)
+        status_code = status.HTTP_200_OK
+        return flask.jsonify(**envelope), status_code
     else:
-        if flask.request.method == "POST":
-            envelope = common.get_return_envelope(
-                "false", "json_file_name is missing from your request"
-            )
-            status_code = status.HTTP_400_BAD_REQUEST
-            return flask.jsonify(**envelope), status_code
+        # if flask.request.method == "POST":
+        envelope = common.get_return_envelope(
+            False, "json_file_name is missing from your request"
+        )
+        return flask.jsonify(**envelope), status.HTTP_400_BAD_REQUEST
