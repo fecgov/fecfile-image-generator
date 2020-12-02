@@ -469,7 +469,7 @@ def parse_next_in_image_generator_queue():
                 )
                 # Parsing the data
                 res = image_generator_data(next_image_generator[0])
-                # message.delete()
+                message.delete()
                 print(res)
                 return res
     else:
