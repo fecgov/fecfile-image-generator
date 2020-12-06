@@ -2,6 +2,8 @@ import hashlib
 import os
 import flask
 
+
+from shutil import rmtree
 from flask_api import status
 from routes.src import common
 
@@ -42,3 +44,9 @@ def error(msg):
         envelope = common.get_return_envelope("false", msg)
         status_code = status.HTTP_400_BAD_REQUEST
         return flask.jsonify(**envelope), status_code
+
+
+# delete directory if it exists
+def delete_directory(dir_name):
+    if os.path.isdir(dir_name) and os.listdir(dir_name):
+        rmtree(dir_name)
