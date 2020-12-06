@@ -12,7 +12,7 @@ from flask import json
 from flask import request, current_app
 from flask_api import status
 from routes.src import common
-from routes.src.utils import md5_for_text, md5_for_file, error
+from routes.src.utils import md5_for_text, md5_for_file, error, delete_directory
 
 
 # stamp_print is a flag that will be passed at the time of submitting a report.
@@ -93,6 +93,10 @@ def print_pdftk(
             md5_directory = current_app.config["OUTPUT_DIR_LOCATION"].format(
                 json_file_md5
             )
+
+            # deleting directory if it exists and has any content
+            delete_directory(md5_directory)
+
             os.makedirs(md5_directory, exist_ok=True)
             infile = current_app.config["FORM_TEMPLATES_LOCATION"].format("F1M")
             outfile = md5_directory + json_file_md5 + "_temp.pdf"
@@ -179,13 +183,17 @@ def print_pdftk(
                 extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
 
                 if silent_print:
-                    response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
+                    response["pdf_url"] = (
+                        current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                        rep_id + ".pdf",
+                    )
+
                     s3.upload_file(
-                        md5_directory + 'all_pages.pdf',
-                        current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                        current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
-                        str(rep_id) + '.pdf',
-                        ExtraArgs=extraArgs)
+                        md5_directory + str(f1m_data["reportId"]) + "/F1M.pdf",
+                        current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                        rep_id + ".pdf",
+                        ExtraArgs=extraArgs,
+                    )
                 else:
                     response["pdf_url"] = (
                         current_app.config["PRINT_OUTPUT_FILE_URL"].format(
