@@ -54,7 +54,7 @@ def print_sb_line(
                     sb_list,
                     memo_array,
                 )
-
+            try:
                 schedule_total += float(schedule_page_dict["pageSubtotal"])
 
                 if page_cnt == page_num + 1:
@@ -78,11 +78,10 @@ def print_sb_line(
                     image_num=image_num,
                 )
 
-            pypdftk.concat(
-                directory_files(md5_directory + "SB/" + line_number + "/"),
-                md5_directory + "SB/" + line_number + "/all_pages.pdf",
-            )
-            try:
+                pypdftk.concat(
+                    directory_files(md5_directory + "SB/" + line_number + "/"),
+                    md5_directory + "SB/" + line_number + "/all_pages.pdf",
+                )
                 if path.isfile(md5_directory + "SB/all_pages.pdf"):
                     pypdftk.concat(
                         [
