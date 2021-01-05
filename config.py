@@ -68,8 +68,8 @@ PRINT_OUTPUT_FILE_URL = "https://%s/%s" % (AWS_S3_FECFILE_COMPONENTS_DOMAIN, OUT
 FECFILE_UTIL_PRINT_API_URL = os.environ.get('FECFILE_UTIL_URL', 'https://dev-efile-api.efdev.fec.gov/printpdf')
 FECFILE_UTIL_API_VERSION = "/v1/fecfileutil"
 
-NXG_FEC_PARSER_API_URL = os.environ.get('PARSER_URL', 'https://dev-efile-api.efdev.fec.gov/parser')
-# NXG_FEC_PARSER_API_URL = os.environ.get('PARSER_URL', 'http://localhost:8080')
+NXG_FEC_PARSER_API_URL = os.environ.get('PARSER_URL', 'https://dev-efile-api.efdev.fec.gov/receiver')
+# NXG_FEC_PARSER_API_URL = os.environ.get('PARSER_URL', 'http://localhost:8090')
 NXG_FEC_PARSER_API_VERSION = "/v1"
 
 
@@ -77,6 +77,7 @@ NXG_FEC_PARSER_API_VERSION = "/v1"
 DATA_RECEIVER_SQS_QUEUE = os.environ.get('DATA_RECEIVER_SQS_QUEUE', 'datareceiver-dev')
 VALIDATION_SQS_QUEUE = os.environ.get('VALIDATION_SQS_QUEUE', 'validator-dev')
 IMAGE_NUMBER_SQS_QUEUE = os.environ.get('IMAGE_NUMBER_SQS_QUEUE', 'imaging')
+# IMAGE_NUMBER_SQS_QUEUE = os.environ.get('IMAGE_NUMBER_SQS_QUEUE', 'validator-dev')
 IMAGE_GENERATOR_SQS_QUEUE = os.environ.get('IMAGE_GENERATOR_SQS_QUEUE', 'imaging-generator')
 # Timeout for the message in queue, after the set time interval other process will see it
 MESSAGE_VISIBILITY_TIMEOUT = 30  # setting it to 0 for testing
