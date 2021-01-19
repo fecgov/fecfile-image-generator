@@ -17,7 +17,7 @@ from flask_api import status
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
 from PyPDF2.generic import BooleanObject, NameObject, IndirectObject
 from routes.src import tmoflask, utils, common, form
-from routes.src.utils import md5_for_text, md5_for_file, directory_files, merge, error
+from routes.src.utils import md5_for_text, md5_for_file, directory_files, merge, error, delete_directory
 from routes.src.f3x.helper import (
     calculate_page_count,
     calculate_sh3_page_count,
@@ -197,6 +197,8 @@ def print_pdftk(
             #         return flask.jsonify(**envelope), status_code
             #
 
+            # deleting directory if it exists and has any content
+            delete_directory(md5_directory)
             if not page_count and not paginate:
                 os.makedirs(md5_directory, exist_ok=True)
 
