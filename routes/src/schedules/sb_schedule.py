@@ -1,5 +1,8 @@
 import os
 import pypdftk
+import sys
+import traceback
+import logging
 
 from flask import current_app
 from os import path
@@ -18,86 +21,95 @@ def print_sb_line(
     total_no_of_pages,
     image_num=None,
 ):
+    try:
+        if sb_list:
+            last_page_cnt = 3 if len(sb_list) % 3 == 0 else len(sb_list) % 3
+            schedule_total = 0
+            os.makedirs(md5_directory + "SB/" + line_number, exist_ok=True)
+            sb_infile = current_app.config["FORM_TEMPLATES_LOCATION"].format("SB")
 
-    if sb_list:
-        last_page_cnt = 3 if len(sb_list) % 3 == 0 else len(sb_list) % 3
-        schedule_total = 0
-        os.makedirs(md5_directory + "SB/" + line_number, exist_ok=True)
-        sb_infile = current_app.config["FORM_TEMPLATES_LOCATION"].format("SB")
+            for page_num in range(page_cnt):
+                current_page_num += 1
+                memo_array = []
+                last_page = False
+                schedule_page_dict = {}
+                schedule_page_dict["lineNumber"] = line_number
+                schedule_page_dict["pageNo"] = current_page_num
+                schedule_page_dict["totalPages"] = total_no_of_pages
 
-        for page_num in range(page_cnt):
-            current_page_num += 1
-            memo_array = []
-            last_page = False
-            schedule_page_dict = {}
-            schedule_page_dict["lineNumber"] = line_number
-            schedule_page_dict["pageNo"] = current_page_num
-            schedule_page_dict["totalPages"] = total_no_of_pages
+                if image_num:
+                    schedule_page_dict["IMGNO"] = image_num
+                    image_num += 1
 
-            if image_num:
-                schedule_page_dict["IMGNO"] = image_num
-                image_num += 1
+                page_start_index = page_num * 3
+                if page_num + 1 == page_cnt:
+                    last_page = True
 
-            page_start_index = page_num * 3
-            if page_num + 1 == page_cnt:
-                last_page = True
+                # This call prepares data to render on PDF
+                build_sb_per_page_schedule_dict(
+                    last_page,
+                    last_page_cnt,
+                    page_start_index,
+                    schedule_page_dict,
+                    sb_list,
+                    memo_array,
+                )
+            try:
+                schedule_total += float(schedule_page_dict["pageSubtotal"])
 
-            # This call prepares data to render on PDF
-            build_sb_per_page_schedule_dict(
-                last_page,
-                last_page_cnt,
-                page_start_index,
-                schedule_page_dict,
-                sb_list,
-                memo_array,
-            )
+                if page_cnt == page_num + 1:
+                    schedule_page_dict["scheduleTotal"] = "{0:.2f}".format(schedule_total)
+                schedule_page_dict["committeeName"] = f3x_data["committeeName"]
+                sb_outfile = (
+                    md5_directory + "SB/" + line_number + "/page_" + str(page_num) + ".pdf"
+                )
+                pypdftk.fill_form(sb_infile, schedule_page_dict, sb_outfile)
 
-            schedule_total += float(schedule_page_dict["pageSubtotal"])
+                # Memo text changes and build memo pages and return updated current_page_num
+                current_page_num, image_num = build_memo_page(
+                    memo_array,
+                    md5_directory,
+                    line_number,
+                    current_page_num,
+                    page_num,
+                    total_no_of_pages,
+                    sb_outfile,
+                    name="SB",
+                    image_num=image_num,
+                )
 
-            if page_cnt == page_num + 1:
-                schedule_page_dict["scheduleTotal"] = "{0:.2f}".format(schedule_total)
-            schedule_page_dict["committeeName"] = f3x_data["committeeName"]
-            sb_outfile = (
-                md5_directory + "SB/" + line_number + "/page_" + str(page_num) + ".pdf"
-            )
-            pypdftk.fill_form(sb_infile, schedule_page_dict, sb_outfile)
-
-            # Memo text changes and build memo pages and return updated current_page_num
-            current_page_num, image_num = build_memo_page(
-                memo_array,
-                md5_directory,
-                line_number,
-                current_page_num,
-                page_num,
-                total_no_of_pages,
-                sb_outfile,
-                name="SB",
-                image_num=image_num,
-            )
-
-        pypdftk.concat(
-            directory_files(md5_directory + "SB/" + line_number + "/"),
-            md5_directory + "SB/" + line_number + "/all_pages.pdf",
-        )
-        if path.isfile(md5_directory + "SB/all_pages.pdf"):
-            pypdftk.concat(
-                [
-                    md5_directory + "SB/all_pages.pdf",
+                pypdftk.concat(
+                    directory_files(md5_directory + "SB/" + line_number + "/"),
                     md5_directory + "SB/" + line_number + "/all_pages.pdf",
-                ],
-                md5_directory + "SB/temp_all_pages.pdf",
-            )
-            os.rename(
-                md5_directory + "SB/temp_all_pages.pdf",
-                md5_directory + "SB/all_pages.pdf",
-            )
-        else:
-            os.rename(
-                md5_directory + "SB/" + line_number + "/all_pages.pdf",
-                md5_directory + "SB/all_pages.pdf",
-            )
+                )
+                if path.isfile(md5_directory + "SB/all_pages.pdf"):
+                    pypdftk.concat(
+                        [
+                            md5_directory + "SB/all_pages.pdf",
+                            md5_directory + "SB/" + line_number + "/all_pages.pdf",
+                        ],
+                        md5_directory + "SB/temp_all_pages.pdf",
+                    )
+                    os.rename(
+                        md5_directory + "SB/temp_all_pages.pdf",
+                        md5_directory + "SB/all_pages.pdf",
+                    )
+                else:
+                    os.rename(
+                        md5_directory + "SB/" + line_number + "/all_pages.pdf",
+                        md5_directory + "SB/all_pages.pdf",
+                    )
+            except:
+                logging.error('**** Start - Error inside if condition ****')
+                # printing stack trace
+                traceback.print_exception(*sys.exc_info())
+                logging.error('**** End - Error inside if condition ****')
 
-    return current_page_num, image_num
+
+        return current_page_num, image_num
+    except:
+        # printing stack trace
+        traceback.print_exception(*sys.exc_info())
 
 
 # This method builds data for individual SB page

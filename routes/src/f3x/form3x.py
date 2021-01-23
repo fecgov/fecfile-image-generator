@@ -7,6 +7,7 @@ import pypdftk
 import shutil
 import sys
 import traceback
+import urllib.request
 
 from collections import OrderedDict
 from os import path
@@ -16,10 +17,15 @@ from flask_api import status
 from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
 from PyPDF2.generic import BooleanObject, NameObject, IndirectObject
 from routes.src import tmoflask, utils, common, form
-from routes.src.utils import md5_for_file, directory_files, merge
-from routes.src.f3x.helper import calculate_page_count, map_txn_img_num
+from routes.src.utils import md5_for_text, md5_for_file, directory_files, merge, error, delete_directory
+from routes.src.f3x.helper import (
+    calculate_page_count,
+    calculate_sh3_page_count,
+    map_txn_img_num,
+    map_sh3_txn_img_num,
+)
 
-# importing prcoess schedule
+# importing process schedule
 from routes.src.schedules.sa_schedule import print_sa_line
 from routes.src.schedules.sb_schedule import print_sb_line
 from routes.src.schedules.sc_schedule import print_sc_line
@@ -45,46 +51,84 @@ from routes.src.f3x.line_numbers import (
 )
 
 
-# Error handling
-def error(msg):
-    if flask.request.method == "POST":
-        envelope = common.get_return_envelope("false", msg)
-        status_code = status.HTTP_400_BAD_REQUEST
-        return flask.jsonify(**envelope), status_code
-
-
 # stamp_print is a flag that will be passed at the time of submitting a report.
-def print_pdftk(stamp_print, paginate=False):
-    # check if json_file is in the request
+def print_pdftk(
+    stamp_print="",
+    paginate=False,
+    begin_image_num=None,
+    page_count=False,
+    file_content=None,
+    silent_print=False,
+    filing_timestamp=None,
+    rep_id=None,
+):
+
+    # check if json_file_name is in the request
     try:
-        if "json_file" in request.files:
-            json_file = request.files.get("json_file")
-            page_count = (
-                True
-                if request.form.get("page_count")
-                and request.form.get("page_count").lower() in ["true", "1"]
-                else False
-            )
-            silent_print = (
-                True
-                if request.form.get("silent_print")
-                and request.form.get("silent_print").lower() in ["true", "1"]
-                else False
-            )
-            txn_img_num = None
+        silent_print = silent_print
+        txn_img_num = begin_image_num
+        filing_timestamp = filing_timestamp
 
-            if paginate or silent_print:
-                txn_img_num = request.form.get("begin_image_num")
+        if (
+            (page_count and file_content)
+            or ((paginate or silent_print) and file_content and begin_image_num)
+            or (not paginate and "json_file" in request.files)
+        ):
 
-                if not txn_img_num:
-                    if flask.request.method == "POST":
-                        envelope = common.get_return_envelope(
-                            "false", "begin_image_num is missing from your request"
+            if page_count and file_content:
+                json_file_md5 = md5_for_text(file_content)
+                f3x_json = json.loads(file_content)
+
+            elif (paginate or silent_print) and file_content and begin_image_num:
+                # using md5_for_text as input is content
+                json_file_md5 = md5_for_text(file_content)
+                f3x_json = json.loads(file_content)
+
+            elif not paginate and "json_file" in request.files:
+                json_file = request.files.get("json_file")
+                silent_print = (
+                    True
+                    if request.form.get("silent_print")
+                    and request.form.get("silent_print").lower() in ["true", "1"]
+                    else False
+                )
+                page_count = (
+                    True
+                    if request.form.get("page_count")
+                    and request.form.get("page_count").lower() in ["true", "1"]
+                    else False
+                )
+
+                if silent_print:
+                    txn_img_num = request.form.get("begin_image_num")
+
+                    if not txn_img_num:
+                        if flask.request.method == "POST":
+                            envelope = common.get_return_envelope(
+                                "false", "begin_image_num is missing from your request"
+                            )
+                            status_code = status.HTTP_400_BAD_REQUEST
+                            return flask.jsonify(**envelope), status_code
+                    txn_img_num = int(txn_img_num)
+
+                    filing_timestamp = request.form.get("filing_timestamp", None)
+
+                json_file_md5 = md5_for_file(json_file)
+                json_file.stream.seek(0)
+
+                # save json file as md5 file name
+                json_file.save(
+                    current_app.config["REQUEST_FILE_LOCATION"].format(json_file_md5)
+                )
+
+                # load json file
+                f3x_json = json.load(
+                    open(
+                        current_app.config["REQUEST_FILE_LOCATION"].format(
+                            json_file_md5
                         )
-                        status_code = status.HTTP_400_BAD_REQUEST
-                        return flask.jsonify(**envelope), status_code
-
-                txn_img_num = int(txn_img_num)
+                    )
+                )
 
             total_no_of_pages = 0
             page_no = 1
@@ -127,12 +171,11 @@ def print_pdftk(stamp_print, paginate=False):
 
             # generate md5 for json file
             # FIXME: check if PDF already exist with md5, if exist return pdf instead of re-generating PDF file.
-            json_file_md5 = md5_for_file(json_file)
-            json_file.stream.seek(0)
 
             md5_directory = current_app.config["OUTPUT_DIR_LOCATION"].format(
                 json_file_md5
             )
+
             # checking if server has already generated pdf for same json file
             # if os.path.isdir(md5_directory) and path.isfile(md5_directory + 'all_pages.pdf'):
             #     # push output file to AWS
@@ -154,21 +197,13 @@ def print_pdftk(stamp_print, paginate=False):
             #         return flask.jsonify(**envelope), status_code
             #
 
+            # deleting directory if it exists and has any content
+            delete_directory(md5_directory)
             if not page_count and not paginate:
                 os.makedirs(md5_directory, exist_ok=True)
 
             infile = current_app.config["FORM_TEMPLATES_LOCATION"].format("F3X")
-
-            # save json file as md5 file name
-            json_file.save(
-                current_app.config["REQUEST_FILE_LOCATION"].format(json_file_md5)
-            )
             outfile = md5_directory + json_file_md5 + "_temp.pdf"
-
-            # load json file
-            f3x_json = json.load(
-                open(current_app.config["REQUEST_FILE_LOCATION"].format(json_file_md5))
-            )
 
             # setting timestamp and imgno to empty as these needs to show up after submission
             if stamp_print != "stamp":
@@ -227,18 +262,26 @@ def print_pdftk(stamp_print, paginate=False):
             f3x_data["efStamp"] = "[Electronically Filed]"
 
             # checking if json contains summary details, for individual transactions print there wouldn't be summary
-            if f3x_summary:
+            if f3x_data or f3x_summary:
                 total_no_of_pages = 5
                 if silent_print or paginate:
+                    txn_img_num = int(txn_img_num)
                     txn_img_num += 5
-                f3x_data_summary_array = [f3x_data, f3x_summary]
-                # if 'memoText' in f3x_data and f3x_data['memoText']:
+                f3x_data_summary_array = []
+
+                if f3x_data:
+                    f3x_data_summary_array.append(f3x_data)
+                if f3x_summary:
+                    f3x_data_summary_array.append(f3x_summary)
+
                 if f3x_data.get("memoText"):
                     total_no_of_pages += 1
                     if silent_print or paginate:
+                        txn_img_num = int(txn_img_num)
                         txn_img_num += 1
-            else:
-                f3x_data_summary_array = [f3x_data]
+            # else:
+            #     f3x_data_summary_array = [f3x_data]
+
             f3x_data_summary = {
                 i: j for x in f3x_data_summary_array for i, j in x.items()
             }
@@ -254,19 +297,35 @@ def print_pdftk(stamp_print, paginate=False):
                 txn_img_num,
             )
 
-            # print("Total pages:", total_no_of_pages)
+            if paginate:
+                summary = {}
+                if txn_img_json:
+                    summary["begin_image_num"] = min(txn_img_json.values())
+                    summary["end_image_num"] = max(txn_img_json.values())
+                else:
+                    summary["begin_image_num"] = begin_image_num
+                    summary["end_image_num"] = txn_img_num
+                summary["committeeId"] = f3x_data.get("committeeId", None)
+                txn_img_json["summary"] = summary
 
             for key, value in process_output.items():
                 schedule_dict[key][0] = value
 
-            if f3x_summary and not page_count and not paginate:
+            if f3x_data_summary and not page_count and not paginate:
                 f3x_data_summary["PAGESTR"] = (
                     "PAGE " + str(page_no) + " / " + str(total_no_of_pages)
                 )
 
                 if silent_print:
-                    f3x_data_summary["IMGNO"] = txn_img_num - 5
-                    txn_img_num += 1
+                    subtract_num = 6 if f3x_data.get("memoText") else 5
+                    f3x_data_summary["IMGNO"] = txn_img_num - subtract_num
+                    f3x_data_summary["IMGNO_FOR_PAGE2"] = txn_img_num - subtract_num + 1
+                    f3x_data_summary["IMGNO_FOR_PAGE3"] = txn_img_num - subtract_num + 2
+                    f3x_data_summary["IMGNO_FOR_PAGE4"] = txn_img_num - subtract_num + 3
+                    f3x_data_summary["IMGNO_FOR_PAGE5"] = txn_img_num - subtract_num + 4
+
+                    if filing_timestamp and page_no == 1:
+                        f3x_data_summary["FILING_TIMESTAMP"] = filing_timestamp
 
                 pypdftk.fill_form(infile, f3x_data_summary, outfile)
                 shutil.copy(outfile, md5_directory + "F3X_Summary.pdf")
@@ -286,7 +345,7 @@ def print_pdftk(stamp_print, paginate=False):
                     memo_dict["memoDescription_1"] = f3x_data_summary["memoText"]
 
                     if silent_print:
-                        memo_dict["IMGNO"] = txn_img_num - 6
+                        memo_dict["IMGNO"] = txn_img_num - subtract_num + 5
                         txn_img_num += 1
 
                     memo_dict["PAGESTR"] = (
@@ -350,7 +409,7 @@ def print_pdftk(stamp_print, paginate=False):
                 for key in schedule_key_list:
                     if key == "has_sa_schedules" and schedule_dict[key][0]:
                         shutil.move(
-                            md5_directory + schedule_dict[key][1] + "SA/all_pages.pdf",
+                            md5_directory + schedule_dict[key][1] + "/all_pages.pdf",
                             md5_directory + "all_pages.pdf",
                         )
                         shutil.rmtree(md5_directory + schedule_dict[key][1])
@@ -386,48 +445,82 @@ def print_pdftk(stamp_print, paginate=False):
                         # elif key in ["has_sla_schedules", "has_slb_schedules"]:
                         # os.remove(md5_directory + schedule_dict[key][1] + '/all_pages.pdf')
 
-            if not page_count and not paginate:
-                # push output file to AWS
-                s3 = boto3.client('s3')
-                s3.upload_file(md5_directory + 'all_pages.pdf', current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                			md5_directory + 'all_pages.pdf',
-                 			ExtraArgs={'ContentType': "application/pdf", 'ACL': "public-read"})
+            # if flask.request.method == "POST":
+            # 'file_name': '{}.pdf'.format(json_file_md5),
 
-                response = {
-                    # 'file_name': '{}.pdf'.format(json_file_md5),
-                    "pdf_url": current_app.config["PRINT_OUTPUT_FILE_URL"].format(
-                        json_file_md5
-                    )
-                    + "all_pages.pdf",
-                    "total_pages": total_no_of_pages,
-                }
+            response = {
+                "total_pages": total_no_of_pages,
+            }
 
-            elif page_count and not paginate:
-                response = {
-                    "total_pages": total_no_of_pages,
-                }
-            elif not page_count and paginate:
-                response = {
-                    "total_pages": total_no_of_pages,
-                    "txn_img_json": txn_img_json
-                }
+            if paginate:
+                response["txn_img_json"] = txn_img_json
+            else:
+                if not page_count:
+                    s3 = boto3.client("s3")
+                    extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
 
-            # return response
-            if flask.request.method == "POST":
-                envelope = common.get_return_envelope(data=response)
-                status_code = (
-                    status.HTTP_201_CREATED if not page_count else status.HTTP_200_OK
-                )
-                return flask.jsonify(**envelope), status_code
+                    if silent_print:
+                        response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
+                        s3.upload_file(
+                            md5_directory + 'all_pages.pdf',
+                            current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
+                            current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
+                            str(rep_id) + '.pdf',
+                            ExtraArgs=extraArgs)
 
+                        s3.upload_file(
+                            md5_directory + "all_pages.pdf",
+                            current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                            rep_id + ".pdf",
+                            ExtraArgs=extraArgs,
+                        )
+
+                    else:
+                        response["pdf_url"] = (
+                            current_app.config["PRINT_OUTPUT_FILE_URL"].format(
+                                json_file_md5
+                            )
+                            + "all_pages.pdf",
+                        )
+
+                        s3.upload_file(
+                            md5_directory + "all_pages.pdf",
+                            current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                            md5_directory + "all_pages.pdf",
+                            ExtraArgs=extraArgs,
+                        )
+
+            envelope = common.get_return_envelope(data=response)
+            status_code = (
+                status.HTTP_200_OK
+                if page_count or paginate
+                else status.HTTP_201_CREATED
+            )
+
+            return flask.jsonify(**envelope), status_code
+
+            # elif page_count and not paginate:
+            #     return True, {
+            #         "total_pages": total_no_of_pages,
+            #     }
+            # elif not page_count and paginate:
+            #     return True, {
+            #         "total_pages": total_no_of_pages,
+            #         "txn_img_json": txn_img_json,
+            #     }
+            # elif silent_print:
+            #     return True, {
+            #         "total_pages": total_no_of_pages,
+            #     }
         else:
-
-            if flask.request.method == "POST":
+            if paginate or page_count or silent_print:
+                envelope = common.get_return_envelope(False, "")
+            else:
+                # elif flask.request.method == "POST":
                 envelope = common.get_return_envelope(
-                    "false", "JSON file is missing from your request"
+                    False, "json_file is missing from your request"
                 )
-                status_code = status.HTTP_400_BAD_REQUEST
-                return flask.jsonify(**envelope), status_code
+            return flask.jsonify(**envelope), status.HTTP_400_BAD_REQUEST
     except Exception as e:
         traceback.print_exception(*sys.exc_info())
         return error("Error generating print preview, error message: " + str(e))
@@ -568,7 +661,7 @@ def process_schedules_pages(
                 # building object for all SA line numbers
                 sa_line_numbers_dict = OrderedDict()
 
-                sa_line_numbers_dict["11A1"] = {
+                sa_line_numbers_dict["11AI"] = {
                     "data": [],
                     "page_cnt": 0,
                     "memo_page_cnt": 0,
@@ -614,17 +707,22 @@ def process_schedules_pages(
                     "memo_page_cnt": 0,
                 }
 
+                temp_sa_schedules = []
                 # process for each Schedule A
                 for schedule in sa_schedules:
+                    temp_sa_schedules.append(schedule)
                     if schedule.get("child"):
                         child_schedules = schedule["child"]
 
                         for child_schedule in child_schedules:
                             if child_schedule["lineNumber"] in sb_line_numbers:
-                                sb_schedules.append(child_schedule)
+                                if not schedules.get("SB"):
+                                    schedules["SB"] = []
+                                schedules["SB"].append(child_schedule)
                             else:
-                                sa_schedules.append(child_schedule)
+                                temp_sa_schedules.append(child_schedule)
 
+                sa_schedules = temp_sa_schedules
                 for schedule in sa_schedules:
                     process_sa_line_numbers(sa_line_numbers_dict, schedule)
 
@@ -1094,7 +1192,14 @@ def process_schedules_pages(
                             total_no_of_pages += len(value["data"])
 
                             if paginate:
+                                map_txn_img_num(
+                                    schedules=value["data"],
+                                    num=1,
+                                    txn_img_json=txn_img_json,
+                                    image_num=txn_img_num,
+                                )
                                 txn_img_num += len(value["data"])
+                            # print("H1", total_no_of_pages)
 
                         elif key == "H2":
                             value["start_page"] = total_no_of_pages
@@ -1113,24 +1218,28 @@ def process_schedules_pages(
                                     image_num=txn_img_num,
                                 )
                                 txn_img_num += value["page_cnt"]
+                            # print("H2", total_no_of_pages)
 
                         elif key == "18A":
                             value["start_page"] = total_no_of_pages
                             if not page_count and not paginate:
                                 os.makedirs(md5_directory + "SH3", exist_ok=True)
-                            value["page_cnt"], _ = calculate_page_count(
-                                schedules=value["data"], num=1
+
+                            # using custom method for page count
+                            value["page_cnt"] = calculate_sh3_page_count(
+                                schedules=value["data"]
                             )
                             total_no_of_pages += value["page_cnt"]
 
                             if paginate:
-                                map_txn_img_num(
+                                map_sh3_txn_img_num(
                                     schedules=value["data"],
-                                    num=1,
                                     txn_img_json=txn_img_json,
                                     image_num=txn_img_num,
                                 )
                                 txn_img_num += value["page_cnt"]
+
+                            # print("18A", total_no_of_pages)
 
                         elif key == "18B":
                             value["start_page"] = total_no_of_pages
@@ -1154,6 +1263,7 @@ def process_schedules_pages(
                                 txn_img_num += (
                                     value["page_cnt"] + value["memo_page_cnt"]
                                 )
+                            # print("18B", total_no_of_pages)
 
                         elif key == "21A":
                             value["start_page"] = total_no_of_pages
@@ -1177,6 +1287,7 @@ def process_schedules_pages(
                                 txn_img_num += (
                                     value["page_cnt"] + value["memo_page_cnt"]
                                 )
+                            # print("21A", total_no_of_pages)
 
                         elif key == "30A":
                             value["start_page"] = total_no_of_pages
@@ -1202,6 +1313,7 @@ def process_schedules_pages(
                                 txn_img_num += (
                                     value["page_cnt"] + value["memo_page_cnt"]
                                 )
+                            # print("30A", total_no_of_pages)
 
             # print("sh total_no_of_pages: ", total_no_of_pages)
 
@@ -1640,6 +1752,6 @@ def process_schedules_pages(
 
         if paginate:
             return output_data, total_no_of_pages, txn_img_json
-        return output_data, total_no_of_pages, None
+        return output_data, total_no_of_pages, {}
     except:
         traceback.print_exception(*sys.exc_info())

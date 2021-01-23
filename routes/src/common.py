@@ -11,7 +11,7 @@ import flask
 LOGGER = logging.getLogger()
 
 
-def get_return_envelope(success="true", message="", data=None):
+def get_return_envelope(success=True, message="", data=None):
     """
     Builds and returns a 'return envelope'
     :param str success: Should be 'true' or 'false'

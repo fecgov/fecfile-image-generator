@@ -123,6 +123,46 @@ def calculate_page_count(schedules, num):
     return sch_page_count, memo_sch_page_count
 
 
+def make_sh3_dict(schedules):
+    schedule_dict = {}
+
+    for schedule in schedules:
+        hash_check = schedule.get("accountName") + '@@' + schedule.get("receiptDate")
+        if hash_check in schedule_dict:
+            event_type = schedule.get('activityEventType')
+            if event_type in schedule_dict[hash_check]:
+                schedule_dict[hash_check][event_type] =  schedule_dict[hash_check][event_type] + [schedule]
+            else:
+                schedule_dict[hash_check][event_type] =  [schedule]
+        else:
+            schedule_dict[hash_check] =  {}
+            event_type = schedule.get('activityEventType')
+            schedule_dict[hash_check][event_type] = [schedule]
+        
+    return schedule_dict
+
+
+def get_sh3_page_count(schedule_list):
+    count = 0
+    for event, event_list in schedule_list.items():
+        if event not in ['DC', 'DF']:
+            if len(event_list) > count:
+                count = len(event_list)
+        else:
+            if math.ceil(len(event_list) / 2) > count:
+                count = math.ceil(len(event_list) / 2)
+    return count
+
+
+def calculate_sh3_page_count(schedules):
+    schedule_dict = make_sh3_dict(schedules)
+    page_count = 0
+    for item in schedule_dict.values():            
+        page_count += get_sh3_page_count(item)
+
+    return page_count
+
+
 def build_memo_page(
     memo_array,
     md5_directory,
@@ -205,7 +245,6 @@ def build_memo_page(
 
 def map_txn_img_num(schedules, num, txn_img_json, image_num):
     sch_count = memo_sch_count = 0
-    sch_page_count = memo_sch_page_count = 0
 
     for schedule in schedules:
         sch_count += 1
@@ -217,13 +256,48 @@ def map_txn_img_num(schedules, num, txn_img_json, image_num):
             memo_sch_count += 1
 
         if sch_count == num:
-            sch_page_count += 1
-            memo_sch_page_count += math.ceil(memo_sch_count / 2)
-
-            # increase the image_num_count
-            image_num += sch_page_count + memo_sch_page_count
+            image_num += 1
+            image_num += math.ceil(memo_sch_count / 2)
 
             sch_count = 0
             memo_sch_count = 0
 
     return txn_img_json
+
+
+
+def map_sh3_txn_img_num(schedules, txn_img_json, image_num):
+    sh3_dict = make_sh3_dict(schedules)
+
+    for item_value in sh3_dict.values():
+        total_pages = get_sh3_page_count(item_value)
+
+        event_type_dict = {
+            'AD': {'current_index': 0},
+            'GV': {'current_index': 0},
+            'EA': {'current_index': 0},
+            'DC': {'current_index': 0},
+            'DF': {'current_index': 0},
+            'PC': {'current_index': 0}
+        }
+
+        while total_pages:
+            image_num += 1
+            total_pages -= 1
+
+            for event_type, value_list in item_value.items():
+                current_index = event_type_dict[event_type]['current_index']
+
+                if current_index < len(value_list):
+                    txn_img_json[value_list[current_index][
+                            "transactionId"
+                        ]] = image_num
+
+                    event_type_dict[event_type]['current_index'] += 1
+
+                    if event_type in ['DC', 'DF'] and current_index + 1 < len(value_list):
+                        current_index += 1
+                        txn_img_json[value_list[current_index][
+                            "transactionId"
+                        ]] = image_num
+                        event_type_dict[event_type]['current_index'] += 1
