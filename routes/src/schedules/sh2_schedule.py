@@ -97,11 +97,11 @@ def build_sh2_info_dict(index, key, schedule_dict, schedule_page_dict):
     try:
         for key in schedule_dict:
             if key in ["fundraising", "directCandidateSupport"]:
-                if key == 'fundraising' and schedule_dict[key]:
-                    schedule_dict[key] = 'f'
-                if key == 'directCandidateSupport' and schedule_dict[key]:
-                    schedule_dict[key] = 'd'
-                schedule_dict[key] = schedule_dict[key]
+                if key == "fundraising" and schedule_dict[key]:
+                    schedule_dict[key] = "f"
+                if key == "directCandidateSupport" and schedule_dict[key]:
+                    schedule_dict[key] = "d"
+                # schedule_dict[key] = schedule_dict[key]
 
             if key in ["federalPercent", "nonFederalPercent"]:
                 schedule_dict[key] = "{:.2f}".format(float(schedule_dict[key]))
