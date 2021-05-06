@@ -4,7 +4,7 @@ chardet==3.0.4
 Click==7.0
 cx-Oracle==7.0.0
 Flask==1.0.2
-Flask-Cors==3.0.6
+Flask-Cors==3.0.9
 Flask-HTTPAuth==3.2.4
 idna==2.7
 itsdangerous==0.24
