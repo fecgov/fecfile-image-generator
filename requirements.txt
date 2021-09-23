@@ -28,3 +28,4 @@ beautifulsoup4==4.7.1
 
 gunicorn==19.9.0
 flake8==3.6.0
+pygments>=2.7.4 # not directly required, pinned by Snyk to avoid a vulnerability
