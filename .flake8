@@ -1,0 +1,4 @@
+[flake8]
+max-line-lenght = 160
+ignore =
+    Z111  # not a real code, just placeholder for an example

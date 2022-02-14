@@ -27,4 +27,3 @@ pdfkit==0.6.1
 beautifulsoup4==4.7.1
 
 gunicorn==19.10.0
-flake8==3.6.0
