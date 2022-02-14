@@ -87,7 +87,7 @@ jobs:
 
       - run:
           name: flake8 lint tests
-          command: flake8 .
+          command: flake8 --config .flake8
   dependency-check:
     docker:
       - image: cimg/python:3.8
