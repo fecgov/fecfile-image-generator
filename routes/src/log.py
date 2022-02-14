@@ -12,10 +12,7 @@ logger = logging.getLogger()
 
 def log_init():
     formatter = jsonlogger.JsonFormatter(
-        '{"timestamp":%(asctime),"message":%(message),'
-        '"function_name":%(funcName),"logger_name":%(name),'
-        '"logger_level":%(levelname),"filename":%(filename),'
-        '"line_number":%(lineno)'
+        '%(timestamp)s %(messages)s %(funcName)s %(name)s %(levelname)s %(filename)s %(lineno)s'
     )
 
     logHandler = logging.StreamHandler(sys.stdout)
