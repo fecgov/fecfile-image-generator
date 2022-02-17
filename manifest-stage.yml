@@ -1,0 +1,9 @@
+---
+applications:
+- name: fecfile-image-generator
+  routes:
+  - route: fecfile-image-generator-stage.app.cloud.gov
+  stack: cflinuxfs3
+  buildpacks:
+    - python_buildpack
+  memory: 512M

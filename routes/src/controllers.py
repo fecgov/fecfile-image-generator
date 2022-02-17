@@ -19,6 +19,12 @@ APP = tmoflask.TMOFlask(__name__, instance_relative_config=True)
 CORS(app)
 
 
+@app.route("/", methods=["GET"])
+@app.route("/app-name", methods=["GET"])
+def index():
+    return "fecfile-image-generator"
+
+
 @app.route("/print", methods=["POST"])
 def print_pdf():
     """
