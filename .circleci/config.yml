@@ -141,7 +141,4 @@ workflows:
     jobs:
       - test
       - dependency-check
-      - deploy:
-          requires:
-              - test
-              - dependency-check
+      - deploy

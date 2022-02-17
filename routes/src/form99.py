@@ -1,19 +1,15 @@
 import flask
 import boto3
-import re
 import os
 import pypdftk
 import shutil
 import pdfkit
 import bs4
-import urllib.request
-import sys
-import traceback
 
 from flask import json
 from flask import request, current_app
 from flask_api import status
-from routes.src import common, form
+from routes.src import common
 
 from routes.src.utils import md5_for_text, md5_for_file, directory_files, error
 
@@ -30,10 +26,6 @@ def print_f99_pdftk_html(
     attachment_file_content=None,
 ):
     # check if json_file is in the request
-    # HTML("templates/forms/test.html").write_pdf("output/pdf/test/test.pdf")
-    # HTML(string='''<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><div><b>This is bold text</b></div><div><u>This is underline text</u></div><div><i>This is italics text</i><u><br></u></div><div align='center'><u>Title</u></div><div align='left'><u><br></u></div><ol><li>one</li><li>two</li><li>three</li></ol>''').write_pdf("output/pdf/test/test.pdf")
-    # pdfkit.from_file("templates/forms/test.html", "output/pdf/test/test.pdf")
-    # pypdftk.stamp(current_app.config['FORM_TEMPLATES_LOCATION'].format('F99'), "output/pdf/test/test.pdf", "output/pdf/test/output.pdf")
     try:
         silent_print = silent_print
         txn_img_num = begin_image_num
@@ -359,13 +351,18 @@ def print_f99_pdftk_html(
                 extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
 
                 if silent_print:
-                    response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
+                    response["pdf_url"] = (
+                        current_app.config["S3_FILE_URL"] + rep_id + ".pdf"
+                    )
                     s3.upload_file(
-                        md5_directory + 'all_pages.pdf',
-                        current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                        current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
-                        str(rep_id) + '.pdf',
-                        ExtraArgs=extraArgs)
+                        md5_directory + "all_pages.pdf",
+                        current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                        current_app.config["AWS_FECFILE_OUTPUT_DIRECTORY"]
+                        + "/"
+                        + str(rep_id)
+                        + ".pdf",
+                        ExtraArgs=extraArgs,
+                    )
                 else:
                     response["pdf_url"] = (
                         current_app.config["PRINT_OUTPUT_FILE_URL"].format(
@@ -388,7 +385,7 @@ def print_f99_pdftk_html(
                         "summary": {
                             "committeeId": form99_json_data.get("committeeId", None),
                             "begin_image_num": begin_image_num,
-                            "end_image_num": txn_img_num
+                            "end_image_num": txn_img_num,
                         }
                     }
                     response["txn_img_json"] = txn_img_json
@@ -427,5 +424,4 @@ def print_f99_pdftk_html(
                 )
             return flask.jsonify(**envelope), status.HTTP_400_BAD_REQUEST
     except Exception as e:
-        traceback.print_exception(*sys.exc_info())
         return error("Error generating print preview, error message: " + str(e))

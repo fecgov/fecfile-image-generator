@@ -1,11 +1,9 @@
 import flask
 import boto3
-import re
 import os
 import os.path
 import pypdftk
 import shutil
-import urllib.request
 
 from os import path
 from flask import json

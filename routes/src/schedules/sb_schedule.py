@@ -58,10 +58,17 @@ def print_sb_line(
                 schedule_total += float(schedule_page_dict["pageSubtotal"])
 
                 if page_cnt == page_num + 1:
-                    schedule_page_dict["scheduleTotal"] = "{0:.2f}".format(schedule_total)
+                    schedule_page_dict["scheduleTotal"] = "{0:.2f}".format(
+                        schedule_total
+                    )
                 schedule_page_dict["committeeName"] = f3x_data["committeeName"]
                 sb_outfile = (
-                    md5_directory + "SB/" + line_number + "/page_" + str(page_num) + ".pdf"
+                    md5_directory
+                    + "SB/"
+                    + line_number
+                    + "/page_"
+                    + str(page_num)
+                    + ".pdf"
                 )
                 pypdftk.fill_form(sb_infile, schedule_page_dict, sb_outfile)
 
@@ -100,11 +107,10 @@ def print_sb_line(
                         md5_directory + "SB/all_pages.pdf",
                     )
             except:
-                logging.error('**** Start - Error inside if condition ****')
+                logging.error("**** Start - Error inside if condition ****")
                 # printing stack trace
                 traceback.print_exception(*sys.exc_info())
-                logging.error('**** End - Error inside if condition ****')
-
+                logging.error("**** End - Error inside if condition ****")
 
         return current_page_num, image_num
     except:

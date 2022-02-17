@@ -1,7 +1,5 @@
 import os
 import pypdftk
-import sys
-import traceback
 
 from flask import current_app
 from os import path
@@ -212,8 +210,8 @@ def print_slb_line(
                 )
 
         return image_num
-    except:
-        traceback.print_exception(*sys.exc_info())
+    except Exception as e:
+        return error("Error generating print preview, error message: " + str(e))
 
 
 def build_slb_per_page_schedule_dict(
