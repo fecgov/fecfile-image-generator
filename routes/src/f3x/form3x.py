@@ -1,23 +1,24 @@
 import flask
 import boto3
-import re
 import os
 import os.path
 import pypdftk
 import shutil
 import sys
 import traceback
-import urllib.request
 
 from collections import OrderedDict
 from os import path
 from flask import json
 from flask import request, current_app
 from flask_api import status
-from PyPDF2 import PdfFileWriter, PdfFileReader, PdfFileMerger
-from PyPDF2.generic import BooleanObject, NameObject, IndirectObject
-from routes.src import tmoflask, utils, common, form
-from routes.src.utils import md5_for_text, md5_for_file, directory_files, merge, error, delete_directory
+from routes.src import common
+from routes.src.utils import (
+    md5_for_text,
+    md5_for_file,
+    error,
+    delete_directory,
+)
 from routes.src.f3x.helper import (
     calculate_page_count,
     calculate_sh3_page_count,
@@ -460,13 +461,18 @@ def print_pdftk(
                     extraArgs = {"ContentType": "application/pdf", "ACL": "public-read"}
 
                     if silent_print:
-                        response["pdf_url"] = current_app.config['S3_FILE_URL'] + rep_id + '.pdf'
+                        response["pdf_url"] = (
+                            current_app.config["S3_FILE_URL"] + rep_id + ".pdf"
+                        )
                         s3.upload_file(
-                            md5_directory + 'all_pages.pdf',
-                            current_app.config['AWS_FECFILE_COMPONENTS_BUCKET_NAME'],
-                            current_app.config['AWS_FECFILE_OUTPUT_DIRECTORY'] + '/' +
-                            str(rep_id) + '.pdf',
-                            ExtraArgs=extraArgs)
+                            md5_directory + "all_pages.pdf",
+                            current_app.config["AWS_FECFILE_COMPONENTS_BUCKET_NAME"],
+                            current_app.config["AWS_FECFILE_OUTPUT_DIRECTORY"]
+                            + "/"
+                            + str(rep_id)
+                            + ".pdf",
+                            ExtraArgs=extraArgs,
+                        )
 
                         s3.upload_file(
                             md5_directory + "all_pages.pdf",
@@ -1559,7 +1565,7 @@ def process_schedules_pages(
                     for rec in values:
                         if (
                             rec[0].get("designatingCommitteeName")
-                            and rec[0].get("coordinateExpenditure") is "Y"
+                            and rec[0].get("coordinateExpenditure") == "Y"
                         ):
                             cord_name = "designatingCommittee"
                         elif (
@@ -1569,7 +1575,7 @@ def process_schedules_pages(
                             cord_name = "designatingNamewithoutEXP"
                         elif (
                             rec[0].get("subordinateCommitteeName")
-                            and rec[0].get("coordinateExpenditure") is "N"
+                            and rec[0].get("coordinateExpenditure") == "N"
                         ):
                             cord_name = "subCommittee"
                         elif (
@@ -1580,7 +1586,7 @@ def process_schedules_pages(
 
                         elif (
                             rec[0].get("subordinateCommitteeName") == ""
-                            and rec[0].get("coordinateExpenditure") is "N"
+                            and rec[0].get("coordinateExpenditure") == "N"
                         ):
                             cord_name = "withsubCommittee"
 

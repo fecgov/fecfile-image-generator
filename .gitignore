@@ -58,11 +58,12 @@ testem.log
 *.bower-registry
 *.bower-tmp
 
-
-
 # System Files
 .DS_Store
 Thumbs.db
 .vscode/settings.json
 front-end/.vscode/launch.json
 *pycache*
+
+# cloud foundry
+.cfmeta
