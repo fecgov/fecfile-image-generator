@@ -49,8 +49,8 @@ def check_response_and_return_or_log(response, url):
                     return True, response_text.get("data")
             except Exception as e:
                 LOGGER.error(
-                    u'Exception "%s" raised when trying to read '
-                    u"response.text as json" % str(e)
+                    'Exception "%s" raised when trying to read '
+                    "response.text as json" % str(e)
                 )
                 # if response.text does not indicate failure assume
                 # success = True
@@ -61,13 +61,13 @@ def check_response_and_return_or_log(response, url):
 
     elif 400 <= response.status_code < 500:
         LOGGER.error(
-            u"%s Bouncer Service Error: %s for url: %s"
+            "%s Bouncer Service Error: %s for url: %s"
             % (response.status_code, response.text, url)
         )
 
     elif 500 <= response.status_code < 600:
         LOGGER.error(
-            u"%s Server Error: %s for url: %s"
+            "%s Server Error: %s for url: %s"
             % (response.status_code, response.text, url)
         )
 

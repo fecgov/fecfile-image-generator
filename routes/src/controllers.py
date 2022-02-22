@@ -19,6 +19,12 @@ APP = tmoflask.TMOFlask(__name__, instance_relative_config=True)
 CORS(app)
 
 
+@app.route("/", methods=["GET"])
+@app.route("/app-name", methods=["GET"])
+def index():
+    return "fecfile-image-generator"
+
+
 @app.route("/print", methods=["POST"])
 def print_pdf():
     """
@@ -359,7 +365,7 @@ def image_number_data(next_imaging=None):
             "submissionId": submission_id,
             "totalPages": total_pages,
         }
-        ## data_obj = json.dumps(data_obj)
+        # data_obj = json.dumps(data_obj)
         begin_image_number_object = requests.post(
             cfg.NXG_FEC_PARSER_API_URL
             + cfg.NXG_FEC_PARSER_API_VERSION
@@ -487,7 +493,7 @@ def image_generator_data(next_image_generator=None):
     json_file_name = next_image_generator["fileName"]
     begin_image_number = next_image_generator["beginImageNumber"]
     filing_timestamp = next_image_generator["receivedTime"]
-    rep_id = json_file_name[0 : json_file_name.index(".json")]
+    rep_id = json_file_name[0:json_file_name.index(".json")]
     # rep_id = '8'
     # print(rep_id)
 

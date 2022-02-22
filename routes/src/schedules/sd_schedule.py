@@ -1,7 +1,5 @@
 import os
 import pypdftk
-import sys
-import traceback
 
 from flask import current_app
 from os import path
@@ -152,5 +150,5 @@ def print_sd_line(
                     sd_sub_total = 0
 
         return sd_total_balance, image_num
-    except:
-        traceback.print_exception(*sys.exc_info())
+    except Exception as e:
+        return error("Error generating print preview, error message: " + str(e))
