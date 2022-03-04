@@ -127,25 +127,27 @@ def make_sh3_dict(schedules):
     schedule_dict = {}
 
     for schedule in schedules:
-        hash_check = schedule.get("accountName") + '@@' + schedule.get("receiptDate")
+        hash_check = schedule.get("accountName") + "@@" + schedule.get("receiptDate")
         if hash_check in schedule_dict:
-            event_type = schedule.get('activityEventType')
+            event_type = schedule.get("activityEventType")
             if event_type in schedule_dict[hash_check]:
-                schedule_dict[hash_check][event_type] =  schedule_dict[hash_check][event_type] + [schedule]
+                schedule_dict[hash_check][event_type] = schedule_dict[hash_check][
+                    event_type
+                ] + [schedule]
             else:
-                schedule_dict[hash_check][event_type] =  [schedule]
+                schedule_dict[hash_check][event_type] = [schedule]
         else:
-            schedule_dict[hash_check] =  {}
-            event_type = schedule.get('activityEventType')
+            schedule_dict[hash_check] = {}
+            event_type = schedule.get("activityEventType")
             schedule_dict[hash_check][event_type] = [schedule]
-        
+
     return schedule_dict
 
 
 def get_sh3_page_count(schedule_list):
     count = 0
     for event, event_list in schedule_list.items():
-        if event not in ['DC', 'DF']:
+        if event not in ["DC", "DF"]:
             if len(event_list) > count:
                 count = len(event_list)
         else:
@@ -157,7 +159,7 @@ def get_sh3_page_count(schedule_list):
 def calculate_sh3_page_count(schedules):
     schedule_dict = make_sh3_dict(schedules)
     page_count = 0
-    for item in schedule_dict.values():            
+    for item in schedule_dict.values():
         page_count += get_sh3_page_count(item)
 
     return page_count
@@ -265,7 +267,6 @@ def map_txn_img_num(schedules, num, txn_img_json, image_num):
     return txn_img_json
 
 
-
 def map_sh3_txn_img_num(schedules, txn_img_json, image_num):
     sh3_dict = make_sh3_dict(schedules)
 
@@ -273,12 +274,12 @@ def map_sh3_txn_img_num(schedules, txn_img_json, image_num):
         total_pages = get_sh3_page_count(item_value)
 
         event_type_dict = {
-            'AD': {'current_index': 0},
-            'GV': {'current_index': 0},
-            'EA': {'current_index': 0},
-            'DC': {'current_index': 0},
-            'DF': {'current_index': 0},
-            'PC': {'current_index': 0}
+            "AD": {"current_index": 0},
+            "GV": {"current_index": 0},
+            "EA": {"current_index": 0},
+            "DC": {"current_index": 0},
+            "DF": {"current_index": 0},
+            "PC": {"current_index": 0},
         }
 
         while total_pages:
@@ -286,18 +287,18 @@ def map_sh3_txn_img_num(schedules, txn_img_json, image_num):
             total_pages -= 1
 
             for event_type, value_list in item_value.items():
-                current_index = event_type_dict[event_type]['current_index']
+                current_index = event_type_dict[event_type]["current_index"]
 
                 if current_index < len(value_list):
-                    txn_img_json[value_list[current_index][
-                            "transactionId"
-                        ]] = image_num
+                    txn_img_json[value_list[current_index]["transactionId"]] = image_num
 
-                    event_type_dict[event_type]['current_index'] += 1
+                    event_type_dict[event_type]["current_index"] += 1
 
-                    if event_type in ['DC', 'DF'] and current_index + 1 < len(value_list):
+                    if event_type in ["DC", "DF"] and current_index + 1 < len(
+                        value_list
+                    ):
                         current_index += 1
-                        txn_img_json[value_list[current_index][
-                            "transactionId"
-                        ]] = image_num
-                        event_type_dict[event_type]['current_index'] += 1
+                        txn_img_json[
+                            value_list[current_index]["transactionId"]
+                        ] = image_num
+                        event_type_dict[event_type]["current_index"] += 1

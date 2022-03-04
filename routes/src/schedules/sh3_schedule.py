@@ -1,7 +1,6 @@
 import os
 import pypdftk
 
-from math import ceil
 from flask import current_app
 from os import path
 from routes.src.utils import directory_files

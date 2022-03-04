@@ -1,13 +1,10 @@
 import flask
 import boto3
-import re
 import os
 import os.path
 import pypdftk
 import shutil
-import urllib.request
 
-from os import path
 from flask import json
 from flask import request, current_app
 from flask_api import status
@@ -256,9 +253,9 @@ def paginate(file_content=None, begin_image_num=None):
             "summary": {
                 "committeeId": data.get("committeeId", None),
                 "begin_image_num": begin_image_num,
-                "end_image_num": begin_image_num
-                }
+                "end_image_num": begin_image_num,
             }
+        }
         total_no_of_pages = 1
 
         # return True, {"total_pages": total_no_of_pages, "txn_img_json": txn_img_json}
