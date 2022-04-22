@@ -18,7 +18,7 @@ Jinja2==3.0
 MarkupSafe==2.0.1
 passlib==1.7.1
 pdfkit==0.6.1
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 pypdftk==0.4
 python-json-logger==0.1.9
 requests==2.27.1
