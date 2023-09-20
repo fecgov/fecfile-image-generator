@@ -1,3 +1,3 @@
-Image Generator API flask project
+(Archived) Image Generator API flask project
 
-This project will be used from FECFile and Vendors
+FECFile will use the production [Web Print](https://efoservices.fec.gov/static/webprint_help.html) service.
